@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head th:replace="common/header :: common-header" />
+
+<body>
+<!-- Static navbar -->
+<div th:replace="common/header :: navbar"/>
+
+<main role="main" class="container">
+    <div class="jumbotron">
+        <h1>Navbar example</h1>
+        <p class="lead">This example is a quick exercise to illustrate how the top-aligned navbar works. As you scroll,
+            this navbar remains in its original position and moves with the rest of the page.</p>
+        <a class="btn btn-lg btn-primary" href="../../components/navbar/" role="button">View navbar docs &raquo;</a>
+    </div>
+
+</main>
+<div th:replace="common/header :: body-bottom-scripts" />
+</body>
+</html>
