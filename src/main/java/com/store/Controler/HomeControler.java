@@ -1,6 +1,7 @@
 package com.store.Controler;
 
 import com.store.Domain.User;
+import com.store.Security.PasswordResetToken;
 import com.store.Security.Role;
 import com.store.Security.UserRole;
 import com.store.Service.UserSecurityService;
@@ -15,9 +16,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
 @Controller
@@ -84,9 +87,18 @@ public class HomeControler {
     }
 
     @RequestMapping("/newAccount")
-    public String newAccount(Model model) {
-        User user = new User();
+    public String newAccount(Locale locale, @RequestParam("token") String token, Model model) {
+        PasswordResetToken passToken = userService.getPasswordResetToken(token);
+
+        if (passToken == null) {
+            String message = "Invalid Token.";
+            model.addAttribute("message", message);
+            return "redirect:/badRequest";
+        }
+
+        User user = passToken.getUser();
         String username = user.getUsername();
+
         UserDetails userDetails = userSecurityService.loadUserByUsername(username);
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(),

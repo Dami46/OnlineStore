@@ -33,7 +33,7 @@
                     <li><a href="#">Contact</a></li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
-                    <li><a sec:authorize="isAuthenticated()" href="#">Shopping Cart</a></li>
+                    <li><a href="#">Shopping Cart</a></li>
                     <li><a sec:authorize="isAuthenticated()" href="./">Balance</a></li>
                     <li><a sec:authorize="isAnonymous()" th:href="@{/login}">Account</a></li>
                     <li><a sec:authorize="isAuthenticated()" th:href="@{/myProfile}">Account</a></li>
