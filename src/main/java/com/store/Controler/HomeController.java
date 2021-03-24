@@ -6,7 +6,11 @@ import com.store.Security.Role;
 import com.store.Security.UserRole;
 import com.store.Service.UserSecurityService;
 import com.store.Service.UserService;
+import com.store.Utility.MailConstructor;
+import com.store.Utility.SecurityUtility;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,9 +26,16 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
+import java.util.UUID;
 
 @Controller
-public class HomeControler {
+public class HomeController {
+
+    @Autowired
+    private JavaMailSender mailSender;
+
+    @Autowired
+    private MailConstructor mailConstructor;
 
     @Autowired
     private UserSecurityService userSecurityService;
@@ -53,12 +64,10 @@ public class HomeControler {
             HttpServletRequest request,
             @ModelAttribute("email") String userEmail,
             @ModelAttribute("username") String username,
-            @ModelAttribute("password") String password,
             Model model) throws Exception {
         model.addAttribute("classActiveNewAccount", true);
         model.addAttribute("email", userEmail);
         model.addAttribute("username", username);
-        model.addAttribute("password", password);
 
         if (userService.findByUsername(username) != null) {
             model.addAttribute("usernameExists", true);
@@ -75,14 +84,28 @@ public class HomeControler {
         User user = new User();
         user.setUsername(username);
         user.setEmail(userEmail);
-        user.setPassword(password);
+        //user.setPassword(password);
+        String password = SecurityUtility.randomPassword();
+
+        String encryptedPassword = SecurityUtility.passwordEncoder().encode(password);
+        user.setPassword(encryptedPassword);
 
         Role role = new Role();
         role.setRoleId(1);
         role.setName("ROLE_USER");
         Set<UserRole> userRoles = new HashSet<>();
         userRoles.add(new UserRole(user, role));
-       // userService.createUser(user, userRoles);
+        userService.createUser(user, userRoles);
+
+        String token = UUID.randomUUID().toString();
+        userService.createPasswordResetTokenForUser(user,token);
+
+        String appUrl="http://"+ request.getServerName() +":" + request.getServerPort() + request.getContextPath();
+
+        SimpleMailMessage email = mailConstructor.constructResetTokenEmail(appUrl,request.getLocale(), token, user,password);
+        mailSender.send(email);
+        model.addAttribute("emailSent","true");
+
         return "myAccount";
     }
 
@@ -106,6 +129,7 @@ public class HomeControler {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
+        model.addAttribute("user", user);
         model.addAttribute("classActiveEdit", true);
         return "myProfile";
     }

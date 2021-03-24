@@ -3,6 +3,9 @@ package com.store.Service;
 
 import com.store.Domain.User;
 import com.store.Security.PasswordResetToken;
+import com.store.Security.UserRole;
+
+import java.util.Set;
 
 public interface UserService {
 	PasswordResetToken getPasswordResetToken(final String token);
@@ -12,4 +15,6 @@ public interface UserService {
 	User findByUsername(String username);
 	
 	User findByEmail (String email);
+
+	User createUser(User user, Set<UserRole> userRoles) throws Exception;
 }

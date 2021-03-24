@@ -10,7 +10,7 @@
     <div class="row">
         <div class="col-xs-8">
             <h2 class="section-headline">
-                <h2 class="section-headline"><span th:text="${#strings.toUpperCase{user.username}}"></span></h2>
+                <h2 class="section-headline"><span th:text="${user.username}"></span></h2>
             </h2>
         </div>
     </div>
@@ -37,7 +37,7 @@
                     <div class="panel-group">
                         <div class="panel panel-default" style="border: none;">
                             <div class="panel-body" style="background-color: #ededed; margin-top:20px;">
-                                <form th:action="@{/updateUserInfo>" method="post">
+                                <form th:action="@{/updateUserInfo}" method="post">
                                     <input type="hidden" name="id" th:value="${user.id}"/>
                                     <div class="bg-info" th:if="${updateUserInfo}">User info updated</div>
 
@@ -57,8 +57,8 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="userName"> User Name</label> <input
-                                            type="text" class="form-control" id="userName" name="userName"
-                                            th:value="${user.userName}"/>
+                                            type="text" class="form-control" id="userName" name="username"
+                                            th:value="${user.username}"/>
                                     </div>
                                     <div class="form-group">
                                         <label for="currentPassword">Current Password</label> <input
@@ -90,7 +90,6 @@
                                     <button type="submit" class="btn btn-primary"> Create new account</button>
                                 </form>
                             </div>
-
                         </div>
                     </div>
                 </div>
