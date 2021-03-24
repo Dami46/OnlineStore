@@ -70,13 +70,13 @@ public class HomeController {
         model.addAttribute("username", username);
 
         if (userService.findByUsername(username) != null) {
-            model.addAttribute("usernameExists", true);
+            model.addAttribute("userNameExists", true);
 
             return "myAccount";
         }
 
         if (userService.findByEmail(userEmail) != null) {
-            model.addAttribute("email", true);
+            model.addAttribute("emailExists", true);
 
             return "myAccount";
         }
@@ -98,13 +98,13 @@ public class HomeController {
         userService.createUser(user, userRoles);
 
         String token = UUID.randomUUID().toString();
-        userService.createPasswordResetTokenForUser(user,token);
+        userService.createPasswordResetTokenForUser(user, token);
 
-        String appUrl="http://"+ request.getServerName() +":" + request.getServerPort() + request.getContextPath();
+        String appUrl = "http://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
 
-        SimpleMailMessage email = mailConstructor.constructResetTokenEmail(appUrl,request.getLocale(), token, user,password);
+        SimpleMailMessage email = mailConstructor.constructResetTokenEmail(appUrl, request.getLocale(), token, user, password);
         mailSender.send(email);
-        model.addAttribute("emailSent","true");
+        model.addAttribute("emailSent", "true");
 
         return "myAccount";
     }
@@ -134,5 +134,35 @@ public class HomeController {
         return "myProfile";
     }
 
+    @RequestMapping("/forgetPassword")
+    public String forgetPassword(
+            HttpServletRequest request,
+            @ModelAttribute("email") String email,
+            Model model
+    ) {
+        model.addAttribute("classActiveForgetPassword", true);
+        User user = userService.findByEmail(email);
+
+        if (user == null) {
+            model.addAttribute("emailNotExist", true);
+            return "myAccount";
+        }
+
+        String password = SecurityUtility.randomPassword();
+
+        String encryptedPassword = SecurityUtility.passwordEncoder().encode(password);
+        user.setPassword(encryptedPassword);
+        userService.save(user);
+
+        String token = UUID.randomUUID().toString();
+        userService.createPasswordResetTokenForUser(user, token);
+
+        String appUrl = "http://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
+        SimpleMailMessage newEmail = mailConstructor.constructResetTokenEmail(appUrl, request.getLocale(), token, user, password);
+        mailSender.send(newEmail);
+
+        model.addAttribute("forgetPasswordEmailSent", "true");
+        return "myAccount";
+    }
 
 }
