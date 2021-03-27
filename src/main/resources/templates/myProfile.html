@@ -48,7 +48,7 @@
                                 </div>
 
                                 <form th:action="@{/updateUserInfo}" method="post">
-                                    <input type="hidden" name="id" th:value="${user.id}" />
+                                    <input type="hidden" name="id" th:value="${user.id}"/>
                                     <div class="bg-info" th:if="${updateUserInfo}">User info updated</div>
 
                                     <div class="form-group">
@@ -75,8 +75,8 @@
                                             type="text" class="form-control" id="currentPassword" name="password"
                                             th:value="${currentPassword}"/>
                                     </div>
-                                   <!-- <p style="color:#828282;"> Enter your current password to change email or
-                                        password.</p>-->
+                                    <!-- <p style="color:#828282;"> Enter your current password to change email or
+                                         password.</p>-->
                                     <div class="form-group">
                                         <label for="email">* Email Adress</label> <input
                                             type="text" class="form-control" id="email" name="email"
@@ -88,19 +88,30 @@
                                         <label for="txtNewPassword">Password</label>&nbsp;<span
                                             id="checkPasswordMatch" style="color: red;"></span> <input
                                             type="password" class="form-control" id="txtNewPassword"
-                                            name="newPassword" />
+                                            name="newPassword"/>
                                     </div>
 
                                     <div class="form-group">
                                         <label for="txtConfirmPassword">Confirm Password</label> ' <input
-                                            type="password" class="form-control" id="txtConfirmPassword" />
+                                            type="password" class="form-control" id="txtConfirmPassword"/>
                                     </div>
                                     <p style="color:#828282"> To change current password enter the new in both
                                         fields</p>
 
 
-                                    <button id="updateUserInfoButton" type="submit" class="btn btn-primary">Save All</button>
+                                    <button id="updateUserInfoButton" type="submit" class="btn btn-primary">Save All
+                                    </button>
                                 </form>
+
+                                <div class="form-group">
+                                    <label>
+                                        <input hidden="hidden" name="id" th:value="${user.id}"/>
+                                    </label>
+                                    <button th:id="'thisUser-'+${user.id}" class="btn btn-danger btn-xs delete-user"
+                                            type="submit" value="delete">
+                                        <span class="fa fa-times"></span> Delete
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>

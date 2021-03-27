@@ -264,4 +264,12 @@ public class HomeController {
         return "myAccount";
     }
 
+    @RequestMapping(value="/removeUser", method=RequestMethod.POST)
+    public String remove(
+            @ModelAttribute("id") String id, Model model
+    ) {
+        userService.removeOne(Long.parseLong(id.substring(9)));
+        return "redirect:/logout";
+    }
+
 }
