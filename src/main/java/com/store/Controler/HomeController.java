@@ -17,6 +17,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -52,9 +53,73 @@ public class HomeController {
         return "index";
     }
 
-    @RequestMapping("/myAccount")
-    public String myAccount() {
-        return "myAccount";
+    @RequestMapping("/myProfile")
+    public String myAccount(Model model, Principal principal) {
+        User user = userService.findByUsername(principal.getName());
+        model.addAttribute("user", user);
+        return "myProfile";
+    }
+
+    @RequestMapping(value="/updateUserInfo", method=RequestMethod.POST)
+    public String updateUserInfo(
+            @ModelAttribute("user") User user,
+            @ModelAttribute("newPassword") String newPassword,
+            Model model
+    ) throws Exception {
+        User currentUser = userService.findById(user.getId());
+
+        if(currentUser == null) {
+            throw new Exception ("User not found");
+        }
+
+        /*check email already exists*/
+        if (userService.findByEmail(user.getEmail())!=null) {
+            if(userService.findByEmail(user.getEmail()).getId() != currentUser.getId()) {
+                model.addAttribute("emailExists", true);
+                return "myProfile";
+            }
+        }
+
+        /*check username already exists*/
+        if (userService.findByUsername(user.getUsername())!=null) {
+            if(userService.findByUsername(user.getUsername()).getId() != currentUser.getId()) {
+                model.addAttribute("usernameExists", true);
+                return "myProfile";
+            }
+        }
+
+//		update password
+        if (newPassword != null && !newPassword.isEmpty() && !newPassword.equals("")){
+            BCryptPasswordEncoder passwordEncoder = SecurityUtility.passwordEncoder();
+            String dbPassword = currentUser.getPassword();
+            if(passwordEncoder.matches(user.getPassword(), dbPassword)){
+                currentUser.setPassword(passwordEncoder.encode(newPassword));
+            } else {
+                model.addAttribute("incorrectPassword", true);
+
+                return "myProfile";
+            }
+        }
+
+        currentUser.setFirstName(user.getFirstName());
+        currentUser.setLastName(user.getLastName());
+        currentUser.setUsername(user.getUsername());
+        currentUser.setEmail(user.getEmail());
+
+        userService.save(currentUser);
+
+        model.addAttribute("updateSuccess", true);
+        model.addAttribute("user", currentUser);
+        model.addAttribute("classActiveEdit", true);
+
+        UserDetails userDetails = userSecurityService.loadUserByUsername(currentUser.getUsername());
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(),
+                userDetails.getAuthorities());
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        return "myProfile";
     }
 
     @RequestMapping("/login")
@@ -96,10 +161,12 @@ public class HomeController {
             HttpServletRequest request,
             @ModelAttribute("email") String userEmail,
             @ModelAttribute("username") String username,
+            @ModelAttribute("password") String password,
             Model model) throws Exception {
         model.addAttribute("classActiveNewAccount", true);
         model.addAttribute("email", userEmail);
         model.addAttribute("username", username);
+        model.addAttribute("password", password);
 
         if (userService.findByUsername(username) != null) {
             model.addAttribute("userNameExists", true);
@@ -117,7 +184,7 @@ public class HomeController {
         user.setUsername(username);
         user.setEmail(userEmail);
         //user.setPassword(password);
-        String password = SecurityUtility.randomPassword();
+        //String password = SecurityUtility.randomPassword();
 
         String encryptedPassword = SecurityUtility.passwordEncoder().encode(password);
         user.setPassword(encryptedPassword);
@@ -128,15 +195,15 @@ public class HomeController {
         Set<UserRole> userRoles = new HashSet<>();
         userRoles.add(new UserRole(user, role));
         userService.createUser(user, userRoles);
-
-        String token = UUID.randomUUID().toString();
+        model.addAttribute("addedSuccess", true);
+      /*  String token = UUID.randomUUID().toString();
         userService.createPasswordResetTokenForUser(user, token);
 
         String appUrl = "http://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
 
         SimpleMailMessage email = mailConstructor.constructResetTokenEmail(appUrl, request.getLocale(), token, user, password);
         mailSender.send(email);
-        model.addAttribute("emailSent", "true");
+        model.addAttribute("emailSent", "true");*/
 
         return "myAccount";
     }

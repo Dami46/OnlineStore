@@ -37,8 +37,18 @@
                     <div class="panel-group">
                         <div class="panel panel-default" style="border: none;">
                             <div class="panel-body" style="background-color: #ededed; margin-top:20px;">
+
+                                <div class="alert alert-danger" th:if="${incorrectPassword}">
+                                    <strong>Incorrect Password!</strong> Pleae enter the correct
+                                    password for the current user.
+                                </div>
+
+                                <div class="alert alert-succss" th:if="${updateSuccess}">
+                                    <strong>Update Success!</strong>
+                                </div>
+
                                 <form th:action="@{/updateUserInfo}" method="post">
-                                    <input type="hidden" name="id" th:value="${user.id}"/>
+                                    <input type="hidden" name="id" th:value="${user.id}" />
                                     <div class="bg-info" th:if="${updateUserInfo}">User info updated</div>
 
                                     <div class="form-group">
@@ -62,32 +72,34 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="currentPassword">Current Password</label> <input
-                                            type="text" class="form-control" id="currentPassword" name="currentPassword"
+                                            type="text" class="form-control" id="currentPassword" name="password"
                                             th:value="${currentPassword}"/>
                                     </div>
-                                    <p style="color:#828282;"> Enter your current password to change email or
-                                        password.</p>
+                                   <!-- <p style="color:#828282;"> Enter your current password to change email or
+                                        password.</p>-->
                                     <div class="form-group">
                                         <label for="email">* Email Adress</label> <input
                                             type="text" class="form-control" id="email" name="email"
                                             th:value="${user.email}"/>
                                     </div>
-                                    <p style="color:#828282;"> Enter your new email.</p>
+                                    <p style="color:#828282;">You can't change your email yet.</p>
 
                                     <div class="form-group">
-                                        <label for="txtNewPassword">New Password</label> <input
-                                            type="text" class="form-control" id="txtNewPassword" name="NewPassword"/>
+                                        <label for="txtNewPassword">Password</label>&nbsp;<span
+                                            id="checkPasswordMatch" style="color: red;"></span> <input
+                                            type="password" class="form-control" id="txtNewPassword"
+                                            name="newPassword" />
                                     </div>
 
                                     <div class="form-group">
-                                        <label for="txtConfirmNewPassword">Confirm New Password </label> <input
-                                            type="text" class="form-control" id="txtConfirmNewPassword"/>
+                                        <label for="txtConfirmPassword">Confirm Password</label> ' <input
+                                            type="password" class="form-control" id="txtConfirmPassword" />
                                     </div>
                                     <p style="color:#828282"> To change current password enter the new in both
                                         fields</p>
 
 
-                                    <button type="submit" class="btn btn-primary"> Save changes</button>
+                                    <button id="updateUserInfoButton" type="submit" class="btn btn-primary">Save All</button>
                                 </form>
                             </div>
                         </div>

@@ -43,7 +43,7 @@
                                         <h4> Price: <span style="color: #db3208;">$<span
                                                 th:text="${book.ourPrice}"></span></span></h4>
                                         <p>Before Price: <span style="text-decoration: line-through">$ <span
-                                                th:text="${book.ourPrice}"></span></span></p>
+                                                th:text="${book.listPrice}"></span></span></p>
                                         <p>You save: $<span
                                                 th:text="${#numbers.formatDecimal((book.listPrice - book.ourPrice), 0, 'COMMA', 2, 'POINT')}"></span>
                                         </p>
@@ -71,7 +71,7 @@
                 </div>
             </div>
             <hr/>
-            <p th:text="${book.description}"></p>
+            <p th:utext="${book.description}"></p>
         </div>
 
     </form>
