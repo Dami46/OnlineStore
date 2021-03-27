@@ -1,4 +1,4 @@
-package com.store.Service;
+package com.store.Service.Impl;
 
 import com.store.Domain.User;
 import com.store.Repository.UserRepository;

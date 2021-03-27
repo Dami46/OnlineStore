@@ -1,6 +1,6 @@
 package com.store.Config;
 
-import com.store.Service.UserSecurityService;
+import com.store.Service.Impl.UserSecurityService;
 import com.store.Utility.SecurityUtility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -32,10 +32,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/js/**",
             "/image/**",
             "/",
-            "/myAccount",
             "/newAccount",
             "/login",
-            "/forgetPassword"
+            "/forgetPassword",
+            "/bookshelf",
+            "/bookDetail"
     };
 
     @Override

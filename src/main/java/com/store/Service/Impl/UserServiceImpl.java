@@ -1,4 +1,4 @@
-package com.store.Service;
+package com.store.Service.Impl;
 
 import com.store.Domain.User;
 import com.store.Repository.PasswordResetTokenRepository;
@@ -6,6 +6,7 @@ import com.store.Repository.RoleRepository;
 import com.store.Repository.UserRepository;
 import com.store.Security.PasswordResetToken;
 import com.store.Security.UserRole;
+import com.store.Service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
