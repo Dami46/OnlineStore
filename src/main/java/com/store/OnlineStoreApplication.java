@@ -30,6 +30,7 @@ public class OnlineStoreApplication implements CommandLineRunner {
         user1.setLastName("Patan");
         user1.setUsername("Dami46");
         user1.setPassword(SecurityUtility.passwordEncoder().encode("Damian"));
+        user1.setBalance(100);
         user1.setEmail("damiu46@gmail.com");
         Set<UserRole> userRoles = new HashSet<>();
         Role role1 = new Role();

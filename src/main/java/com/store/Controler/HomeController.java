@@ -128,6 +128,16 @@ public class HomeController {
         return "myAccount";
     }
 
+    @RequestMapping("/balance")
+    public String balance(Model model, Principal principal) {
+        User user = userService.findByUsername(principal.getName());
+        model.addAttribute("user", user);
+
+      /*  model.addAttribute("balanceUpdateSuccess", true);*/
+        model.addAttribute("classActiveBalance", true);
+        return "balance";
+    }
+
     @RequestMapping("/bookshelf")
     public String bookshelf(Model model) {
         List<Book> bookList = bookService.findAll();
