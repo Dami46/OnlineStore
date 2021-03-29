@@ -26,8 +26,8 @@ public class User implements UserDetails {
     private String email;
     private String phone;
     private boolean enabled = true;
-    @Column(columnDefinition = "integer default 100", updatable = true)
-    private int balance ;
+    @Column(columnDefinition = "DOUBLE default 100.00", updatable = true)
+    private double balance ;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonIgnore
@@ -133,11 +133,11 @@ public class User implements UserDetails {
     }
 
 
-    public int getBalance() {
+    public double getBalance() {
         return balance;
     }
 
-    public void setBalance(int balance) {
+    public void setBalance(double balance) {
         this.balance = balance;
     }
 }

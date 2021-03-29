@@ -193,6 +193,7 @@ public class HomeController {
         User user = new User();
         user.setUsername(username);
         user.setEmail(userEmail);
+        user.setBalance(100.00);
         //user.setPassword(password);
         //String password = SecurityUtility.randomPassword();
 
