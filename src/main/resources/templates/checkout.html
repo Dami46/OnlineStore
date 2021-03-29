@@ -40,9 +40,6 @@
 							missing. Field with * is required.</h5>
 					</div>
 
-					<div th:if="${insufficientUserBalance}" style="color: red">
-						<h5 class="alert alert-warning">You dont have enough money in your balance you complete checkout.</h5>
-					</div>
 
 					<div class="panel-group" id="accordion">
 
@@ -235,21 +232,22 @@
 									<hr />
 									<br />
 									<br />
-									<div th:switch="${insufficientUserBalance}">
-										<button type="submit" class="btn btn-warning btn-block"  th:case="true" disabled="disabled">Place
+										<button type="submit" class="btn btn-warning btn-block"  th:if="${insufficientUserBalance} == 'true'" disabled="disabled">Place
 											your order</button>
 
-										<button type="submit" class="btn btn-warning btn-block" th:case="false">Place
+										<button type="submit" class="btn btn-warning btn-block" th:unless="${insufficientUserBalance}">Place
 											your order</button>
-									</div>
-
 								</div>
 							</div>
 						</div>
 
+						<div th:if="${insufficientUserBalance}" style="color: red">
+							<h5 class="alert alert-warning">You dont have enough money in your balance you complete checkout.</h5>
+						</div>
 					</div>
 				</div>
 			</form>
+
 		</div>
 	</div>
 	<!-- end of container -->

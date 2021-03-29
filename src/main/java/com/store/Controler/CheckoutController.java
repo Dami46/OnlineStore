@@ -48,7 +48,13 @@ public class CheckoutController {
         User user = userService.findByUsername(principal.getName());
         book = bookService.findById(book.getId()).orElse(null);
 
-        if (book != null && 1 > book.getInStockNumber()) {
+        if (user.getBalance() < Objects.requireNonNull(book).getOurPrice()) {
+            model.addAttribute("insufficientUserBalance", true);
+        } else {
+            model.addAttribute("insufficientUserBalance", false);
+        }
+
+        if (1 > book.getInStockNumber()) {
             model.addAttribute("notEnoughStock", true);
             return "forward:/bookDetail?id=" + book.getId();
         }
@@ -66,6 +72,11 @@ public class CheckoutController {
         Book book = bookService.findById(bookId).orElse(null);
         model.addAttribute("book", book);
 
+        if (user.getBalance() < Objects.requireNonNull(book).getOurPrice()) {
+            model.addAttribute("insufficientUserBalance", true);
+        } else {
+            model.addAttribute("insufficientUserBalance", false);
+        }
 
         if (Objects.requireNonNull(book).getInStockNumber() < 1) {
             model.addAttribute("notEnoughStock", true);
@@ -81,6 +92,7 @@ public class CheckoutController {
 
     @RequestMapping(value = "/checkout", method = RequestMethod.POST)
     public String checkoutPost(@RequestParam("id") Long bookId, Principal principal, Model model) {
+
 
         Book book = bookService.findById(bookId).orElse(null);
         User user = userService.findByUsername(principal.getName());
