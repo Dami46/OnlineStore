@@ -171,12 +171,10 @@ public class HomeController {
             HttpServletRequest request,
             @ModelAttribute("email") String userEmail,
             @ModelAttribute("username") String username,
-            @ModelAttribute("password") String password,
             Model model) throws Exception {
         model.addAttribute("classActiveNewAccount", true);
         model.addAttribute("email", userEmail);
         model.addAttribute("username", username);
-        model.addAttribute("password", password);
 
         if (userService.findByUsername(username) != null) {
             model.addAttribute("userNameExists", true);
@@ -194,8 +192,8 @@ public class HomeController {
         user.setUsername(username);
         user.setEmail(userEmail);
         user.setBalance(100.00);
-        //user.setPassword(password);
-        //String password = SecurityUtility.randomPassword();
+
+        String password = SecurityUtility.randomPassword();
 
         String encryptedPassword = SecurityUtility.passwordEncoder().encode(password);
         user.setPassword(encryptedPassword);
@@ -206,16 +204,15 @@ public class HomeController {
         Set<UserRole> userRoles = new HashSet<>();
         userRoles.add(new UserRole(user, role));
         userService.createUser(user, userRoles);
-        model.addAttribute("addedSuccess", true);
-      /*  String token = UUID.randomUUID().toString();
+
+        String token = UUID.randomUUID().toString();
         userService.createPasswordResetTokenForUser(user, token);
 
         String appUrl = "http://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
 
         SimpleMailMessage email = mailConstructor.constructResetTokenEmail(appUrl, request.getLocale(), token, user, password);
         mailSender.send(email);
-        model.addAttribute("emailSent", "true");*/
-
+        model.addAttribute("emailSent", "true");
         return "myAccount";
     }
 

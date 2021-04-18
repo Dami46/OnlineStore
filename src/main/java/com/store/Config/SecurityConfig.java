@@ -31,6 +31,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/css/**",
             "/js/**",
             "/image/**",
+            "/fonts/**",
             "/",
             "/newAccount",
             "/myAccount",
@@ -44,7 +45,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests().antMatchers(PUBLIC_MATCHERS).permitAll().anyRequest().authenticated();
         http.csrf().disable().cors().disable().formLogin()
-                .failureUrl("/login?error").defaultSuccessUrl("/").loginPage("/login").permitAll()
+                .failureUrl("/login?error").loginPage("/login").permitAll()
                 .and().logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout")).logoutSuccessUrl("/?logout")
                 .deleteCookies("remember-me").permitAll().and().rememberMe();
     }
