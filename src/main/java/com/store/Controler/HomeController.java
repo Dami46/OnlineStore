@@ -5,6 +5,7 @@ import com.store.Domain.User;
 import com.store.Security.PasswordResetToken;
 import com.store.Security.Role;
 import com.store.Security.UserRole;
+import com.store.Service.BalanceService;
 import com.store.Service.BookService;
 import com.store.Service.Impl.UserSecurityService;
 import com.store.Service.UserService;
@@ -47,6 +48,7 @@ public class HomeController {
 
     @Autowired
     private BookService bookService;
+
 
     @RequestMapping("/")
     public String index() {
@@ -128,15 +130,7 @@ public class HomeController {
         return "myAccount";
     }
 
-    @RequestMapping("/balance")
-    public String balance(Model model, Principal principal) {
-        User user = userService.findByUsername(principal.getName());
-        model.addAttribute("user", user);
 
-      /*  model.addAttribute("balanceUpdateSuccess", true);*/
-        model.addAttribute("classActiveBalance", true);
-        return "balance";
-    }
 
     @RequestMapping("/bookshelf")
     public String bookshelf(Model model) {
