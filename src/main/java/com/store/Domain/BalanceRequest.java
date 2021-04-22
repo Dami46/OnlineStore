@@ -9,7 +9,7 @@ public class BalanceRequest {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @ManyToOne(cascade=CascadeType.ALL,  fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="user_id")
     private User user;
 

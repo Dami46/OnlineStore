@@ -107,13 +107,13 @@ public class CheckoutController {
         model.addAttribute("book", book);
 
         Objects.requireNonNull(book).setInStockNumber(book.getInStockNumber() - 1);
-        user.setBalance((user.getBalance() - book.getOurPrice()));
+        user.setBalance(Math.round((user.getBalance() - book.getOurPrice()) * 100.0) / 100.0);
         userService.save(user);
 
         return "orderSubmittedPage";
     }
 
-    @RequestMapping(value = "/updateUserBalance",  method = RequestMethod.GET)
+    @RequestMapping(value = "/updateUserBalance", method = RequestMethod.GET)
     public String balance(Model model, Principal principal) {
 
         User user = userService.findByUsername(principal.getName());
@@ -122,18 +122,17 @@ public class CheckoutController {
         List<BalanceRequest> requestList = balanceService.findAll();
         int userIds = 0;
 
-        for(BalanceRequest request : requestList) {
-            if(Objects.equals(request.getUser().getId(), user.getId())){
+        for (BalanceRequest request : requestList) {
+            if (Objects.equals(request.getUser().getId(), user.getId())) {
                 userIds++;
             }
         }
         model.addAttribute("numberOfRequests", userIds);
 
-        if(userIds >= 3) {
-            model.addAttribute("tooManyRequests",true);
-        }
-        else {
-            model.addAttribute("tooManyRequests",false);
+        if (userIds >= 3) {
+            model.addAttribute("tooManyRequests", true);
+        } else {
+            model.addAttribute("tooManyRequests", false);
         }
 
         model.addAttribute("user", user);
@@ -150,24 +149,23 @@ public class CheckoutController {
                                  Principal principal, Model model) {
 
         User user = userService.findByUsername(principal.getName());
-        BalanceRequest balanceRequest1 = balanceService.addBalance(user,balanceRequest);
+        BalanceRequest balanceRequest1 = balanceService.addBalance(user, balanceRequest);
 
         List<BalanceRequest> requestList = balanceService.findAll();
         int userIds = 0;
 
-        for(BalanceRequest request : requestList) {
-            if(Objects.equals(request.getUser().getId(), user.getId())){
+        for (BalanceRequest request : requestList) {
+            if (Objects.equals(request.getUser().getId(), user.getId())) {
                 userIds++;
             }
         }
         model.addAttribute("numberOfRequests", userIds);
 
-        if(userIds >= 3) {
-            model.addAttribute("tooManyRequests",true);
+        if (userIds >= 3) {
+            model.addAttribute("tooManyRequests", true);
             return "redirect:/updateUserBalance";
-        }
-        else {
-            model.addAttribute("tooManyRequests",false);
+        } else {
+            model.addAttribute("tooManyRequests", false);
         }
 
         model.addAttribute("user", user);

@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import javax.persistence.*;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -28,6 +29,9 @@ public class User implements UserDetails {
     private boolean enabled = true;
     @Column(columnDefinition = "DOUBLE default 100.00", updatable = true)
     private double balance ;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    private List<BalanceRequest> balanceRequestList;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonIgnore
@@ -139,5 +143,13 @@ public class User implements UserDetails {
 
     public void setBalance(double balance) {
         this.balance = balance;
+    }
+
+    public List<BalanceRequest> getBalanceRequestList() {
+        return balanceRequestList;
+    }
+
+    public void setBalanceRequestList(List<BalanceRequest> balanceRequestList) {
+        this.balanceRequestList = balanceRequestList;
     }
 }
