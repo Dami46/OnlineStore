@@ -2,6 +2,7 @@ package com.store.Controler;
 
 import com.store.Domain.Book;
 import com.store.Domain.User;
+import com.store.Domain.UserShipping;
 import com.store.Security.PasswordResetToken;
 import com.store.Security.Role;
 import com.store.Security.UserRole;
@@ -9,6 +10,7 @@ import com.store.Service.BalanceService;
 import com.store.Service.BookService;
 import com.store.Service.Impl.UserSecurityService;
 import com.store.Service.UserService;
+import com.store.Service.UserShippingService;
 import com.store.Utility.MailConstructor;
 import com.store.Utility.SecurityUtility;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +51,9 @@ public class HomeController {
     @Autowired
     private BookService bookService;
 
+    @Autowired
+    private UserShippingService userShippingService;
+
 
     @RequestMapping("/")
     public String index() {
@@ -59,10 +64,146 @@ public class HomeController {
     public String myAccount(Model model, Principal principal) {
         User user = userService.findByUsername(principal.getName());
         model.addAttribute("user", user);
+        model.addAttribute("userShippingList", user.getUserShippingList());
+        // model.addAttribute("orderList", user.getOrderList());
+        UserShipping userShipping = new UserShipping();
+
+        model.addAttribute("userShipping", userShipping);
+        model.addAttribute("listOfShippingAddresses", true);
+        model.addAttribute("classActiveEdit", true);
+
         return "myProfile";
     }
 
-    @RequestMapping(value="/updateUserInfo", method=RequestMethod.POST)
+    @RequestMapping("/listOfShippingAddresses")
+    public String listOfShippingAddresses(
+            Model model, Principal principal, HttpServletRequest request
+    ) {
+        User user = userService.findByUsername(principal.getName());
+
+        List<UserShipping> userShippingList = user.getUserShippingList();
+        if (userShippingList.isEmpty()) {
+            model.addAttribute("emptyList", true);
+        } else {
+            model.addAttribute("emptyList", false);
+        }
+
+        model.addAttribute("user", user);
+        model.addAttribute("userPaymentList", user.getUserPaymentList());
+        model.addAttribute("userShippingList", user.getUserShippingList());
+        // model.addAttribute("orderList", user.getOrderList());
+
+        model.addAttribute("classActiveShipping", true);
+        model.addAttribute("listOfShippingAddresses", true);
+
+        return "myProfile";
+    }
+
+    @RequestMapping("/addNewShippingAddress")
+    public String addNewShippingAddress(
+            Model model, Principal principal
+    ) {
+        User user = userService.findByUsername(principal.getName());
+        model.addAttribute("user", user);
+
+        model.addAttribute("addNewShippingAddress", true);
+        model.addAttribute("classActiveShipping", true);
+
+        UserShipping userShipping = new UserShipping();
+
+        model.addAttribute("userShipping", userShipping);
+
+        model.addAttribute("userPaymentList", user.getUserPaymentList());
+        model.addAttribute("userShippingList", user.getUserShippingList());
+        //model.addAttribute("orderList", user.getOrderList());
+
+        return "myProfile";
+    }
+
+    @RequestMapping(value = "/addNewShippingAddress", method = RequestMethod.POST)
+    public String addNewShippingAddressPost(
+            @ModelAttribute("userShipping") UserShipping userShipping,
+            Principal principal, Model model
+    ) {
+        User user = userService.findByUsername(principal.getName());
+        userService.updateUserShipping(userShipping, user);
+
+        model.addAttribute("user", user);
+        model.addAttribute("userShippingList", user.getUserShippingList());
+        model.addAttribute("listOfShippingAddresses", true);
+        model.addAttribute("classActiveShipping", true);
+        // model.addAttribute("orderList", user.getOrderList());
+
+        return "myProfile";
+    }
+
+    @RequestMapping("/updateUserShipping")
+    public String updateUserShipping(
+            @ModelAttribute("id") Long shippingAddressId, Principal principal, Model model
+    ) {
+        User user = userService.findByUsername(principal.getName());
+        UserShipping userShipping = userShippingService.findById(shippingAddressId);
+
+        if (!user.getId().equals(userShipping.getUser().getId())) {
+            return "badRequestPage";
+        } else {
+            model.addAttribute("user", user);
+            model.addAttribute("userShipping", userShipping);
+
+            model.addAttribute("addNewShippingAddress", true);
+            model.addAttribute("classActiveShipping", true);
+            model.addAttribute("userShippingList", user.getUserShippingList());
+            // model.addAttribute("orderList", user.getOrderList());
+
+            return "myProfile";
+        }
+    }
+
+    @RequestMapping(value = "/setDefaultShippingAddress", method = RequestMethod.POST)
+    public String setDefaultShippingAddress(
+            @ModelAttribute("defaultShippingAddressId") Long defaultShippingId, Principal principal, Model model
+    ) {
+        User user = userService.findByUsername(principal.getName());
+        userService.setUserDefaultShipping(defaultShippingId, user);
+
+        model.addAttribute("user", user);
+
+        model.addAttribute("classActiveShipping", true);
+        model.addAttribute("listOfShippingAddresses", true);
+
+        model.addAttribute("userShippingList", user.getUserShippingList());
+        // model.addAttribute("orderList", user.getOrderList());
+
+        return "myProfile";
+    }
+
+    @RequestMapping("/removeUserShipping")
+    public String removeUserShipping(
+            @ModelAttribute("id") Long userShippingId, Principal principal, Model model
+    ) {
+        User user = userService.findByUsername(principal.getName());
+        UserShipping userShipping = userShippingService.findById(userShippingId);
+
+        if (user.getId() != userShipping.getUser().getId()) {
+            model.addAttribute("emptyList", true);
+            return "myProfile";
+        } else {
+            model.addAttribute("user", user);
+
+            userShippingService.removeById(userShippingId);
+
+            model.addAttribute("listOfShippingAddresses", true);
+            model.addAttribute("classActiveShipping", true);
+
+            model.addAttribute("userPaymentList", user.getUserPaymentList());
+            model.addAttribute("userShippingList", user.getUserShippingList());
+            //model.addAttribute("orderList", user.getOrderList());
+
+            return "myProfile";
+        }
+    }
+
+    @RequestMapping(value = "/updateUserInfo", method = RequestMethod.POST)
     public String updateUserInfo(
             @ModelAttribute("user") User user,
             @ModelAttribute("newPassword") String newPassword,
@@ -70,31 +211,31 @@ public class HomeController {
     ) throws Exception {
         User currentUser = userService.findById(user.getId());
 
-        if(currentUser == null) {
-            throw new Exception ("User not found");
+        if (currentUser == null) {
+            throw new Exception("User not found");
         }
 
         /*check email already exists*/
-        if (userService.findByEmail(user.getEmail())!=null) {
-            if(userService.findByEmail(user.getEmail()).getId() != currentUser.getId()) {
+        if (userService.findByEmail(user.getEmail()) != null) {
+            if (userService.findByEmail(user.getEmail()).getId() != currentUser.getId()) {
                 model.addAttribute("emailExists", true);
                 return "myProfile";
             }
         }
 
         /*check username already exists*/
-        if (userService.findByUsername(user.getUsername())!=null) {
-            if(userService.findByUsername(user.getUsername()).getId() != currentUser.getId()) {
+        if (userService.findByUsername(user.getUsername()) != null) {
+            if (userService.findByUsername(user.getUsername()).getId() != currentUser.getId()) {
                 model.addAttribute("usernameExists", true);
                 return "myProfile";
             }
         }
 
 //		update password
-        if (newPassword != null && !newPassword.isEmpty() && !newPassword.equals("")){
+        if (newPassword != null && !newPassword.isEmpty() && !newPassword.equals("")) {
             BCryptPasswordEncoder passwordEncoder = SecurityUtility.passwordEncoder();
             String dbPassword = currentUser.getPassword();
-            if(passwordEncoder.matches(user.getPassword(), dbPassword)){
+            if (passwordEncoder.matches(user.getPassword(), dbPassword)) {
                 currentUser.setPassword(passwordEncoder.encode(newPassword));
             } else {
                 model.addAttribute("incorrectPassword", true);
@@ -131,7 +272,6 @@ public class HomeController {
     }
 
 
-
     @RequestMapping("/bookshelf")
     public String bookshelf(Model model) {
         List<Book> bookList = bookService.findAll();
@@ -143,15 +283,15 @@ public class HomeController {
     @RequestMapping("/bookDetail")
     public String bookDetail(@PathParam("id") Long id, Model model, Principal principal) {
 
-        if(principal != null) {
+        if (principal != null) {
             String username = principal.getName();
             User user = userService.findByUsername(username);
             model.addAttribute("user", user);
 
         }
         Book book = bookService.findById(id).orElse(null);
-        model.addAttribute("book" ,book);
-        List<Integer> qtyList = Arrays.asList(1,2,3,4,5,6,7,8,9,10);
+        model.addAttribute("book", book);
+        List<Integer> qtyList = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
 
         model.addAttribute("qtyList", qtyList);
         model.addAttribute("qty", 1);
@@ -266,7 +406,7 @@ public class HomeController {
         return "myAccount";
     }
 
-    @RequestMapping(value="/removeUser", method=RequestMethod.POST)
+    @RequestMapping(value = "/removeUser", method = RequestMethod.POST)
     public String remove(
             @ModelAttribute("id") String id, Model model
     ) {

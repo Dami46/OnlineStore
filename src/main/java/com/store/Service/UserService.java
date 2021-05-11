@@ -2,6 +2,7 @@ package com.store.Service;
 
 
 import com.store.Domain.User;
+import com.store.Domain.UserShipping;
 import com.store.Security.PasswordResetToken;
 import com.store.Security.UserRole;
 
@@ -24,4 +25,7 @@ public interface UserService {
 
 	void removeOne(Long id);
 
+	void updateUserShipping (UserShipping userShipping, User user);
+
+	void setUserDefaultShipping(Long userShippingId, User user);
 }
