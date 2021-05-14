@@ -16,6 +16,8 @@ import java.security.Principal;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 
 @Controller
 @RequestMapping("/shoppingCart")
@@ -48,6 +50,9 @@ public class ShoppingCartController {
     @Autowired
     private ShippingAddressService shippingAddressService;
 
+    @Autowired
+    private OrderService orderService;
+
 
     private ShippingAddress shippingAddress = new ShippingAddress();
     private BillingAddress billingAddress = new BillingAddress();
@@ -74,7 +79,7 @@ public class ShoppingCartController {
     ) {
         CartItem cartItem = cartItemService.findById(cartItemId);
         int quantity = cartItem.getQty();
-        if(quantity > qty) {
+        if (quantity > qty) {
             cartItem.setQty(qty);
             cartItemService.updateCartItem(cartItem);
         } else {
@@ -105,7 +110,7 @@ public class ShoppingCartController {
 
         if (cartItemList.size() == 0) {
             model.addAttribute("emptyCart", true);
-            return "forward:/shoppintCart/cart";
+            return "forward:/shoppingCart/cart";
         }
 
         for (CartItem cartItem : cartItemList) {
@@ -113,6 +118,13 @@ public class ShoppingCartController {
                 model.addAttribute("notEnoughStock", true);
                 return "forward:/shoppingCart/cart";
             }
+        }
+
+        if (user.getBalance() < user.getShoppingCart().getTotalPrize().doubleValue()) {
+            model.addAttribute("insufficientUserBalance", true);
+            return "forward:/shoppingCart/cart";
+        } else {
+            model.addAttribute("insufficientUserBalance", false);
         }
 
         List<UserShipping> userShippingList = user.getUserShippingList();
@@ -166,6 +178,8 @@ public class ShoppingCartController {
 
     @RequestMapping(value = "/cartCheckout", method = RequestMethod.POST)
     public String checkoutPost(@ModelAttribute("shippingAddress") ShippingAddress shippingAddress,
+                               @ModelAttribute("billingAddress") BillingAddress billingAddress,
+                               @ModelAttribute("payment") Payment payment,
                                @ModelAttribute("billingSameAsShipping") String billingSameAsShipping,
                                @ModelAttribute("shippingMethod") String shippingMethod, Principal principal, Model model) {
         ShoppingCart shoppingCart = userService.findByUsername(principal.getName()).getShoppingCart();
@@ -174,30 +188,48 @@ public class ShoppingCartController {
         model.addAttribute("cartItemList", cartItemList);
 
 
+        if (billingSameAsShipping.equals("true")) {
+            billingAddress.setBillingAddressName(shippingAddress.getShippingAddressName());
+            billingAddress.setBillingAddressStreet1(shippingAddress.getShippingAddressStreet1());
+            billingAddress.setBillingAddressStreet2(shippingAddress.getShippingAddressStreet2());
+            billingAddress.setBillingAddressCity(shippingAddress.getShippingAddressCity());
+            billingAddress.setBillingAddressState(shippingAddress.getShippingAddressState());
+            billingAddress.setBillingAddressCountry(shippingAddress.getShippingAddressCountry());
+            billingAddress.setBillingAddressZipcode(shippingAddress.getShippingAddressZipcode());
+        }
+
         if (shippingAddress.getShippingAddressStreet1().isEmpty()
                 || shippingAddress.getShippingAddressCity().isEmpty()
                 || shippingAddress.getShippingAddressState().isEmpty()
                 || shippingAddress.getShippingAddressName().isEmpty()
-                || shippingAddress.getShippingAddressZipcode().isEmpty())
-
-            return "redirect:shoppingCart/cartCheckout?id=" + shoppingCart.getId() + "&missingRequiredField=true";
+                || shippingAddress.getShippingAddressZipcode().isEmpty()
+                || billingAddress.getBillingAddressStreet1().isEmpty()
+                || billingAddress.getBillingAddressCity().isEmpty()
+                || billingAddress.getBillingAddressState().isEmpty()
+                || billingAddress.getBillingAddressName().isEmpty()
+                || billingAddress.getBillingAddressZipcode().isEmpty()) {
+            return "redirect:/checkout?id=" + shoppingCart.getId() + "&missingRequiredField=true";
+        }
 
         User user = userService.findByUsername(principal.getName());
 
-       // Order order = orderService.createOrder(shoppingCart, shippingAddress, billingAddress, payment, shippingMethod, user);
+        Order order = orderService.createOrder(shoppingCart, shippingAddress, billingAddress, shippingMethod, user);
+        user.setBalance(user.getBalance() -  order.getOrderTotal().doubleValue());
 
-        //mailSender.send(mailConstructor.constructOrderConfirmationEmail(user, order, Locale.ENGLISH));
+        mailSender.send(mailConstructor.constructOrderConfirmationEmail(user, order, Locale.ENGLISH));
 
-       // shoppingCartService.clearShoppingCart(shoppingCart);
+        shoppingCartService.clearShoppingCart(shoppingCart);
 
         LocalDate today = LocalDate.now();
         LocalDate estimatedDeliveryDate;
 
         if (shippingMethod.equals("groundShipping")) {
-            estimatedDeliveryDate = today.plusDays(5);
+            estimatedDeliveryDate = today.plusDays(7);
         } else {
-            estimatedDeliveryDate = today.plusDays(3);
+            estimatedDeliveryDate = today.plusDays(5);
         }
+
+
 
         model.addAttribute("estimatedDeliveryDate", estimatedDeliveryDate);
 

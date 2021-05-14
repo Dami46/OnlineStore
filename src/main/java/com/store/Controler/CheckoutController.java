@@ -62,7 +62,7 @@ public class CheckoutController {
 
         if (1 > book.getInStockNumber()) {
             model.addAttribute("notEnoughStock", true);
-            return "forward:/bookDetail?id=" + book.getId();
+            return "redirect:/bookDetail?id=" + book.getId();
         }
         model.addAttribute("user", user);
         model.addAttribute("addBookSuccess", true);
@@ -79,7 +79,7 @@ public class CheckoutController {
 
         if (Integer.parseInt(quantity) > Objects.requireNonNull(book).getInStockNumber()) {
             model.addAttribute("notEnoughStock", true);
-            return "forward:/bookDetail?id=" + book.getId();
+            return "redirect:/bookDetail?id=" + book.getId();
         }
 
         CartItem cartItem = cartItemService.addBookToCartItem(book,user, Integer.parseInt(quantity));

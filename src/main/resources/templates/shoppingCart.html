@@ -30,6 +30,9 @@
             <div th:if="${emptyCart}" class="alert alert-warning">
                 Oops, your cart is empty.
             </div>
+            <div th:if="${insufficientUserBalance}" class="alert alert-warning">
+               You dont have enough money in your balance to complete checkout.
+            </div>
 
             <br/><br/>
 

@@ -4,109 +4,109 @@ import javax.persistence.*;
 
 @Entity
 public class ShippingAddress {
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;
-	private String ShippingAddressName;
-	private String ShippingAddressStreet1;
-	private String ShippingAddressStreet2;
-	private String ShippingAddressCity;
-	private String ShippingAddressState;
-	private String ShippingAddressCountry;
-	private String ShippingAddressZipcode;
-	
-	
-	@OneToOne
-	private Order order;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+    private String ShippingAddressName;
+    private String ShippingAddressStreet1;
+    private String ShippingAddressStreet2;
+    private String ShippingAddressCity;
+    private String ShippingAddressState;
+    private String ShippingAddressCountry;
+    private String ShippingAddressZipcode;
+
+    @OneToOne
+    private Order order;
 
 
-	public Long getId() {
-		return id;
-	}
+    public Long getId() {
+        return id;
+    }
 
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
 
-	public String getShippingAddressName() {
-		return ShippingAddressName;
-	}
+    public String getShippingAddressName() {
+        return ShippingAddressName;
+    }
 
 
-	public void setShippingAddressName(String shippingAddressName) {
-		ShippingAddressName = shippingAddressName;
-	}
+    public void setShippingAddressName(String shippingAddressName) {
+        ShippingAddressName = shippingAddressName;
+    }
 
 
-	public String getShippingAddressStreet1() {
-		return ShippingAddressStreet1;
-	}
+    public String getShippingAddressStreet1() {
+        return ShippingAddressStreet1;
+    }
 
 
-	public void setShippingAddressStreet1(String shippingAddressStreet1) {
-		ShippingAddressStreet1 = shippingAddressStreet1;
-	}
+    public void setShippingAddressStreet1(String shippingAddressStreet1) {
+        ShippingAddressStreet1 = shippingAddressStreet1;
+    }
 
 
-	public String getShippingAddressStreet2() {
-		return ShippingAddressStreet2;
-	}
+    public String getShippingAddressStreet2() {
+        return ShippingAddressStreet2;
+    }
 
 
-	public void setShippingAddressStreet2(String shippingAddressStreet2) {
-		ShippingAddressStreet2 = shippingAddressStreet2;
-	}
+    public void setShippingAddressStreet2(String shippingAddressStreet2) {
+        ShippingAddressStreet2 = shippingAddressStreet2;
+    }
 
 
-	public String getShippingAddressCity() {
-		return ShippingAddressCity;
-	}
+    public String getShippingAddressCity() {
+        return ShippingAddressCity;
+    }
 
 
-	public void setShippingAddressCity(String shippingAddressCity) {
-		ShippingAddressCity = shippingAddressCity;
-	}
+    public void setShippingAddressCity(String shippingAddressCity) {
+        ShippingAddressCity = shippingAddressCity;
+    }
 
 
-	public String getShippingAddressState() {
-		return ShippingAddressState;
-	}
+    public String getShippingAddressState() {
+        return ShippingAddressState;
+    }
 
 
-	public void setShippingAddressState(String shippingAddressState) {
-		ShippingAddressState = shippingAddressState;
-	}
+    public void setShippingAddressState(String shippingAddressState) {
+        ShippingAddressState = shippingAddressState;
+    }
 
 
-	public String getShippingAddressCountry() {
-		return ShippingAddressCountry;
-	}
+    public String getShippingAddressCountry() {
+        return ShippingAddressCountry;
+    }
 
 
-	public void setShippingAddressCountry(String shippingAddressCountry) {
-		ShippingAddressCountry = shippingAddressCountry;
-	}
+    public void setShippingAddressCountry(String shippingAddressCountry) {
+        ShippingAddressCountry = shippingAddressCountry;
+    }
 
 
-	public String getShippingAddressZipcode() {
-		return ShippingAddressZipcode;
-	}
+    public String getShippingAddressZipcode() {
+        return ShippingAddressZipcode;
+    }
 
 
-	public void setShippingAddressZipcode(String shippingAddressZipcode) {
-		ShippingAddressZipcode = shippingAddressZipcode;
-	}
+    public void setShippingAddressZipcode(String shippingAddressZipcode) {
+        ShippingAddressZipcode = shippingAddressZipcode;
+    }
 
 
-	public Order getOrder() {
-		return order;
-	}
+    public Order getOrder() {
+        return order;
+    }
 
 
-	public void setOrder(Order order) {
-		this.order = order;
-	}
+    public void setOrder(Order order) {
+        this.order = order;
+    }
 
 }
