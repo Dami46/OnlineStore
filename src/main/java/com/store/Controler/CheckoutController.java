@@ -3,9 +3,11 @@ package com.store.Controler;
 
 import com.store.Domain.BalanceRequest;
 import com.store.Domain.Book;
+import com.store.Domain.CartItem;
 import com.store.Domain.User;
 import com.store.Service.BalanceService;
 import com.store.Service.BookService;
+import com.store.Service.CartItemService;
 import com.store.Service.UserService;
 import com.store.Utility.MailConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,8 +42,11 @@ public class CheckoutController {
     @Autowired
     private BalanceService balanceService;
 
+    @Autowired
+    private CartItemService cartItemService;
 
-    @RequestMapping("/buyItem")
+
+    @RequestMapping(value = "/buyItem", params = "buyBook")
     public String buyItem(
             @ModelAttribute("book") Book book,
             Model model, Principal principal
@@ -63,6 +68,24 @@ public class CheckoutController {
         model.addAttribute("addBookSuccess", true);
 
         return "redirect:/checkout?id=" + book.getId();
+    }
+
+    @RequestMapping(value = "/buyItem", method= RequestMethod.POST, params = "addToCart")
+    public String addItem(@ModelAttribute("book") Book book,
+                          @ModelAttribute("qty") String quantity,
+                          Model model, Principal principal) {
+        User user = userService.findByUsername(principal.getName());
+        book = bookService.findById(book.getId()).orElse(null);
+
+        if (Integer.parseInt(quantity) > Objects.requireNonNull(book).getInStockNumber()) {
+            model.addAttribute("notEnoughStock", true);
+            return "forward:/bookDetail?id=" + book.getId();
+        }
+
+        CartItem cartItem = cartItemService.addBookToCartItem(book,user, Integer.parseInt(quantity));
+        model.addAttribute("addBookSuccess");
+        return "forward:/shoppingCart/cart";
+
     }
 
     @RequestMapping("/checkout")

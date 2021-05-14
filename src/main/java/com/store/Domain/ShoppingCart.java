@@ -12,7 +12,7 @@ public class ShoppingCart {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private BigDecimal TotalPrize;
+    private BigDecimal totalPrize;
 
     @OneToMany(mappedBy = "shoppingCart", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
@@ -29,14 +29,6 @@ public class ShoppingCart {
         this.id = id;
     }
 
-    public BigDecimal getTotalPrize() {
-        return TotalPrize;
-    }
-
-    public void setTotalPrize(BigDecimal totalPrize) {
-        TotalPrize = totalPrize;
-    }
-
     public List<CartItem> getCartItemList() {
         return cartItemList;
     }
@@ -51,5 +43,13 @@ public class ShoppingCart {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public BigDecimal getTotalPrize() {
+        return totalPrize;
+    }
+
+    public void setTotalPrize(BigDecimal totalPrize) {
+        this.totalPrize = totalPrize;
     }
 }

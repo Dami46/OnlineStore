@@ -36,8 +36,8 @@ public class OnlineStoreApplication implements CommandLineRunner {
         Role role1 = new Role();
         role1.setRoleId(1);
         role1.setName("ROLE_USER");
-        userRoles.add(new UserRole(user1,role1));
+        userRoles.add(new UserRole(user1, role1));
 
-        userService.createUser(user1,userRoles);
+        userService.createUser(user1, userRoles);
     }
 }

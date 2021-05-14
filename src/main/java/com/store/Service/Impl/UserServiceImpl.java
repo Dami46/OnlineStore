@@ -1,5 +1,6 @@
 package com.store.Service.Impl;
 
+import com.store.Domain.ShoppingCart;
 import com.store.Domain.User;
 import com.store.Domain.UserShipping;
 import com.store.Repository.PasswordResetTokenRepository;
@@ -9,12 +10,13 @@ import com.store.Repository.UserShippingRepository;
 import com.store.Security.PasswordResetToken;
 import com.store.Security.UserRole;
 import com.store.Service.UserService;
-import com.store.Service.UserShippingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -53,6 +55,7 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByUsername(username);
     }
 
+    @Override
     public User findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
@@ -62,8 +65,10 @@ public class UserServiceImpl implements UserService {
         return userRepository.findById(id).orElse(null);
     }
 
-    public User createUser(User user, Set<UserRole> userRoles) throws Exception {
+    @Override
+    public User createUser(User user, Set<UserRole> userRoles) {
         User localUser = userRepository.findByUsername(user.getUsername());
+
         if (localUser != null) {
             LOG.info("user {} already exists", user.getUsername());
         } else {
@@ -71,6 +76,14 @@ public class UserServiceImpl implements UserService {
                 roleRepository.save(userRole.getRole());
             }
             user.getUserRoles().addAll(userRoles);
+
+            ShoppingCart shoppingCart = new ShoppingCart();
+            shoppingCart.setUser(user);
+            user.setShoppingCart(shoppingCart);
+
+            user.setUserShippingList(new ArrayList<UserShipping>());
+            //user.setUserPaymentList(new ArrayList<UserPayment>());
+
             localUser = userRepository.save(user);
         }
         return localUser;

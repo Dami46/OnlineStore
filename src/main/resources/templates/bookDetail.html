@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml" xmlns="http://www.w3.org/1999/html">
 <head th:replace="common/header :: common-header"/>
 
 <body>
@@ -47,11 +47,11 @@
                                         <p>You save: $<span
                                                 th:text="${#numbers.formatDecimal((book.listPrice - book.ourPrice), 0, 'COMMA', 2, 'POINT')}"></span>
                                         </p>
-                                       <!-- <span>Quantity: </span>
+                                        <span>Quantity: </span>
                                         <select name="qty">
                                             <option th:each="qty: ${qtyList} " th:value="${qty}"
                                                     th:text="${qty}"></option>
-                                        </select>-->
+                                        </select>
                                     </div>
                                     <div class="col-xs-6">
                                         <h4 th:if="*{book.inStockNumber&gt;10}" style="color: green"> In stock</h4>
@@ -59,10 +59,15 @@
                                             style="color: green"> Only <span
                                                 th:text="${book.inStockNumber}"> in stock</span></h4>
                                         <h4 th:if="*{book.inStockNumber==0}" style="color: darkred"> Unavailable </h4>
-                                        <button type="submit" class="btn btn-warning"
-                                                style="color: black; border: 1px solid; padding: 10px 40px 10px 40px;">
-                                           Buy book
-                                        </button>
+
+                                        <input type="submit" class="btn btn-warning"
+                                               name="addToCart" value="Add to cart"
+                                               style="color: black; border: 1px solid; padding: 10px 40px 10px 40px;"/>
+
+                                        </br> </br>
+
+                                        <input type="submit" class="btn btn-warning" name="buyBook" value="  Buy book"
+                                                style="color: black; border: 1px solid; padding: 10px 40px 10px 40px;"/>
                                     </div>
                                 </div>
                             </div>

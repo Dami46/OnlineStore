@@ -146,4 +146,12 @@ public class Book {
     public void setBookImage(MultipartFile bookImage) {
         this.bookImage = bookImage;
     }
+
+    public List<BookToCartItem> getBookToCartItemList() {
+        return bookToCartItemList;
+    }
+
+    public void setBookToCartItemList(List<BookToCartItem> bookToCartItemList) {
+        this.bookToCartItemList = bookToCartItemList;
+    }
 }
