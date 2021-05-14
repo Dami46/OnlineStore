@@ -1,9 +1,6 @@
 package com.store.Service;
 
-import com.store.Domain.Book;
-import com.store.Domain.CartItem;
-import com.store.Domain.ShoppingCart;
-import com.store.Domain.User;
+import com.store.Domain.*;
 
 import java.util.List;
 
@@ -20,4 +17,6 @@ public interface CartItemService {
     void removeCartItem(CartItem cartItem);
 
     CartItem save(CartItem cartItem);
+
+    List<CartItem> findByOrder(Order order);
 }

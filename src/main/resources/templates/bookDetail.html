@@ -13,6 +13,9 @@
                 <h2 class="section-headline"><span th:text="${user}? ${user.username} : 'All Books'"></span></h2>
             </h2>
         </div>
+        <div class="col-xs-4">
+            <img src="/image/logo.png" class="img-responsive"/>
+        </div>
     </div>
 
     <form th:action="@{/buyItem(id=${book.id})}" method="post" th:classappend="${classActiveNewCheckout}? 'active'">
@@ -22,7 +25,10 @@
                 <a th:href="@{/bookshelf}"> Back to book list</a> </br>
                 <img class="img-responsive shelf-book" th:src="#{adminPath}+@{/image/book/}+${book.id}+'.png'"/>
             </div>
+
             <div class="col-xs-9">
+                <h3><span th:if="${addBookSuccess}" style="color: forestgreen"><i class="fa fa-check" aria-hidden="true" style="color: forestgreen"></i>Added to cart.</span></h3>
+                <h3><span th:if="${notEnoughStock}" style="color: red">Oops, only <span th:text="${book.inStockNumber}"></span> In Stock.</span></h3>
                 <h3 th:text="${book.title}"> Book title</h3>
                 <div class="row">
                     <div class="col-xs-5">
@@ -31,8 +37,7 @@
                         <p><strong>Publication Date: </strong> <span th:text="${book.publicationDate}"> </span></p>
                         <p><strong>Language: </strong> <span th:text="${book.language}"> </span></p>
                         <p><strong>Category: </strong> <span th:text="${book.category}"> </span></p>
-                        <p><strong>Number of pages: </strong> <span th:text="${book.numberOfPages}"> </span> pages</p>
-                        <p><strong>Category: </strong> <span th:text="${book.category}"> </span></p>
+                        <p><strong>Number of pages: </strong><span th:text="${book.numberOfPages}"></span> </p>
                     </div>
 
                     <div class="col-xs-7">

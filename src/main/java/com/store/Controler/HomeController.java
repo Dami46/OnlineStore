@@ -1,16 +1,11 @@
 package com.store.Controler;
 
-import com.store.Domain.Book;
-import com.store.Domain.User;
-import com.store.Domain.UserShipping;
+import com.store.Domain.*;
 import com.store.Security.PasswordResetToken;
 import com.store.Security.Role;
 import com.store.Security.UserRole;
-import com.store.Service.BalanceService;
-import com.store.Service.BookService;
+import com.store.Service.*;
 import com.store.Service.Impl.UserSecurityService;
-import com.store.Service.UserService;
-import com.store.Service.UserShippingService;
 import com.store.Utility.MailConstructor;
 import com.store.Utility.SecurityUtility;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +49,12 @@ public class HomeController {
     @Autowired
     private UserShippingService userShippingService;
 
+    @Autowired
+    private OrderService orderService;
+
+    @Autowired
+    private CartItemService cartItemService;
+
 
     @RequestMapping("/")
     public String index() {
@@ -65,7 +66,7 @@ public class HomeController {
         User user = userService.findByUsername(principal.getName());
         model.addAttribute("user", user);
         model.addAttribute("userShippingList", user.getUserShippingList());
-        // model.addAttribute("orderList", user.getOrderList());
+        model.addAttribute("orderList", user.getOrderList());
         UserShipping userShipping = new UserShipping();
 
         model.addAttribute("userShipping", userShipping);
@@ -91,12 +92,40 @@ public class HomeController {
         model.addAttribute("user", user);
         model.addAttribute("userPaymentList", user.getUserPaymentList());
         model.addAttribute("userShippingList", user.getUserShippingList());
-        // model.addAttribute("orderList", user.getOrderList());
+         model.addAttribute("orderList", user.getOrderList());
 
         model.addAttribute("classActiveShipping", true);
         model.addAttribute("listOfShippingAddresses", true);
 
         return "myProfile";
+    }
+
+    @RequestMapping("/orderDetail")
+    public String orderDetail(@RequestParam("id") Long orderId, Principal principal, Model model) {
+        User user = userService.findByUsername(principal.getName());
+        Order order = orderService.findOne(orderId);
+
+        if(!order.getUser().getId().equals(user.getId())) {
+            return "badRequestPage";
+        } else {
+            List<CartItem> cartItemList = cartItemService.findByOrder(order);
+            model.addAttribute("cartItemList", cartItemList);
+            model.addAttribute("user", user);
+            model.addAttribute("order", order);
+
+            model.addAttribute("userPaymentList", user.getUserPaymentList());
+            model.addAttribute("userShippingList", user.getUserShippingList());
+            model.addAttribute("orderList", user.getOrderList());
+
+            UserShipping userShipping = new UserShipping();
+            model.addAttribute("userShipping", userShipping);
+            model.addAttribute("listOfShippingAddresses", true);
+            model.addAttribute("classActiveOrders", true);
+            model.addAttribute("listOfCreditCards", true);
+            model.addAttribute("displayOrderDetail", true);
+
+            return "myProfile";
+        }
     }
 
     @RequestMapping("/addNewShippingAddress")
@@ -115,7 +144,7 @@ public class HomeController {
 
         model.addAttribute("userPaymentList", user.getUserPaymentList());
         model.addAttribute("userShippingList", user.getUserShippingList());
-        //model.addAttribute("orderList", user.getOrderList());
+        model.addAttribute("orderList", user.getOrderList());
 
         return "myProfile";
     }
@@ -132,7 +161,7 @@ public class HomeController {
         model.addAttribute("userShippingList", user.getUserShippingList());
         model.addAttribute("listOfShippingAddresses", true);
         model.addAttribute("classActiveShipping", true);
-        // model.addAttribute("orderList", user.getOrderList());
+        model.addAttribute("orderList", user.getOrderList());
 
         return "myProfile";
     }
@@ -153,7 +182,7 @@ public class HomeController {
             model.addAttribute("addNewShippingAddress", true);
             model.addAttribute("classActiveShipping", true);
             model.addAttribute("userShippingList", user.getUserShippingList());
-            // model.addAttribute("orderList", user.getOrderList());
+            model.addAttribute("orderList", user.getOrderList());
 
             return "myProfile";
         }
@@ -172,7 +201,7 @@ public class HomeController {
         model.addAttribute("listOfShippingAddresses", true);
 
         model.addAttribute("userShippingList", user.getUserShippingList());
-        // model.addAttribute("orderList", user.getOrderList());
+        model.addAttribute("orderList", user.getOrderList());
 
         return "myProfile";
     }
@@ -197,7 +226,7 @@ public class HomeController {
 
             model.addAttribute("userPaymentList", user.getUserPaymentList());
             model.addAttribute("userShippingList", user.getUserShippingList());
-            //model.addAttribute("orderList", user.getOrderList());
+            model.addAttribute("orderList", user.getOrderList());
 
             return "myProfile";
         }
@@ -254,6 +283,8 @@ public class HomeController {
         model.addAttribute("updateSuccess", true);
         model.addAttribute("user", currentUser);
         model.addAttribute("classActiveEdit", true);
+        model.addAttribute("orderList", currentUser.getOrderList());
+        model.addAttribute("listOfShippingAddresses", true);
 
         UserDetails userDetails = userSecurityService.loadUserByUsername(currentUser.getUsername());
 
@@ -346,7 +377,10 @@ public class HomeController {
 
         SimpleMailMessage email = mailConstructor.constructResetTokenEmail(appUrl, request.getLocale(), token, user, password);
         mailSender.send(email);
+
         model.addAttribute("emailSent", "true");
+        model.addAttribute("orderList", user.getOrderList());
+
         return "myAccount";
     }
 
@@ -372,6 +406,7 @@ public class HomeController {
 
         model.addAttribute("user", user);
         model.addAttribute("classActiveEdit", true);
+
         return "myProfile";
     }
 
