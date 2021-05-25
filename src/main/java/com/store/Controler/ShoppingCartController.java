@@ -78,7 +78,7 @@ public class ShoppingCartController {
             @ModelAttribute("qty") int qty, Model model
     ) {
         CartItem cartItem = cartItemService.findById(cartItemId);
-        int quantity = cartItem.getQty();
+        int quantity = cartItem.getBook().getInStockNumber();
         if (quantity > qty) {
             cartItem.setQty(qty);
             cartItemService.updateCartItem(cartItem);
@@ -214,7 +214,7 @@ public class ShoppingCartController {
         User user = userService.findByUsername(principal.getName());
 
         Order order = orderService.createOrder(shoppingCart, shippingAddress, billingAddress, shippingMethod, user);
-        user.setBalance(user.getBalance() -  order.getOrderTotal().doubleValue());
+        user.setBalance(Math.round((user.getBalance() -  order.getOrderTotal().doubleValue()) * 100.00)/100.00);
 
         mailSender.send(mailConstructor.constructOrderConfirmationEmail(user, order, Locale.ENGLISH));
 
