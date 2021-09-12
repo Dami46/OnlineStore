@@ -7,7 +7,9 @@ import com.store.Service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -42,6 +44,7 @@ public class OrderServiceImpl implements OrderService {
         shippingAddress.setOrder(order);
         billingAddress.setOrder(order);
         order.setUser(user);
+        order.setShippingDate(getDeliveryDate(shippingMethod));
         order = orderRepository.save(order);
 
         return order;
@@ -51,4 +54,19 @@ public class OrderServiceImpl implements OrderService {
     public Order findOne(Long id) {
         return orderRepository.findById(id).orElse(null);
     }
+
+    public Date getDeliveryDate (String shippingMethod) {
+        LocalDate today = LocalDate.now();
+        LocalDate estimatedDeliveryDate;
+
+        if (shippingMethod.equals("groundShipping")) {
+            estimatedDeliveryDate = today.plusDays(7);
+        } else {
+            estimatedDeliveryDate = today.plusDays(5);
+        }
+
+        return java.sql.Date.valueOf(estimatedDeliveryDate);
+
+    }
+
 }

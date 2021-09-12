@@ -13,8 +13,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.security.Principal;
-import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -102,7 +100,7 @@ public class ShoppingCartController {
                            Principal principal) {
         User user = userService.findByUsername(principal.getName());
 
-        if (cartId != user.getShoppingCart().getId()) {
+        if (!Objects.equals(cartId, user.getShoppingCart().getId())) {
             return "badRequestPage";
         }
 
@@ -214,24 +212,13 @@ public class ShoppingCartController {
         User user = userService.findByUsername(principal.getName());
 
         Order order = orderService.createOrder(shoppingCart, shippingAddress, billingAddress, shippingMethod, user);
-        user.setBalance(Math.round((user.getBalance() -  order.getOrderTotal().doubleValue()) * 100.00)/100.00);
+        user.setBalance(Math.round((user.getBalance() - order.getOrderTotal().doubleValue()) * 100.00) / 100.00);
 
         mailSender.send(mailConstructor.constructOrderConfirmationEmail(user, order, Locale.ENGLISH));
 
         shoppingCartService.clearShoppingCart(shoppingCart);
 
-        LocalDate today = LocalDate.now();
-        LocalDate estimatedDeliveryDate;
-
-        if (shippingMethod.equals("groundShipping")) {
-            estimatedDeliveryDate = today.plusDays(7);
-        } else {
-            estimatedDeliveryDate = today.plusDays(5);
-        }
-
-
-
-        model.addAttribute("estimatedDeliveryDate", estimatedDeliveryDate);
+        model.addAttribute("estimatedDeliveryDate", order.getShippingDate());
 
         return "cartOrderSubmittedPage";
     }
