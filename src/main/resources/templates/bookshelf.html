@@ -22,15 +22,15 @@
 
             <table border="0" id="bookList">
                 <thead>
-                <tr>
-                    <th></th>
-                </tr>
+                    <tr>
+                        <th></th>
+                    </tr>
                 </thead>
                 <tbody>
                 <tr class="book-item" data-th-each="book: ${bookList}">
                     <td>
                         <div th:if="${book != null}">
-                            <div class="row">
+                            <div class="row" style="margin-bottom: 50px;">
                                 <div class="col-xs-3">
                                    <a th:href="@{/bookDetail?id=} + ${book.id}"> <img class="img-responsive shelf-book"
                                          th:src="#{adminPath}+@{/image/book/}+${book.id}+'.png'"/> </a>
@@ -39,17 +39,18 @@
                                     <a th:href="@{/bookDetail?id=} + ${book.id}"> <h4 th:text="${book.title}"></h4> </a>
                                     <span th:text="${book.publicationDate}"></span>
                                     <p th:text="${book.author}"></p>
-                                    <p th:text="${book.numberOfPages}"> <span> pages</span></p>
+                                    <p th:text="${book.numberOfPages}"> <span> pages</span></p></br>
                                     <span style="font-size: x-large; color:#db3208;"> $<span
                                             th:text="${#numbers.formatDecimal(book.ourPrice, 0, 'COMMA', 2, 'POINT')}"></span></span>
                                     <span style="text-decoration: line-through"> $<span
                                             th:text="${#numbers.formatDecimal(book.listPrice, 0, 'COMMA', 2, 'POINT')}"></span></span>
-                                    <p th:text="${#strings.abbreviate(book.description, 500)}"></p>
+                                    <p th:utext="${#strings.abbreviate(book.description, 500)}"></p>
                                 </div>
                             </div>
                         </div>
                     </td>
                 </tr>
+                </br>
                 </tbody>
             </table>
 
@@ -58,5 +59,20 @@
 
 </main>
 <div th:replace="common/header :: body-bottom-scripts"/>
+
+<script>
+    $(document).ready(function() {
+        $('#bookList').DataTable({
+            "ordering":false,
+            stateSave:true
+        });
+
+        $("#bookList").on('page.dt', function() {
+            $('html, body').animate({
+                scrollTop: $('#bookList').offset().top
+            }, 200);
+        });
+    });
+</script>
 </body>
 </html>
