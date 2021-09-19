@@ -9,23 +9,23 @@ import com.store.Security.UserRole;
 import java.util.Set;
 
 public interface UserService {
-	PasswordResetToken getPasswordResetToken(final String token);
+    PasswordResetToken getPasswordResetToken(final String token);
 
-	void createPasswordResetTokenForUser(final User user, final String token);
-	
-	User findByUsername(String username);
-	
-	User findByEmail (String email);
+    void createPasswordResetTokenForUser(final User user, final String token);
 
-	User findById(Long id);
+    User findByUsername(String username);
 
-	User createUser(User user, Set<UserRole> userRoles) throws Exception;
+    User findByEmail(String email);
 
-	User save(User user);
+    User findById(Long id);
 
-	void removeOne(Long id);
+    User createUser(User user, Set<UserRole> userRoles) throws Exception;
 
-	void updateUserShipping (UserShipping userShipping, User user);
+    User save(User user);
 
-	void setUserDefaultShipping(Long userShippingId, User user);
+    void removeOne(Long id);
+
+    void updateUserShipping(UserShipping userShipping, User user);
+
+    void setUserDefaultShipping(Long userShippingId, User user);
 }

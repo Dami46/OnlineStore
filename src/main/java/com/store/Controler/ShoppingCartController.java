@@ -77,7 +77,7 @@ public class ShoppingCartController {
     ) {
         CartItem cartItem = cartItemService.findById(cartItemId);
         int quantity = cartItem.getBook().getInStockNumber();
-        if (quantity > qty) {
+        if (quantity >= qty) {
             cartItem.setQty(qty);
             cartItemService.updateCartItem(cartItem);
         } else {
