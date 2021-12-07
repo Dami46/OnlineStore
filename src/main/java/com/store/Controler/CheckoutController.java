@@ -9,9 +9,7 @@ import com.store.Service.BalanceService;
 import com.store.Service.BookService;
 import com.store.Service.CartItemService;
 import com.store.Service.UserService;
-import com.store.Utility.MailConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -25,13 +23,6 @@ import java.util.Objects;
 
 @Controller
 public class CheckoutController {
-
-
-    @Autowired
-    private JavaMailSender mailSender;
-
-    @Autowired
-    private MailConstructor mailConstructor;
 
     @Autowired
     private UserService userService;
@@ -70,7 +61,7 @@ public class CheckoutController {
         return "redirect:/checkout?id=" + book.getId();
     }
 
-    @RequestMapping(value = "/buyItem", method= RequestMethod.POST, params = "addToCart")
+    @RequestMapping(value = "/buyItem", method = RequestMethod.POST, params = "addToCart")
     public String addItem(@ModelAttribute("book") Book book,
                           @ModelAttribute("qty") String quantity,
                           Model model, Principal principal) {
@@ -82,7 +73,7 @@ public class CheckoutController {
             return "forward:/bookDetail?id=" + book.getId();
         }
 
-        CartItem cartItem = cartItemService.addBookToCartItem(book,user, Integer.parseInt(quantity));
+        CartItem cartItem = cartItemService.addBookToCartItem(book, user, Integer.parseInt(quantity));
         model.addAttribute("addBookSuccess");
         return "forward:/shoppingCart/cart";
 
@@ -115,7 +106,6 @@ public class CheckoutController {
 
     @RequestMapping(value = "/checkout", method = RequestMethod.POST)
     public String checkoutPost(@RequestParam("id") Long bookId, Principal principal, Model model) {
-
 
         Book book = bookService.findById(bookId).orElse(null);
         User user = userService.findByUsername(principal.getName());

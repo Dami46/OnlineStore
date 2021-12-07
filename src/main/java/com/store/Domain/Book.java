@@ -21,7 +21,7 @@ public class Book {
     private int numberOfPages;
     private double listPrice;
     private double ourPrice;
-    private boolean active=true;
+    private boolean active = true;
 
     @Column(columnDefinition = "text")
     private String description;
@@ -34,6 +34,9 @@ public class Book {
     @JsonIgnore
     private List<BookToCartItem> bookToCartItemList;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    private DropItem dropItem;
+    private boolean bookToDrop = false;
 
     public Long getId() {
         return id;
@@ -153,5 +156,21 @@ public class Book {
 
     public void setBookToCartItemList(List<BookToCartItem> bookToCartItemList) {
         this.bookToCartItemList = bookToCartItemList;
+    }
+
+    public DropItem getDrop() {
+        return dropItem;
+    }
+
+    public void setDrop(DropItem dropItem) {
+        this.dropItem = dropItem;
+    }
+
+    public boolean isBookToDrop() {
+        return bookToDrop;
+    }
+
+    public void setBookToDrop(boolean bookToDrop) {
+        this.bookToDrop = bookToDrop;
     }
 }

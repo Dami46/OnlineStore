@@ -23,7 +23,7 @@ public class BookServiceImpl implements BookService {
         List<Book> activeBookList = new ArrayList<>();
 
         for (Book book: bookList) {
-            if(book.isActive()) {
+            if(book.isActive() && !book.isBookToDrop()) {
                 activeBookList.add(book);
             }
         }
@@ -47,7 +47,7 @@ public class BookServiceImpl implements BookService {
         List<Book> activeBookList = new ArrayList<>();
 
         for (Book book: bookList) {
-            if(book.isActive()) {
+            if(book.isActive() && !book.isBookToDrop()) {
                 activeBookList.add(book);
             }
         }
@@ -61,7 +61,7 @@ public class BookServiceImpl implements BookService {
         List<Book> activeBookList = new ArrayList<>();
 
         for (Book book: bookList) {
-            if(book.isActive()) {
+            if(book.isActive() && !book.isBookToDrop()) {
                 activeBookList.add(book);
             }
         }

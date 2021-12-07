@@ -45,10 +45,13 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user")
     private List<Order> orderList;
 
-
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonIgnore
     private Set<UserRole> userRoles = new HashSet<>();
+
+    @OneToMany(mappedBy = "user")
+    @JsonIgnore
+    private List<UserToDrop> userToDropList;
 
     public Long getId() {
         return id;
@@ -196,5 +199,13 @@ public class User implements UserDetails {
 
     public void setOrderList(List<Order> orderList) {
         this.orderList = orderList;
+    }
+
+    public List<UserToDrop> getUserToDropList() {
+        return userToDropList;
+    }
+
+    public void setUserToDropList(List<UserToDrop> userToDropList) {
+        this.userToDropList = userToDropList;
     }
 }

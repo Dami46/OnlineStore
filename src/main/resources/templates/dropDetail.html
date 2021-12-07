@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml" xmlns="http://www.w3.org/1999/html">
+<head th:replace="common/header :: common-header"/>
+
+<body>
+<!-- Static navbar -->
+<div th:replace="common/header :: navbar"/>
+
+<main role="main" class="container">
+    <div class="row">
+        <div class="col-xs-8">
+            <h2 class="section-headline">
+                <h2 class="section-headline"><span th:text="${user}? ${user.username} : 'All Books'"></span></h2>
+            </h2>
+        </div>
+        <div class="col-xs-4">
+            <img src="/image/logo.png" class="img-responsive"/>
+        </div>
+    </div>
+
+    <form th:action="@{/signForDrop(id=${dropItem.id})}" method="post">
+        <input hidden="hidden" th:field="*{dropItem.book.id}"/>
+        <div class="row" style="margin-top: 120px;">
+            <div class="col-xs-3">
+                <a th:href="@{/drop}"> Back to drop list</a> </br>
+                <img class="img-responsive shelf-book" th:src="#{adminPath}+@{/image/book/}+${dropItem.book.id}+'.png'"/>
+            </div>
+
+            <div class="col-xs-9">
+                <h3 th:text="${dropItem.book.title}"> Book title</h3>
+                <div class="row">
+                    <div class="col-xs-7">
+                        <div class="panel panel-default" style="border-width: 5px; margin-top: 20px;">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-xs-6">
+                                        <h4> Price: <span style="color: #db3208;">$<span
+                                                th:text="${dropItem.book.ourPrice}"></span></span></h4>
+                                        <span>Number of books for drop: </span>
+                                        <span th:text="${dropItem.book.inStockNumber}"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-4">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <div th:if="${dropItem.wasRolled == false}">
+                                    <div th:if="${signForDrop == true}" class="alert alert-success">
+                                        You sign for drop successfully !!!
+                                    </div>
+                                    <div th:unless="${user}">
+                                        <!--zrobić przycisk do przekierowania do zalogowania -->
+                                    </div>
+                                    <div th:if="${user}">
+                                        <div th:if="${dropWasStarted} == true">
+                                            <div th:if="${userInDrop}">
+                                                <button type="submit" class="btn btn-danger btn-block">Sign out from the drop</button>
+                                                <hr/>
+                                                <span>Place in drop: </span>
+                                                <span th:text="${placeInDrop}"></span>
+                                            </div>
+                                            <!-- ELSE -->
+                                            <div th:unless="${userInDrop}">
+                                                <button type="submit" class="btn btn-success btn-block">Assign to drop</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <hr/>
+                                    <h3>Drop info</h3>
+                                    <div th:if="${dropWasStarted} == false">
+                                        <div class="row">
+                                            <div class="col-xs-7 text-left">Drop will be start at:</div>
+                                            <div class="col-xs-5 text-right">
+                                                <span th:text="${dropItem.signingDate}"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div th:if="${dropWasStarted} == true">
+                                        <div class="row">
+                                            <div class="col-xs-7 text-left">Drop will be roll at:</div>
+                                            <div class="col-xs-5 text-right">
+                                                <span th:text="${dropItem.rollDate}"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div th:if="${dropItem.wasRolled == true}" >
+                                    <div class="alert alert-success">
+                                        Drop was rolled !!! Check your email to find out if you won :D
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr/>
+            <p th:utext="${dropItem.book.description}"></p>
+        </div>
+
+    </form>
+
+
+</main>
+<div th:replace="common/header :: body-bottom-scripts"/>
+<div th:replace="common/header :: footer"/>
+
+</body>
+</html>
