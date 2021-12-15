@@ -19,7 +19,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -60,7 +59,7 @@ public class HomeController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @RequestMapping(value = "myProfile", produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/myProfile")
     public ResponseEntity<Model> myAccount(Model model, Principal principal) {
         User user = userService.findByUsername(principal.getName());
         model.addAttribute("user", user);
@@ -77,7 +76,7 @@ public class HomeController {
 
     @RequestMapping(value="listOfShippingAddresses", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Model> listOfShippingAddresses(
-            Model model, Principal principal, HttpServletRequest request
+            Model model, Principal principal
     ) {
         User user = userService.findByUsername(principal.getName());
 
@@ -295,14 +294,14 @@ public class HomeController {
     }
 
     @RequestMapping("/login")
-    public String login(Model model) {
+    public ResponseEntity<Model> login(Model model) {
         model.addAttribute("classActiveLogin", true);
-        return "myAccount";
+        return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
 
     @RequestMapping("/bookshelf")
-    public String bookshelf(Model model, Principal principal) {
+    public ResponseEntity<Model> bookshelf(Model model, Principal principal) {
         if (principal != null) {
             String username = principal.getName();
             User user = userService.findByUsername(username);
@@ -313,7 +312,7 @@ public class HomeController {
         model.addAttribute("bookList", bookList);
         model.addAttribute("activeAll", true);
 
-        return "bookshelf";
+        return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
     @RequestMapping("/bookDetail")
