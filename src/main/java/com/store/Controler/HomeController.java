@@ -9,6 +9,9 @@ import com.store.Service.Impl.UserSecurityService;
 import com.store.Utility.MailConstructor;
 import com.store.Utility.SecurityUtility;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,17 +21,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.websocket.server.PathParam;
 import java.security.Principal;
 import java.util.*;
 
-@Controller
+@RestController
 public class HomeController {
 
     @Autowired
@@ -55,14 +55,13 @@ public class HomeController {
     @Autowired
     private CartItemService cartItemService;
 
-
     @RequestMapping("/")
-    public String index() {
-        return "index";
+    public ResponseEntity<?> index() {
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @RequestMapping("/myProfile")
-    public String myAccount(Model model, Principal principal) {
+    @RequestMapping(value = "myProfile", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Model> myAccount(Model model, Principal principal) {
         User user = userService.findByUsername(principal.getName());
         model.addAttribute("user", user);
         model.addAttribute("userShippingList", user.getUserShippingList());
@@ -73,11 +72,11 @@ public class HomeController {
         model.addAttribute("listOfShippingAddresses", true);
         model.addAttribute("classActiveEdit", true);
 
-        return "myProfile";
+        return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
-    @RequestMapping("/listOfShippingAddresses")
-    public String listOfShippingAddresses(
+    @RequestMapping(value="listOfShippingAddresses", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Model> listOfShippingAddresses(
             Model model, Principal principal, HttpServletRequest request
     ) {
         User user = userService.findByUsername(principal.getName());
@@ -92,21 +91,21 @@ public class HomeController {
         model.addAttribute("user", user);
         model.addAttribute("userPaymentList", user.getUserPaymentList());
         model.addAttribute("userShippingList", user.getUserShippingList());
-         model.addAttribute("orderList", user.getOrderList());
+        model.addAttribute("orderList", user.getOrderList());
 
         model.addAttribute("classActiveShipping", true);
         model.addAttribute("listOfShippingAddresses", true);
 
-        return "myProfile";
+        return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
-    @RequestMapping("/orderDetail")
-    public String orderDetail(@RequestParam("id") Long orderId, Principal principal, Model model) {
+    @RequestMapping(value = "orderDetail", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Model> orderDetail(@RequestParam("id") Long orderId, Principal principal, Model model) {
         User user = userService.findByUsername(principal.getName());
         Order order = orderService.findOne(orderId);
 
-        if(!order.getUser().getId().equals(user.getId())) {
-            return "badRequestPage";
+        if (!order.getUser().getId().equals(user.getId())) {
+            return new ResponseEntity<>(model, HttpStatus.BAD_REQUEST);
         } else {
             List<CartItem> cartItemList = cartItemService.findByOrder(order);
             model.addAttribute("cartItemList", cartItemList);
@@ -124,12 +123,12 @@ public class HomeController {
             model.addAttribute("listOfCreditCards", true);
             model.addAttribute("displayOrderDetail", true);
 
-            return "myProfile";
+            return new ResponseEntity<>(model, HttpStatus.OK);
         }
     }
 
-    @RequestMapping("/addNewShippingAddress")
-    public String addNewShippingAddress(
+    @RequestMapping(value = "addNewShippingAddress", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Model> addNewShippingAddress(
             Model model, Principal principal
     ) {
         User user = userService.findByUsername(principal.getName());
@@ -146,11 +145,11 @@ public class HomeController {
         model.addAttribute("userShippingList", user.getUserShippingList());
         model.addAttribute("orderList", user.getOrderList());
 
-        return "myProfile";
+        return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/addNewShippingAddress", method = RequestMethod.POST)
-    public String addNewShippingAddressPost(
+    @RequestMapping(value = "addNewShippingAddress", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Model> addNewShippingAddressPost(
             @ModelAttribute("userShipping") UserShipping userShipping,
             Principal principal, Model model
     ) {
@@ -163,18 +162,18 @@ public class HomeController {
         model.addAttribute("classActiveShipping", true);
         model.addAttribute("orderList", user.getOrderList());
 
-        return "myProfile";
+        return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
-    @RequestMapping("/updateUserShipping")
-    public String updateUserShipping(
+    @RequestMapping(value = "updateUserShipping",produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Model> updateUserShipping(
             @ModelAttribute("id") Long shippingAddressId, Principal principal, Model model
     ) {
         User user = userService.findByUsername(principal.getName());
         UserShipping userShipping = userShippingService.findById(shippingAddressId);
 
         if (!user.getId().equals(userShipping.getUser().getId())) {
-            return "badRequestPage";
+            return new ResponseEntity<>(model, HttpStatus.BAD_REQUEST);
         } else {
             model.addAttribute("user", user);
             model.addAttribute("userShipping", userShipping);
@@ -184,12 +183,12 @@ public class HomeController {
             model.addAttribute("userShippingList", user.getUserShippingList());
             model.addAttribute("orderList", user.getOrderList());
 
-            return "myProfile";
+            return new ResponseEntity<>(model, HttpStatus.OK);
         }
     }
 
-    @RequestMapping(value = "/setDefaultShippingAddress", method = RequestMethod.POST)
-    public String setDefaultShippingAddress(
+    @RequestMapping(value = "/setDefaultShippingAddress", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Model> setDefaultShippingAddress(
             @ModelAttribute("defaultShippingAddressId") Long defaultShippingId, Principal principal, Model model
     ) {
         User user = userService.findByUsername(principal.getName());
@@ -203,19 +202,18 @@ public class HomeController {
         model.addAttribute("userShippingList", user.getUserShippingList());
         model.addAttribute("orderList", user.getOrderList());
 
-        return "myProfile";
+        return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
-    @RequestMapping("/removeUserShipping")
-    public String removeUserShipping(
+    @RequestMapping(value = "removeUserShipping", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Model> removeUserShipping(
             @ModelAttribute("id") Long userShippingId, Principal principal, Model model
     ) {
         User user = userService.findByUsername(principal.getName());
         UserShipping userShipping = userShippingService.findById(userShippingId);
 
-        if (user.getId() != userShipping.getUser().getId()) {
+        if (!Objects.equals(user.getId(), userShipping.getUser().getId())) {
             model.addAttribute("emptyList", true);
-            return "myProfile";
         } else {
             model.addAttribute("user", user);
 
@@ -228,8 +226,8 @@ public class HomeController {
             model.addAttribute("userShippingList", user.getUserShippingList());
             model.addAttribute("orderList", user.getOrderList());
 
-            return "myProfile";
         }
+        return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/updateUserInfo", method = RequestMethod.POST)
@@ -246,7 +244,7 @@ public class HomeController {
 
         /*check email already exists*/
         if (userService.findByEmail(user.getEmail()) != null) {
-            if (userService.findByEmail(user.getEmail()).getId() != currentUser.getId()) {
+            if (!Objects.equals(userService.findByEmail(user.getEmail()).getId(), currentUser.getId())) {
                 model.addAttribute("emailExists", true);
                 return "myProfile";
             }
@@ -254,7 +252,7 @@ public class HomeController {
 
         /*check username already exists*/
         if (userService.findByUsername(user.getUsername()) != null) {
-            if (userService.findByUsername(user.getUsername()).getId() != currentUser.getId()) {
+            if (!Objects.equals(userService.findByUsername(user.getUsername()).getId(), currentUser.getId())) {
                 model.addAttribute("usernameExists", true);
                 return "myProfile";
             }
@@ -305,7 +303,7 @@ public class HomeController {
 
     @RequestMapping("/bookshelf")
     public String bookshelf(Model model, Principal principal) {
-        if(principal != null) {
+        if (principal != null) {
             String username = principal.getName();
             User user = userService.findByUsername(username);
             model.addAttribute("user", user);
@@ -313,7 +311,7 @@ public class HomeController {
 
         List<Book> bookList = bookService.findAll();
         model.addAttribute("bookList", bookList);
-        model.addAttribute("activeAll",true);
+        model.addAttribute("activeAll", true);
 
         return "bookshelf";
     }
