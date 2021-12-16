@@ -10,7 +10,6 @@ import com.store.Utility.MailConstructor;
 import com.store.Utility.SecurityUtility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -74,7 +73,7 @@ public class HomeController {
         return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
-    @RequestMapping(value="listOfShippingAddresses")
+    @RequestMapping(value = "listOfShippingAddresses")
     public ResponseEntity<Model> listOfShippingAddresses(
             Model model, Principal principal
     ) {
