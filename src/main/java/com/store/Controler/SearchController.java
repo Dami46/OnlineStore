@@ -5,6 +5,8 @@ import com.store.Domain.User;
 import com.store.Service.BookService;
 import com.store.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -24,7 +26,7 @@ public class SearchController {
     private BookService bookService;
 
     @RequestMapping("/searchByCategory")
-    public String searchByCategory(@RequestParam("category") String category, Model model, Principal principal) {
+    public ResponseEntity<Model> searchByCategory(@RequestParam("category") String category, Model model, Principal principal) {
 
         if (principal != null) {
             String username = principal.getName();
@@ -41,16 +43,16 @@ public class SearchController {
 
         if (bookList.isEmpty()) {
             model.addAttribute("emptyList", true);
-            return "bookshelf";
+            return new ResponseEntity<>(model, HttpStatus.OK);
         }
 
         model.addAttribute("bookList", bookList);
 
-        return "bookshelf";
+        return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
     @RequestMapping("/searchBook")
-    public String searchBook(
+    public ResponseEntity<Model> searchBook(
             @ModelAttribute("keyword") String keyword,
             Principal principal, Model model
     ) {
@@ -64,11 +66,12 @@ public class SearchController {
 
         if (bookList.isEmpty()) {
             model.addAttribute("emptyList", true);
-            return "bookshelf";
+            return new ResponseEntity<>(model, HttpStatus.OK
+            );
         }
 
         model.addAttribute("bookList", bookList);
 
-        return "bookshelf";
+        return new ResponseEntity<>(model, HttpStatus.CONTINUE);
     }
 }

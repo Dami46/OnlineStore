@@ -74,7 +74,7 @@ public class HomeController {
         return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
-    @RequestMapping(value="listOfShippingAddresses", produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value="listOfShippingAddresses")
     public ResponseEntity<Model> listOfShippingAddresses(
             Model model, Principal principal
     ) {
@@ -98,7 +98,7 @@ public class HomeController {
         return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "orderDetail", produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "orderDetail")
     public ResponseEntity<Model> orderDetail(@RequestParam("id") Long orderId, Principal principal, Model model) {
         User user = userService.findByUsername(principal.getName());
         Order order = orderService.findOne(orderId);
@@ -126,7 +126,7 @@ public class HomeController {
         }
     }
 
-    @RequestMapping(value = "addNewShippingAddress", produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "addNewShippingAddress")
     public ResponseEntity<Model> addNewShippingAddress(
             Model model, Principal principal
     ) {
@@ -147,7 +147,7 @@ public class HomeController {
         return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "addNewShippingAddress", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "addNewShippingAddress", method = RequestMethod.POST)
     public ResponseEntity<Model> addNewShippingAddressPost(
             @ModelAttribute("userShipping") UserShipping userShipping,
             Principal principal, Model model
@@ -164,7 +164,7 @@ public class HomeController {
         return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "updateUserShipping",produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "updateUserShipping")
     public ResponseEntity<Model> updateUserShipping(
             @ModelAttribute("id") Long shippingAddressId, Principal principal, Model model
     ) {
@@ -186,7 +186,7 @@ public class HomeController {
         }
     }
 
-    @RequestMapping(value = "/setDefaultShippingAddress", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/setDefaultShippingAddress", method = RequestMethod.POST)
     public ResponseEntity<Model> setDefaultShippingAddress(
             @ModelAttribute("defaultShippingAddressId") Long defaultShippingId, Principal principal, Model model
     ) {
@@ -204,7 +204,7 @@ public class HomeController {
         return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "removeUserShipping", produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "removeUserShipping")
     public ResponseEntity<Model> removeUserShipping(
             @ModelAttribute("id") Long userShippingId, Principal principal, Model model
     ) {
@@ -230,7 +230,7 @@ public class HomeController {
     }
 
     @RequestMapping(value = "/updateUserInfo", method = RequestMethod.POST)
-    public String updateUserInfo(
+    public ResponseEntity<Model> updateUserInfo(
             @ModelAttribute("user") User user,
             @ModelAttribute("newPassword") String newPassword,
             Model model
@@ -245,7 +245,7 @@ public class HomeController {
         if (userService.findByEmail(user.getEmail()) != null) {
             if (!Objects.equals(userService.findByEmail(user.getEmail()).getId(), currentUser.getId())) {
                 model.addAttribute("emailExists", true);
-                return "myProfile";
+                return new ResponseEntity<>(model, HttpStatus.OK);
             }
         }
 
@@ -253,7 +253,7 @@ public class HomeController {
         if (userService.findByUsername(user.getUsername()) != null) {
             if (!Objects.equals(userService.findByUsername(user.getUsername()).getId(), currentUser.getId())) {
                 model.addAttribute("usernameExists", true);
-                return "myProfile";
+                return new ResponseEntity<>(model, HttpStatus.OK);
             }
         }
 
@@ -266,7 +266,7 @@ public class HomeController {
             } else {
                 model.addAttribute("incorrectPassword", true);
 
-                return "myProfile";
+                return new ResponseEntity<>(model, HttpStatus.OK);
             }
         }
 
@@ -290,7 +290,7 @@ public class HomeController {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        return "myProfile";
+        return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
     @RequestMapping("/login")
@@ -316,7 +316,7 @@ public class HomeController {
     }
 
     @RequestMapping("/bookDetail")
-    public String bookDetail(@PathParam("id") Long id, Model model, Principal principal) {
+    public ResponseEntity<Model> bookDetail(@PathParam("id") Long id, Model model, Principal principal) {
 
         if (principal != null) {
             String username = principal.getName();
@@ -331,12 +331,12 @@ public class HomeController {
         model.addAttribute("qtyList", qtyList);
         model.addAttribute("qty", 1);
 
-        return "bookDetail";
+        return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
 
     @RequestMapping(value = "/newAccount", method = RequestMethod.POST)
-    public String newUserPost(
+    public ResponseEntity<Model> newUserPost(
             HttpServletRequest request,
             @ModelAttribute("email") String userEmail,
             @ModelAttribute("username") String username,
@@ -348,13 +348,13 @@ public class HomeController {
         if (userService.findByUsername(username) != null) {
             model.addAttribute("userNameExists", true);
 
-            return "myAccount";
+            return new ResponseEntity<>(model, HttpStatus.OK);
         }
 
         if (userService.findByEmail(userEmail) != null) {
             model.addAttribute("emailExists", true);
 
-            return "myAccount";
+            return new ResponseEntity<>(model, HttpStatus.OK);
         }
 
         User user = new User();
@@ -385,17 +385,17 @@ public class HomeController {
         model.addAttribute("emailSent", "true");
         model.addAttribute("orderList", user.getOrderList());
 
-        return "myAccount";
+        return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
     @RequestMapping("/newAccount")
-    public String newAccount(Locale locale, @RequestParam("token") String token, Model model) {
+    public ResponseEntity<Model> newAccount(Locale locale, @RequestParam("token") String token, Model model) {
         PasswordResetToken passToken = userService.getPasswordResetToken(token);
 
         if (passToken == null) {
             String message = "Invalid Token.";
             model.addAttribute("message", message);
-            return "redirect:/badRequest";
+            return new ResponseEntity<>(model, HttpStatus.BAD_REQUEST); //z TEGO OK TRZEBA ZROBIĆ REDIRECT DO /bad request
         }
 
         User user = passToken.getUser();
@@ -411,11 +411,11 @@ public class HomeController {
         model.addAttribute("user", user);
         model.addAttribute("classActiveEdit", true);
 
-        return "myProfile";
+        return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
     @RequestMapping("/forgetPassword")
-    public String forgetPassword(
+    public ResponseEntity<Model> forgetPassword(
             HttpServletRequest request,
             @ModelAttribute("email") String email,
             Model model
@@ -425,7 +425,7 @@ public class HomeController {
 
         if (user == null) {
             model.addAttribute("emailNotExist", true);
-            return "myAccount";
+            return new ResponseEntity<>(model, HttpStatus.OK);
         }
 
         String password = SecurityUtility.randomPassword();
@@ -442,15 +442,15 @@ public class HomeController {
         mailSender.send(newEmail);
 
         model.addAttribute("forgetPasswordEmailSent", "true");
-        return "myAccount";
+        return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/removeUser", method = RequestMethod.POST)
-    public String remove(
+    public ResponseEntity<Model> remove(
             @ModelAttribute("id") String id, Model model
     ) {
         userService.removeOne(Long.parseLong(id.substring(9)));
-        return "redirect:/logout";
+        return new ResponseEntity<>(model, HttpStatus.OK); //z TEGO OK TRZEBA ZROBIĆ REDIRECT DO /LOGOUT
     }
 
 }

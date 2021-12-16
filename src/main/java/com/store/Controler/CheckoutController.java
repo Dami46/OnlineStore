@@ -9,9 +9,9 @@ import com.store.Service.BalanceService;
 import com.store.Service.BookService;
 import com.store.Service.CartItemService;
 import com.store.Service.UserService;
-import com.store.Utility.MailConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -28,12 +28,6 @@ public class CheckoutController {
 
 
     @Autowired
-    private JavaMailSender mailSender;
-
-    @Autowired
-    private MailConstructor mailConstructor;
-
-    @Autowired
     private UserService userService;
 
     @Autowired
@@ -47,7 +41,7 @@ public class CheckoutController {
 
 
     @RequestMapping(value = "/buyItem", params = "buyBook")
-    public String buyItem(
+    public ResponseEntity<Model> buyItem(
             @ModelAttribute("book") Book book,
             Model model, Principal principal
     ) {
@@ -62,35 +56,35 @@ public class CheckoutController {
 
         if (1 > book.getInStockNumber()) {
             model.addAttribute("notEnoughStock", true);
-            return "forward:/bookDetail?id=" + book.getId();
+            return new ResponseEntity<>(model, HttpStatus.CONTINUE); //"forward:/bookDetail?id=" + book.getId()
         }
         model.addAttribute("user", user);
         model.addAttribute("addBookSuccess", true);
 
-        return "redirect:/checkout?id=" + book.getId();
+        return new ResponseEntity<>(model, HttpStatus.CONTINUE); //"redirect:/checkout?id=" + book.getId()
     }
 
-    @RequestMapping(value = "/buyItem", method= RequestMethod.POST, params = "addToCart")
-    public String addItem(@ModelAttribute("book") Book book,
-                          @ModelAttribute("qty") String quantity,
-                          Model model, Principal principal) {
+    @RequestMapping(value = "/buyItem", method = RequestMethod.POST, params = "addToCart")
+    public ResponseEntity<Model> addItem(@ModelAttribute("book") Book book,
+                                         @ModelAttribute("qty") String quantity,
+                                         Model model, Principal principal) {
         User user = userService.findByUsername(principal.getName());
         book = bookService.findById(book.getId()).orElse(null);
 
         if (Integer.parseInt(quantity) > Objects.requireNonNull(book).getInStockNumber()) {
             model.addAttribute("notEnoughStock", true);
-            return "forward:/bookDetail?id=" + book.getId();
+            return new ResponseEntity<>(model, HttpStatus.CONTINUE); //"forward:/bookDetail?id=" + book.getId()
         }
 
-        CartItem cartItem = cartItemService.addBookToCartItem(book,user, Integer.parseInt(quantity));
+        CartItem cartItem = cartItemService.addBookToCartItem(book, user, Integer.parseInt(quantity));
         model.addAttribute("addBookSuccess");
-        return "forward:/shoppingCart/cart";
+        return new ResponseEntity<>(model, HttpStatus.CONTINUE); //"forward:/shoppingCart/cart"
 
     }
 
     @RequestMapping("/checkout")
-    public String checkout(@RequestParam("id") Long bookId, Model model,
-                           Principal principal) {
+    public ResponseEntity<Model> checkout(@RequestParam("id") Long bookId, Model model,
+                                          Principal principal) {
         User user = userService.findByUsername(principal.getName());
 
         Book book = bookService.findById(bookId).orElse(null);
@@ -104,17 +98,17 @@ public class CheckoutController {
 
         if (Objects.requireNonNull(book).getInStockNumber() < 1) {
             model.addAttribute("notEnoughStock", true);
-            return "forward:/bookshelf";
+            return new ResponseEntity<>(model, HttpStatus.CONTINUE); //"forward:/bookshelf"
         }
 
         model.addAttribute("classActiveShipping", true);
 
-        return "checkout";
+        return new ResponseEntity<>(model, HttpStatus.OK);
 
     }
 
     @RequestMapping(value = "/checkout", method = RequestMethod.POST)
-    public String checkoutPost(@RequestParam("id") Long bookId, Principal principal, Model model) {
+    public ResponseEntity<Model> checkoutPost(@RequestParam("id") Long bookId, Principal principal, Model model) {
 
 
         Book book = bookService.findById(bookId).orElse(null);
@@ -133,11 +127,11 @@ public class CheckoutController {
         user.setBalance(Math.round((user.getBalance() - book.getOurPrice()) * 100.0) / 100.0);
         userService.save(user);
 
-        return "orderSubmittedPage";
+        return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/updateUserBalance", method = RequestMethod.GET)
-    public String balance(Model model, Principal principal) {
+    public ResponseEntity<Model> balance(Model model, Principal principal) {
 
         User user = userService.findByUsername(principal.getName());
         BalanceRequest balanceRequest = new BalanceRequest();
@@ -163,13 +157,13 @@ public class CheckoutController {
         model.addAttribute("balanceRequest", balanceRequest);
         model.addAttribute("classActiveBalance", true);
 
-        return "balance";
+        return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
 
     @RequestMapping(value = "/updateUserBalance", method = RequestMethod.POST)
-    public String addBalancePost(@ModelAttribute("balanceRequest") BalanceRequest balanceRequest,
-                                 Principal principal, Model model) {
+    public ResponseEntity<Model> addBalancePost(@ModelAttribute("balanceRequest") BalanceRequest balanceRequest,
+                                                Principal principal, Model model) {
 
         User user = userService.findByUsername(principal.getName());
         BalanceRequest balanceRequest1 = balanceService.addBalance(user, balanceRequest);
@@ -186,7 +180,7 @@ public class CheckoutController {
 
         if (userIds >= 3) {
             model.addAttribute("tooManyRequests", true);
-            return "redirect:/updateUserBalance";
+            return new ResponseEntity<>(model, HttpStatus.CONTINUE);  //"redirect:/updateUserBalance"
         } else {
             model.addAttribute("tooManyRequests", false);
         }
@@ -195,7 +189,7 @@ public class CheckoutController {
         model.addAttribute("balanceRequest", balanceRequest);
         model.addAttribute("classActiveBalance", true);
         model.addAttribute("balanceUpdateSuccess", true);
-        return "balance";
+        return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
 
