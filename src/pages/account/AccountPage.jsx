@@ -7,7 +7,9 @@ class AccountPage extends Component {
 
     render() {
         return (
-            <div>Account Page</div>
+            <div>
+                <h1>Account Page</h1>
+            </div>
         );
     }
 }

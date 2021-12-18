@@ -1,4 +1,3 @@
-import logo from './logo.svg';
 import './App.css';
 import {Component} from 'react';
 import {BrowserRouter as Router, Route, Routes, Navigate} from 'react-router-dom';
@@ -9,6 +8,8 @@ import {AccountPage} from "./pages/account/AccountPage";
 import {CartPage} from "./pages/shopping/CartPage";
 import {NotFound} from "./pages/errors/NotFound";
 import {Unauthorised} from "./pages/errors/Unauthorised";
+import {ContactPage} from "./pages/contact/ContactPage";
+import {DropsPage} from "./pages/drops/DropsPage";
 
 class App extends Component {
     constructor(props) {
@@ -29,6 +30,8 @@ class App extends Component {
                     <Route exact path="/books" element={<BooksPage/>}/>
                     <Route exact path="/account" element={<AccountPage/>}/>
                     <Route exact path="/shopping" element={<CartPage/>}/>
+                    <Route exact path="/drops" element={<DropsPage/>}/>
+                    <Route exact path="/contact" element={<ContactPage/>}/>
                     <Route exact path="/404" element={<NotFound/>}/>
                     <Route exact path="/401" element={<Unauthorised/>}/>
                     <Route path="*" element={<NotFound/>}/>

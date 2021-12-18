@@ -7,7 +7,9 @@ class BooksPage extends Component {
 
     render() {
         return (
-            <div>Books Page</div>
+            <div>
+                <h1>Books Page</h1>
+            </div>
         );
     }
 }
