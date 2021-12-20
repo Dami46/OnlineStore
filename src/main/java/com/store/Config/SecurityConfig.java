@@ -28,6 +28,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return SecurityUtility.passwordEncoder();
     }
     private static final String[] PUBLIC_MATCHERS = {
+            "/api",
             "/css/**",
             "/js/**",
             "/image/**",
