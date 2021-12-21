@@ -148,7 +148,7 @@ public class HomeController {
 
     @RequestMapping(value = "addNewShippingAddress", method = RequestMethod.POST)
     public ResponseEntity<Model> addNewShippingAddressPost(
-            @ModelAttribute("userShipping") UserShipping userShipping,
+            @RequestParam("userShipping") UserShipping userShipping,
             Principal principal, Model model
     ) {
         User user = userService.findByUsername(principal.getName());
@@ -163,9 +163,9 @@ public class HomeController {
         return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "updateUserShipping")
+    @RequestMapping(value = "updateUserShipping/{id]")
     public ResponseEntity<Model> updateUserShipping(
-            @ModelAttribute("id") Long shippingAddressId, Principal principal, Model model
+            @PathParam("id") Long shippingAddressId, Principal principal, Model model
     ) {
         User user = userService.findByUsername(principal.getName());
         UserShipping userShipping = userShippingService.findById(shippingAddressId);
@@ -187,7 +187,7 @@ public class HomeController {
 
     @RequestMapping(value = "/setDefaultShippingAddress", method = RequestMethod.POST)
     public ResponseEntity<Model> setDefaultShippingAddress(
-            @ModelAttribute("defaultShippingAddressId") Long defaultShippingId, Principal principal, Model model
+            @PathParam("defaultShippingAddressId") Long defaultShippingId, Principal principal, Model model
     ) {
         User user = userService.findByUsername(principal.getName());
         userService.setUserDefaultShipping(defaultShippingId, user);
@@ -205,7 +205,7 @@ public class HomeController {
 
     @RequestMapping(value = "removeUserShipping")
     public ResponseEntity<Model> removeUserShipping(
-            @ModelAttribute("id") Long userShippingId, Principal principal, Model model
+            @PathParam("id") Long userShippingId, Principal principal, Model model
     ) {
         User user = userService.findByUsername(principal.getName());
         UserShipping userShipping = userShippingService.findById(userShippingId);
@@ -230,8 +230,8 @@ public class HomeController {
 
     @RequestMapping(value = "/updateUserInfo", method = RequestMethod.POST)
     public ResponseEntity<Model> updateUserInfo(
-            @ModelAttribute("user") User user,
-            @ModelAttribute("newPassword") String newPassword,
+            @RequestParam ("user") User user,
+            @RequestParam("newPassword") String newPassword,
             Model model
     ) throws Exception {
         User currentUser = userService.findById(user.getId());
@@ -337,8 +337,8 @@ public class HomeController {
     @RequestMapping(value = "/newAccount", method = RequestMethod.POST)
     public ResponseEntity<Model> newUserPost(
             HttpServletRequest request,
-            @ModelAttribute("email") String userEmail,
-            @ModelAttribute("username") String username,
+            @RequestParam("email") String userEmail,
+            @RequestParam("username") String username,
             Model model) throws Exception {
         model.addAttribute("classActiveNewAccount", true);
         model.addAttribute("email", userEmail);
@@ -416,7 +416,7 @@ public class HomeController {
     @RequestMapping("/forgetPassword")
     public ResponseEntity<Model> forgetPassword(
             HttpServletRequest request,
-            @ModelAttribute("email") String email,
+            @RequestParam("email") String email,
             Model model
     ) {
         model.addAttribute("classActiveForgetPassword", true);
@@ -446,7 +446,7 @@ public class HomeController {
 
     @RequestMapping(value = "/removeUser", method = RequestMethod.POST)
     public ResponseEntity<Model> remove(
-            @ModelAttribute("id") String id, Model model
+            @PathParam("id") String id, Model model
     ) {
         userService.removeOne(Long.parseLong(id.substring(9)));
         return new ResponseEntity<>(model, HttpStatus.OK); //z TEGO OK TRZEBA ZROBIĆ REDIRECT DO /LOGOUT
