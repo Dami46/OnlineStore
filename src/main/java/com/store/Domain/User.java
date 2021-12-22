@@ -28,8 +28,8 @@ public class User implements UserDetails {
     private String email;
     private String phone;
     private boolean enabled = true;
-    @Column(columnDefinition = "DOUBLE default 100.00", updatable = true)
-    private float balance;
+    @Column(columnDefinition = "FLOAT default 100.00", updatable = true)
+    private double balance;
 
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
     private ShoppingCart shoppingCart;
@@ -158,7 +158,7 @@ public class User implements UserDetails {
         return balance;
     }
 
-    public void setBalance(float balance) {
+    public void setBalance(double balance) {
         this.balance = balance;
     }
 
