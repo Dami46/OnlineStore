@@ -92,7 +92,7 @@ public class HomeController {
         model.addAttribute("user", user);
         model.addAttribute("userPaymentList", user.getUserPaymentList());
         model.addAttribute("userShippingList", user.getUserShippingList());
-         model.addAttribute("orderList", user.getOrderList());
+        model.addAttribute("orderList", user.getOrderList());
 
         model.addAttribute("classActiveShipping", true);
         model.addAttribute("listOfShippingAddresses", true);
@@ -105,7 +105,7 @@ public class HomeController {
         User user = userService.findByUsername(principal.getName());
         Order order = orderService.findOne(orderId);
 
-        if(!order.getUser().getId().equals(user.getId())) {
+        if (!order.getUser().getId().equals(user.getId())) {
             return "badRequestPage";
         } else {
             List<CartItem> cartItemList = cartItemService.findByOrder(order);
@@ -305,7 +305,7 @@ public class HomeController {
 
     @RequestMapping("/bookshelf")
     public String bookshelf(Model model, Principal principal) {
-        if(principal != null) {
+        if (principal != null) {
             String username = principal.getName();
             User user = userService.findByUsername(username);
             model.addAttribute("user", user);
@@ -313,7 +313,7 @@ public class HomeController {
 
         List<Book> bookList = bookService.findAll();
         model.addAttribute("bookList", bookList);
-        model.addAttribute("activeAll",true);
+        model.addAttribute("activeAll", true);
 
         return "bookshelf";
     }
