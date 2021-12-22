@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Set;
 
 @Entity
+@Table(name = "user_shop")
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -28,7 +29,7 @@ public class User implements UserDetails {
     private String phone;
     private boolean enabled = true;
     @Column(columnDefinition = "DOUBLE default 100.00", updatable = true)
-    private double balance;
+    private float balance;
 
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
     private ShoppingCart shoppingCart;
@@ -157,7 +158,7 @@ public class User implements UserDetails {
         return balance;
     }
 
-    public void setBalance(double balance) {
+    public void setBalance(float balance) {
         this.balance = balance;
     }
 
