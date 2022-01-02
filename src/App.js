@@ -10,6 +10,7 @@ import {NotFound} from "./pages/errors/NotFound";
 import {Unauthorised} from "./pages/errors/Unauthorised";
 import {ContactPage} from "./pages/contact/ContactPage";
 import {DropsPage} from "./pages/drops/DropsPage";
+import {LoginPage} from "./pages/account/LoginPage";
 
 
 class App extends Component {
@@ -29,6 +30,7 @@ class App extends Component {
                     <Route exact path="/" element={<HomePage/>}/>
                     <Route exact path="/home" element={<HomePage/>}/>
                     <Route exact path="/books" element={<BooksPage/>}/>
+                    <Route exact path="/login" element={<LoginPage/>}/>
                     <Route exact path="/account" element={<AccountPage/>}/>
                     <Route exact path="/shopping" element={<CartPage/>}/>
                     <Route exact path="/drops" element={<DropsPage/>}/>

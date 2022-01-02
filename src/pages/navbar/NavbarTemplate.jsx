@@ -29,7 +29,7 @@ class NavbarTemplate extends Component {
                             <Nav.Link style={{fontSize: "35px", fontWeight: "bold"}} href="/drops">Drops</Nav.Link>
                         </Nav>
                         <Nav>
-                            <Nav.Link style={{fontSize: "35px", fontWeight: "bold"}} href="/account">Account</Nav.Link>
+                            <Nav.Link style={{fontSize: "35px", fontWeight: "bold"}} href="/login">Login</Nav.Link>
                             <Nav.Link style={{fontSize: "35px", fontWeight: "bold"}} href="/shopping">Shopping Cart</Nav.Link>
                             <Nav.Link style={{fontSize: "35px", fontWeight: "bold"}} href="/contact">Contact</Nav.Link>
                         </Nav>

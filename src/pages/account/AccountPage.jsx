@@ -6,7 +6,7 @@ import {Tab} from "bootstrap";
 import axios from "axios";
 import {useNavigate} from 'react-router-dom';
 
-const URLAddress = 'http://localhost:3000';
+const URLAddress = 'http://localhost:8080';
 
 const tableHeaderStyle = {
     fontSize: "25px",
@@ -70,7 +70,9 @@ class AccountPage extends Component {
         console.log(this.state.password);
     }
 
-    async submitLogin(){
+    async submitLogin(event){
+        event.preventDefault();
+        console.log(URLAddress + '/api/login')
         await axios.post(URLAddress + '/api/login', {
                 email: this.state.email,
                 username: this.state.username
@@ -83,7 +85,8 @@ class AccountPage extends Component {
         NavigateToAccount();
     }
 
-    async submitRegister(){
+    async submitRegister(event){
+        event.preventDefault();
         await axios.post(URLAddress + '/api/newAccount', {
             password: this.state.password,
             username: this.state.username
@@ -92,7 +95,8 @@ class AccountPage extends Component {
         })
     }
 
-    async submitForgetPassword(){
+    async submitForgetPassword(event){
+        event.preventDefault();
         await axios.post(URLAddress + '/api/forgetPassword', {
             email: this.state.email
         }).then(loginResp => {
@@ -190,7 +194,7 @@ class AccountPage extends Component {
                                                 <input style={inputStyle} required="required" type="text" className="form-control" id="recoverEmail" name="email" placeholder={"Enter your registered email address here."} onChange={this.changeEmail}/>
                                             </div>
 
-                                            <button type="submit" className="btn btn-primary" onclick={this.submitForgetPassword}>Submit</button>
+                                            <button type="submit" className="btn btn-primary" onClick={this.submitForgetPassword}>Submit</button>
                                         </form>
                                     </div>
                                 </div>
