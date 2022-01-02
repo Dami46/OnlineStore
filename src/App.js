@@ -1,5 +1,5 @@
 import './App.css';
-import {Component} from 'react';
+import {Component, useState} from 'react';
 import {BrowserRouter as Router, Route, Routes, Navigate} from 'react-router-dom';
 import {createBrowserHistory} from 'history';
 import {HomePage} from "./pages/home/HomePage";
@@ -10,6 +10,7 @@ import {NotFound} from "./pages/errors/NotFound";
 import {Unauthorised} from "./pages/errors/Unauthorised";
 import {ContactPage} from "./pages/contact/ContactPage";
 import {DropsPage} from "./pages/drops/DropsPage";
+
 
 class App extends Component {
     constructor(props) {
@@ -40,16 +41,5 @@ class App extends Component {
         );
     }
 }
-
-// function App() {
-//   return (
-//     <div className="App">
-//       <header className="App-header">
-//         <img src={logo} className="App-logo" alt="logo" />
-//         <p>Welcome in Online Store</p>
-//       </header>
-//     </div>
-//   );
-// }
 
 export default App;

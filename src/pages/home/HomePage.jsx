@@ -1,11 +1,13 @@
-import {Component} from 'react';
+import {Component, useState, useEffect} from 'react';
 import './HomePage.css';
-// import {Navbar} from '../../navbar/Navbar.jsx';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import Container from 'react-bootstrap/Container';
 import Carousel from "react-bootstrap/Carousel";
+import axios from "axios";
+import App from "../../App";
+import {NavbarTemplate} from "../navbar/NavbarTemplate";
 
 var Logo = "/images/logo.png"
 var Book1 = "/images/book1_example.jpg"
@@ -15,41 +17,26 @@ var Book1_slide = "/images/book1_example_slide.jpg"
 var Book2_slide = "/images/book2_example_slide.jpg"
 var Book3_slide = "/images/book3_example_slide.jpg"
 
+const URLAddress = 'http://localhost:3000';
 
 class HomePage extends Component {
     constructor(props) {
         super(props);
     }
 
+    async fetchBooks(){
+        console.log(URLAddress + '/api/bookshelf')
+        await axios.get(URLAddress + '/api/bookshelf').then(booksResp => {
+            console.log(booksResp.data)
+        });
+    }
+
     render() {
+        this.fetchBooks()
         return (
           <div>
               <div>
-                  <Navbar fixed="top" bg="light" variant="light">
-                      <Container>
-                          <Navbar.Brand href="#home">
-                              <img
-                                  src={Logo}
-                                  width="140"
-                                  height="70"
-                                  className="d-inline-block align-top"
-                                  alt="React Bootstrap logo"
-                              />
-                          </Navbar.Brand>
-                          <Navbar.Collapse id="basic-navbar-nav">
-                              <Nav className="me-auto">
-                                  <Nav.Link style={{fontSize: "35px", fontWeight: "bold"}} href="/">Home</Nav.Link>
-                                  <Nav.Link style={{fontSize: "35px", fontWeight: "bold"}} href="/books">Books</Nav.Link>
-                                  <Nav.Link style={{fontSize: "35px", fontWeight: "bold"}} href="/drops">Drops</Nav.Link>
-                              </Nav>
-                              <Nav>
-                                  <Nav.Link style={{fontSize: "35px", fontWeight: "bold"}} href="/account">Account</Nav.Link>
-                                  <Nav.Link style={{fontSize: "35px", fontWeight: "bold"}} href="/shopping">Shopping Cart</Nav.Link>
-                                  <Nav.Link style={{fontSize: "35px", fontWeight: "bold"}} href="/contact">Contact</Nav.Link>
-                              </Nav>
-                          </Navbar.Collapse>
-                      </Container>
-                  </Navbar>
+                  <NavbarTemplate/>
                   <br/>
               </div>
 

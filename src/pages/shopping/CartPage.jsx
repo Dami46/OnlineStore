@@ -1,4 +1,5 @@
 import {Component} from 'react';
+import {NavbarTemplate} from '../navbar/NavbarTemplate';
 
 class CartPage extends Component {
     constructor(props) {
@@ -8,6 +9,15 @@ class CartPage extends Component {
     render() {
         return (
             <div>
+                <div>
+                    <NavbarTemplate/>
+                    <br/>
+                    <br/>
+                    <br/>
+                    <br/>
+                    <br/>
+                </div>
+
                 <h1>Cart Page</h1>
             </div>
         );

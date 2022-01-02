@@ -1,4 +1,5 @@
 import {Component} from 'react';
+import {NavbarTemplate} from "../navbar/NavbarTemplate";
 
 class DropsPage extends Component {
     constructor(props) {
@@ -8,7 +9,18 @@ class DropsPage extends Component {
     render() {
         return (
             <div>
-                <h1>Drops Page</h1>
+                <div>
+                    <NavbarTemplate/>
+                    <br/>
+                    <br/>
+                    <br/>
+                    <br/>
+                    <br/>
+                </div>
+
+                <div>
+                    <h1>Drops Page</h1>
+                </div>
             </div>
         );
     }
