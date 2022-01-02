@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head th:replace="common/header :: common-header" />
+
+<body>
+<!-- Static navbar -->
+<div th:replace="common/header :: navbar"/>
+
+<main role="main" class="container">
+    <div class="row">
+        <div class="col-xs-8">
+            <h2 class="section-headline">
+                <h2 class="section-headline"><span th:text="${user.username}"></span></h2>
+            </h2>
+        </div>
+    </div>
+    <div class="row" style="margin-top:60px;">
+        <div class="col-xs-9 col-xs-offset-3">
+
+
+            <!--            Tab panels-->
+            <div class="tab-content">
+                <!--                 Balance information-->
+                <div class="tab-pane fade"  th:classappend="${classActiveBalance}? 'in active' ">
+                    <div class="panel-group">
+                        <div class="panel panel-default" style="border: none;">
+                            <div class="panel-body" style="background-color: #ededed; margin-top:20px;">
+
+                                <div class="alert alert-success" th:if="${balanceUpdateSuccess}">
+                                    <strong>Update Success! Wait for admin to accept your request</strong>
+                                </div>
+
+                                <div class="alert alert-info">
+                                   You have <span th:text="${numberOfRequests}"></span>
+                                    requests
+                                </div>
+
+                                <form id="myForm" th:action="@{/updateUserBalance}" method="post">
+                                    <input type="hidden" name="id" th:value="${user.id}"/>
+
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <div class="col-xs-6">
+                                                <label for="balance"> Balance </label> <input
+                                                    type="text" class="form-control" id="balance" name="balance" readonly="readonly"
+                                                    th:value="${user.balance}"/>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="input-group">
+                                        <label for="sumToAdd"> Recharge your balance </label> <input
+                                            type="number" class="form-control" id="sumToAdd" name="sumToAdd" step="0.01" min="0.00"
+                                            th:value="${balanceRequest.sumToAdd}"
+                                            placeholder="You can add money here"
+                                            />
+                                    </div>
+                                    </br>
+
+                                    <button type="submit" class="btn btn-success"
+                                            th:if="${tooManyRequests} == 'true'" disabled="disabled" > Add balance
+                                       </button>
+
+                                    <button type="submit" class="btn btn-success" th:unless="${tooManyRequests}" > Add balance
+                                    </button>
+
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+
+
+<div th:replace="common/header :: body-bottom-scripts" />
+<div th:replace="common/header :: footer"/>
+
+</body>
+</html>

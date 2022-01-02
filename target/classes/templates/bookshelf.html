@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head th:replace="common/header :: common-header"/>
+
+<body>
+<!-- Static navbar -->
+<div th:replace="common/header :: navbar"/>
+
+<main role="main" class="container">
+    <div class="row">
+        <div class="col-xs-8">
+            <h2 class="section-headline">
+                <h2 class="section-headline"><span th:text="${user}? ${user.username} : 'All Books'"></span></h2>
+            </h2>
+        </div>
+    </div>
+    <div class="row" style="margin-top:60px;">
+
+        <div class="col-xs-3">
+            <h3><label for="category">Category</label></h3>
+            <div class="list-group" id="category">
+                <a th:href="@{/bookshelf(category='all')}" th:classappend="${activeAll}? 'active'" class="list-group-item">All</a>
+                <a th:href="@{/searchByCategory(category='Fantasy')}" th:classappend="${activeFantasy}? 'active'" class="list-group-item">Fantasy</a>
+                <a th:href="@{/searchByCategory(category='History')}" th:classappend="${activeHistory}? 'active'" class="list-group-item">History</a>
+                <a th:href="@{/searchByCategory(category='Classics')}" th:classappend="${activeClassics}? 'active'" class="list-group-item">Classics</a>
+                <a th:href="@{/searchByCategory(category='Adventure')}" th:classappend="${activeAdventure}? 'active'" class="list-group-item">Adventure</a>
+                <a th:href="@{/searchByCategory(category='Programming')}" th:classappend="${activeProgramming}? 'active'" class="list-group-item">Programming</a>
+            </div>
+        </div>
+
+        <div class="col-xs-9 col-xs-offset-3">
+            <div th:if="${emptyList}">
+                <h5 style="font-style: italic"> No result found</h5>
+            </div>
+
+            <table border="0" id="bookList">
+                <thead>
+                    <tr>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr class="book-item" data-th-each="book: ${bookList}">
+                    <td>
+                        <div th:if="${book != null}">
+                            <div class="row" style="margin-bottom: 50px;">
+                                <div class="col-xs-3">
+                                   <a th:href="@{/bookDetail?id=} + ${book.id}"> <img class="img-responsive shelf-book"
+                                         th:src="#{adminPath}+@{/image/book/}+${book.id}+'.png'"/> </a>
+                                </div>
+                                <div class="col-xs-9">
+                                    <a th:href="@{/bookDetail?id=} + ${book.id}"> <h4 th:text="${book.title}"></h4> </a>
+                                    <span th:text="${book.publicationDate}"></span>
+                                    <p th:text="${book.author}"></p>
+                                    <p th:text="${book.numberOfPages}"> <span> pages</span></p></br>
+                                    <span style="font-size: x-large; color:#db3208;"> $<span
+                                            th:text="${#numbers.formatDecimal(book.ourPrice, 0, 'COMMA', 2, 'POINT')}"></span></span>
+                                    <span style="text-decoration: line-through"> $<span
+                                            th:text="${#numbers.formatDecimal(book.listPrice, 0, 'COMMA', 2, 'POINT')}"></span></span>
+                                    <p th:utext="${#strings.abbreviate(book.description, 500)}"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                </br>
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+</main>
+<div th:replace="common/header :: body-bottom-scripts"/>
+<div th:replace="common/header :: footer"/>
+
+<script>
+    $(document).ready(function() {
+        $('#bookList').DataTable({
+            "ordering":false,
+            stateSave:true
+        });
+
+        $("#bookList").on('page.dt', function() {
+            $('html, body').animate({
+                scrollTop: $('#bookList').offset().top
+            }, 200);
+        });
+    });
+</script>
+</body>
+</html>
