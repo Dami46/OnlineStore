@@ -4,7 +4,7 @@ import {NavbarTemplate} from "../navbar/NavbarTemplate";
 import {Tabs} from "react-bootstrap";
 import {Tab} from "bootstrap";
 import axios from "axios";
-import {useNavigate} from 'react-router-dom';
+import {useNavigate, Navigate} from 'react-router-dom';
 import {PATH} from "../../services/ConfigurationUrlAService";
 
 const URLAddress = PATH;
@@ -28,11 +28,6 @@ const inputStyle = {
     textAlign: "center"
 }
 
-function NavigateToAccount(){
-    let navigate = useNavigate();
-    // navigate("../home", { replace: true });
-}
-
 class LoginPage extends Component {
     constructor(props) {
         super(props);
@@ -46,7 +41,14 @@ class LoginPage extends Component {
         this.state = {
             username: '',
             email: '',
-            password: ''
+            password: '',
+            logged: false,
+            invalidCredentials: false,
+            emailSent: false,
+            userNameAlreadyExist: false,
+            emailAlreadyExist: false,
+            emailForgetPasswordSent: false,
+            emailNotExist: false,
         }
     }
 
@@ -75,15 +77,24 @@ class LoginPage extends Component {
         event.preventDefault();
         console.log(URLAddress + '/api/login')
         await axios.post(URLAddress + '/api/login', {
-            email: this.state.email,
-            username: this.state.username
+            username: this.state.username,
+            password: this.state.password
         }).then(loginResp => {
             console.log(loginResp.status)
             if(loginResp.status == 200){
-
+                this.setState({
+                    logged: true
+                });
+            }
+        }).catch(err => {
+            console.log(err)
+            if(err.response.status == 401) {
+                this.setState({
+                    invalidCredentials: true
+                })
             }
         })
-        NavigateToAccount();
+        // NavigateToAccount();
     }
 
     async submitRegister(event){
@@ -93,6 +104,19 @@ class LoginPage extends Component {
             username: this.state.username
         }).then(loginResp => {
             console.log(loginResp.status)
+            if(loginResp.status == 200){
+                this.setState({
+                    emailSent: true
+                });
+            }
+        }).catch(err => {
+            console.log(err)
+            if(err.response.status == 403) {
+                this.setState({
+                    userNameAlreadyExist: true,
+                    userEmailAlreadyExist: true
+                })
+            }
         })
     }
 
@@ -102,12 +126,26 @@ class LoginPage extends Component {
             email: this.state.email
         }).then(loginResp => {
             console.log(loginResp.status)
+            if(loginResp.status == 200){
+                this.setState({
+                    emailForgetPasswordSent: true
+                });
+            }
+        }).catch(err => {
+            console.log(err)
+            this.setState({
+                emailNotExist: true
+            })
         })
     }
 
 
 
     render() {
+        if (this.state.logged) {
+            return <Navigate to='/home' />
+        }
+
         return (
             <div>
                 <div>
@@ -125,20 +163,20 @@ class LoginPage extends Component {
                             <div className="panel-group">
                                 <div className="panel panel-default" style={{border: "none"}}>
                                     <div className="panel-body" style={{backgroundColor: "#ededed", marginTop: "20px"}}>
-                                        <div className="alert alert-info" hidden={true}>
+                                        <div className="alert alert-info" hidden={!this.state.emailSent}>
                                             An email has been sent to the email address you just registered.
                                         </div>
 
                                         <form method="post">
                                             <div className="form-group">
-                                                <label htmlFor="newUsername">Username</label>
-                                                <span style={{color: "red"}} hidden={true}>Username already exists!</span>
+                                                <label htmlFor="newUsername">Username</label><br/>
+                                                <span style={{color: "red"}} hidden={!this.state.userNameAlreadyExist}>Username already exists!</span>
                                                 <input style={inputStyle} required="required" type="text" className="form-control" id="newUsername" name="username" placeholder={"Enter your username"} onChange={this.changeUsername}/>
                                             </div>
 
                                             <div className="form-group">
-                                                <label htmlFor="email">Email Address: </label>
-                                                <span style={{color: "red"}} hidden={true}>Email already exists!</span>
+                                                <label htmlFor="email">Email Address: </label><br/>
+                                                <span style={{color: "red"}} hidden={!this.state.emailAlreadyExist}>Email already exists!</span>
                                                 <input style={inputStyle} required="required" type="text" className="form-control" id="email" name="email" placeholder={"Enter your email"} onChange={this.changeEmail}/>
                                             </div>
 
@@ -155,8 +193,8 @@ class LoginPage extends Component {
                             <div className="panel-group">
                                 <div className="panel panel-default " style={{border: "none"}}>
                                     <div className="panel-body" style={{backgroundColor: "#ededed", marginTop: "20px"}}>
-                                        <div style={{color: "red"}} hidden={true}>
-                                            Incorrect username or password.
+                                        <div style={{color: "red"}} hidden={!this.state.invalidCredentials}>
+                                            Incorrect username or password
                                         </div>
                                         <form method="post">
                                             <div className="form-group">
@@ -183,16 +221,16 @@ class LoginPage extends Component {
                             <div className="panel-group">
                                 <div className="panel panel-default" style={{border: "none"}}>
                                     <div className="panel-body" style={{backgroundColor: "#ededed", marginTop: "20px"}}>
-                                        <div className="alert alert-danger" hidden={true}>
-                                            Email doesn't exist.
+                                        <div className="alert alert-danger" hidden={!this.state.emailNotExist}>
+                                            Email doesn't exist
                                         </div>
-                                        <div className="alert alert-success" hidden={true}>
-                                            Email sent.
+                                        <div className="alert alert-success" hidden={!this.state.emailForgetPasswordSent}>
+                                            Email sent
                                         </div>
                                         <form method="post">
                                             <div className="form-group">
                                                 <label htmlFor="recoverEmail">Your Email: </label>
-                                                <input style={inputStyle} required="required" type="text" className="form-control" id="recoverEmail" name="email" placeholder={"Enter your registered email address here."} onChange={this.changeEmail}/>
+                                                <input style={inputStyle} required="required" type="text" className="form-control" id="recoverEmail" name="email" placeholder={"Enter your registered email address here"} onChange={this.changeEmail}/>
                                             </div>
 
                                             <button type="submit" className="btn btn-primary" onClick={this.submitForgetPassword}>Submit</button>
@@ -203,19 +241,6 @@ class LoginPage extends Component {
                         </div>
                     </Tab>
                 </Tabs>
-
-                {/*<div class="col-xs-9 col-xs-offset-3">*/}
-                {/*    <ul className="nav nav-tabs" style={{alignItems: "center", justifyContent: "center"}}>*/}
-                {/*        <button variant="primary"><a href="#newaccount" activeClassName="active" data-toggle="tab"><span>Create new account</span></a>*/}
-                {/*        </button>*/}
-                {/*        &nbsp;*/}
-                {/*        <button variant="primary"><a href="#lggin" activeClassName="active" data-toggle="tab"><span>Log in</span></a>*/}
-                {/*        </button>*/}
-                {/*        &nbsp;*/}
-                {/*        <button variant="primary"><a href="#forgetpassword" activeClassName="active" data-toggle="tab"><span>Forget Password</span></a>*/}
-                {/*        </button>*/}
-                {/*    </ul>*/}
-                {/*</div>*/}
             </div>
         );
     }

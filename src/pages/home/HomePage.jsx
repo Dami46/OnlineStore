@@ -1,38 +1,108 @@
 import {Component, useState, useEffect} from 'react';
 import './HomePage.css';
-import Navbar from 'react-bootstrap/Navbar';
-import Nav from 'react-bootstrap/Nav';
-import NavDropdown from 'react-bootstrap/NavDropdown';
-import Container from 'react-bootstrap/Container';
-import Carousel from "react-bootstrap/Carousel";
 import axios from "axios";
-import App from "../../App";
 import {NavbarTemplate} from "../navbar/NavbarTemplate";
+import * as imageApi from "../../services/ImageApi";
+import {Row, Card, Carousel, Form, FormControl, Button, FormSelect} from "react-bootstrap";
+import {PATH} from "../../services/ConfigurationUrlAService";
 
-var Logo = "/images/logo.png"
-var Book1 = "/images/book1_example.jpg"
-var Book2 = "/images/book2_example.jpg"
-var Book3 = "/images/book3_example.jpg"
-var Book1_slide = "/images/book1_example_slide.jpg"
-var Book2_slide = "/images/book2_example_slide.jpg"
-var Book3_slide = "/images/book3_example_slide.jpg"
+const Logo = "/images/logo.png"
+const Book1 = "/images/book1_example.jpg"
+const Book2 = "/images/book2_example.jpg"
+const Book3 = "/images/book3_example.jpg"
+const Book1_slide = "/images/book1_example_slide.jpg"
+const Book2_slide = "/images/book2_example_slide.jpg"
+const Book3_slide = "/images/book3_example_slide.jpg"
 
-const URLAddress = 'http://localhost:3000';
+const URLAddress = PATH;
 
 class HomePage extends Component {
     constructor(props) {
         super(props);
+
+        this.state = {
+            booksLoaded: false,
+            books: [],
+            authors: [],
+            categories: [],
+            languages: [],
+            publishers: []
+        }
     }
 
     async fetchBooks(){
         console.log(URLAddress + '/api/bookshelf')
-        await axios.get(URLAddress + '/api/bookshelf').then(booksResp => {
-            console.log(booksResp.data)
-        });
+        if(this.state.booksLoaded == false) {
+            this.setState({
+                booksLoaded: true,
+                books: [],
+                authors: [],
+                categories: [],
+                languages: [],
+                publishers: []
+            })
+            await axios.get(URLAddress + '/api/bookshelf').then(booksResp => {
+                return booksResp.data.bookList;
+            }).then(data => {
+                console.log(data)
+                if(this.state.books.length == 0) {
+                    for (let i = 0; i < data.length; i++) {
+                        console.log(data[i])
+                        this.setState({
+                            books: this.state.books.concat({
+                                id: data[i].id,
+                                author: data[i].author,
+                                bookImage: imageApi.getImageUrl(data[i].id),
+                                category: data[i].category,
+                                description: data[i].description,
+                                inStockNumber: data[i].inStockNumber,
+                                language: data[i].language,
+                                listPrice: data[i].listPrice,
+                                numberOfPages: data[i].numberOfPages,
+                                ourPrice: data[i].ourPrice,
+                                publicationDate: data[i].publicationDate,
+                                publisher: data[i].publisher,
+                                title: data[i].title,
+                            }),
+                            authors: this.state.authors.concat({
+                                author: data[i].author,
+                            }),
+                            categories: this.state.categories.concat({
+                                category: data[i].category,
+                            }),
+                            languages: this.state.languages.concat({
+                                language: data[i].language,
+                            }),
+                            publishers: this.state.publishers.concat({
+                                publisher: data[i].publisher,
+                            }),
+                        })
+                    }
+                    console.log(this.state.books)
+                }
+            });
+        }
     }
 
     render() {
         this.fetchBooks()
+        const books = this.state.books.map((book) =>
+            <Card style={{marginLeft: "4%", marginBottom: "40px", display: "inline-block", cursor: "pointer"}}>
+                <Card.Body>
+                    <Card.Img width="200" height="300" variant="top" src={book.bookImage}/>
+                    <Card.Title>
+                        {book.title}
+                    </Card.Title>
+                    <Card.Subtitle>
+                        {book.author}
+                    </Card.Subtitle>
+                    <Card.Text>
+                        {book.description}
+                    </Card.Text>
+                </Card.Body>
+            </Card>
+        )
+
         return (
           <div>
               <div>
@@ -90,30 +160,29 @@ class HomePage extends Component {
                   <br/>
               </div>
 
-              <div style={{height: "600px", textAlign: "center"}}>
-                  <img style={{height: "600px"}} src={Book1}/>
-                  <img style={{height: "600px", marginLeft: "50px"}} src={Book2}/>
-                  <img style={{height: "600px", marginLeft: "50px"}} src={Book3}/>
+              <div style={{marginLeft: "20%", width: "60%"}}>
+                  <Form className="d-flex">
+                      <Form.Select>
+                          <option>Title</option>
+                          <option>Author</option>
+                          <option>Category</option>
+                          <option>Language</option>
+                          <option>Publisher</option>
+                      </Form.Select>
+                      <FormControl
+                          type="search"
+                          placeholder="Search"
+                          className="me-2"
+                          aria-label="Search"
+                      />
+                      <Button variant="primary">Search</Button>
+                  </Form>
               </div>
 
-              <div>
-                  <br/>
-              </div>
-
-              <div style={{height: "600px", textAlign: "center"}}>
-                  <img style={{height: "600px"}} src={Book2}/>
-                  <img style={{height: "600px", marginLeft: "50px"}} src={Book1}/>
-                  <img style={{height: "600px", marginLeft: "50px"}} src={Book3}/>
-              </div>
-
-              <div>
-                  <br/>
-              </div>
-
-              <div style={{height: "600px", textAlign: "center"}}>
-                  <img style={{height: "600px"}} src={Book3}/>
-                  <img style={{height: "600px", marginLeft: "50px"}} src={Book2}/>
-                  <img style={{height: "600px", marginLeft: "50px"}} src={Book1}/>
+              <div style={{height: "300px", marginTop: "50px"}}>
+                  <Row style={{textAlign: "center", alignItems: "center"}} xs={5}>
+                      {books}
+                  </Row>
               </div>
           </div>
         );
