@@ -5,8 +5,9 @@ import {Tabs} from "react-bootstrap";
 import {Tab} from "bootstrap";
 import axios from "axios";
 import {useNavigate} from 'react-router-dom';
+import {PATH} from "../../services/ConfigurationUrlAService";
 
-const URLAddress = 'http://localhost:8080';
+const URLAddress = PATH;
 
 const tableHeaderStyle = {
     fontSize: "25px",
