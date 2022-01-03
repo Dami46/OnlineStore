@@ -11,14 +11,9 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 @Configuration
 @EnableWebSecurity
@@ -34,6 +29,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private BCryptPasswordEncoder passwordEncoder() {
         return SecurityUtility.passwordEncoder();
     }
+
     private static final String[] PUBLIC_MATCHERS = {
             "/api",
             "/css/**",
@@ -41,13 +37,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/image/**",
             "/fonts/**",
             "/",
-            "/newAccount",
-            "/myAccount",
-            "/login",
-            "/forgetPassword",
-            "/bookshelf",
-            "/bookDetail/**",
-            "/searchByCategory",
+            "/api/newAccount",
+            "/api/myAccount",
+            "/api/login",
+            "/api/forgetPassword",
+            "/api/bookshelf",
+            "/api/bookDetail/**",
+            "/api/searchByCategory",
             "/index.html"
     };
 
@@ -60,20 +56,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Autowired
-    public void configureGlobal (AuthenticationManagerBuilder auth) throws Exception {
+    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userSecurityService).passwordEncoder(passwordEncoder());
     }
 
     @Bean
     public AuthenticationFailureHandler authenticationFailureHandler() {
         return new CustomAuthenticationFailureHandler();
-    }
-
-    private AuthenticationFailureHandler failureHandler() {
-        return (httpServletRequest, httpServletResponse, e) -> {
-            httpServletResponse.getWriter().append("Authentication failure");
-            httpServletResponse.setStatus(401);
-        };
     }
 
 }
