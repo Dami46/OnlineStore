@@ -75,11 +75,16 @@ class LoginPage extends Component {
         event.preventDefault();
         console.log(URLAddress + '/api/login')
         await axios.post(URLAddress + '/api/login', {
-            email: this.state.email,
-            username: this.state.username
-        }).then(loginResp => {
+            username: this.state.username,
+            password: this.state.password
+        }).then((loginResp) => {
             console.log(loginResp.status)
             if(loginResp.status == 200){
+
+            }
+        },(loginResp) => {
+            console.log(loginResp)
+            if(loginResp.status == 401){
 
             }
         })
