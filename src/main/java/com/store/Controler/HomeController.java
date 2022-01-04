@@ -1,6 +1,8 @@
 package com.store.Controler;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.store.Domain.*;
+import com.store.Dto.RegistrationDto;
 import com.store.Security.PasswordResetToken;
 import com.store.Security.Role;
 import com.store.Security.UserRole;
@@ -9,7 +11,6 @@ import com.store.Service.Impl.UserSecurityService;
 import com.store.Utility.MailConstructor;
 import com.store.Utility.SecurityUtility;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.websocket.server.PathParam;
+import java.io.IOException;
 import java.security.Principal;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -57,6 +59,8 @@ public class HomeController {
 
     @Autowired
     private CartItemService cartItemService;
+
+    private static ObjectMapper objectMapper = new ObjectMapper();
 
     @RequestMapping("/")
     public ResponseEntity<?> index() {
@@ -346,27 +350,27 @@ public class HomeController {
 
         String requestBody = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
 
-        String username = null;
-        String userEmail= null;
-        model.addAttribute("classActiveNewAccount", true);
-        model.addAttribute("email", userEmail);
-        model.addAttribute("username", username);
+        RegistrationDto registrationDto = objectMapper.readValue(requestBody, RegistrationDto.class);
 
-        if (userService.findByUsername(username) != null) {
+        model.addAttribute("classActiveNewAccount", true);
+        model.addAttribute("email", registrationDto.getEmail());
+        model.addAttribute("username", registrationDto.getUsername());
+
+        if (userService.findByUsername(registrationDto.getUsername()) != null) {
             model.addAttribute("userNameExists", true);
 
             return new ResponseEntity<>(model, HttpStatus.FORBIDDEN);
         }
 
-        if (userService.findByEmail(userEmail) != null) {
+        if (userService.findByEmail(registrationDto.getEmail()) != null) {
             model.addAttribute("emailExists", true);
 
             return new ResponseEntity<>(model, HttpStatus.FORBIDDEN);
         }
 
         User user = new User();
-        user.setUsername(username);
-        user.setEmail(userEmail);
+        user.setUsername(registrationDto.getUsername());
+        user.setEmail(registrationDto.getEmail());
         user.setBalance(100.00);
 
         String password = SecurityUtility.randomPassword();
@@ -424,11 +428,14 @@ public class HomeController {
     @RequestMapping("/forgetPassword")
     public ResponseEntity<Model> forgetPassword(
             HttpServletRequest request,
-            @RequestParam("email") String email,
             Model model
-    ) {
+    ) throws IOException {
+        String requestBody = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+
+        RegistrationDto registrationDto = objectMapper.readValue(requestBody, RegistrationDto.class);
+
         model.addAttribute("classActiveForgetPassword", true);
-        User user = userService.findByEmail(email);
+        User user = userService.findByEmail(registrationDto.getEmail());
 
         if (user == null) {
             model.addAttribute("emailNotExist", true);
