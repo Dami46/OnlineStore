@@ -9,6 +9,7 @@ import com.store.Service.Impl.UserSecurityService;
 import com.store.Utility.MailConstructor;
 import com.store.Utility.SecurityUtility;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
@@ -19,12 +20,16 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.websocket.server.PathParam;
 import java.security.Principal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 public class HomeController {
@@ -230,7 +235,7 @@ public class HomeController {
 
     @RequestMapping(value = "/updateUserInfo", method = RequestMethod.POST)
     public ResponseEntity<Model> updateUserInfo(
-            @RequestParam ("user") User user,
+            @RequestParam("user") User user,
             @RequestParam("newPassword") String newPassword,
             Model model
     ) throws Exception {
@@ -337,9 +342,12 @@ public class HomeController {
     @RequestMapping(value = "/newAccount", method = RequestMethod.POST)
     public ResponseEntity<Model> newUserPost(
             HttpServletRequest request,
-            @RequestParam("email") String userEmail,
-            @RequestParam("username") String username,
             Model model) throws Exception {
+
+        String requestBody = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+
+        String username = null;
+        String userEmail= null;
         model.addAttribute("classActiveNewAccount", true);
         model.addAttribute("email", userEmail);
         model.addAttribute("username", username);
@@ -347,13 +355,13 @@ public class HomeController {
         if (userService.findByUsername(username) != null) {
             model.addAttribute("userNameExists", true);
 
-            return new ResponseEntity<>(model, HttpStatus.OK);
+            return new ResponseEntity<>(model, HttpStatus.FORBIDDEN);
         }
 
         if (userService.findByEmail(userEmail) != null) {
             model.addAttribute("emailExists", true);
 
-            return new ResponseEntity<>(model, HttpStatus.OK);
+            return new ResponseEntity<>(model, HttpStatus.FORBIDDEN);
         }
 
         User user = new User();
@@ -424,7 +432,7 @@ public class HomeController {
 
         if (user == null) {
             model.addAttribute("emailNotExist", true);
-            return new ResponseEntity<>(model, HttpStatus.OK);
+            return new ResponseEntity<>(model, HttpStatus.FORBIDDEN);
         }
 
         String password = SecurityUtility.randomPassword();

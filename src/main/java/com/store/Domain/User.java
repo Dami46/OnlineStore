@@ -28,7 +28,7 @@ public class User implements UserDetails {
     private String email;
     private String phone;
     private boolean enabled = true;
-    @Column(columnDefinition = "DOUBLE default 100.00", updatable = true)
+    @Column(columnDefinition = "FLOAT default 100.00", updatable = true)
     private double balance;
 
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
