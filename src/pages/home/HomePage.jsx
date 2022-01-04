@@ -162,7 +162,7 @@ class HomePage extends Component {
 
               <div style={{marginLeft: "20%", width: "60%"}}>
                   <Form className="d-flex">
-                      <Form.Select>
+                      <Form.Select style={{ width: "20%"}}>
                           <option>Title</option>
                           <option>Author</option>
                           <option>Category</option>

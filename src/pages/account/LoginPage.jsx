@@ -100,7 +100,7 @@ class LoginPage extends Component {
     async submitRegister(event){
         event.preventDefault();
         await axios.post(URLAddress + '/api/newAccount', {
-            password: this.state.password,
+            email: this.state.email,
             username: this.state.username
         }).then(loginResp => {
             console.log(loginResp.status)
