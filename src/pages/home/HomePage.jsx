@@ -3,10 +3,11 @@ import './HomePage.css';
 import axios from "axios";
 import {NavbarTemplate} from "../navbar/NavbarTemplate";
 import * as imageApi from "../../services/ImageApi";
-import {Row, Card, Carousel, Form, FormControl, Button, FormSelect} from "react-bootstrap";
+import {Row, Card, Carousel, Form, FormControl, Button, FormSelect, Tabs} from "react-bootstrap";
 import {PATH} from "../../services/ConfigurationUrlAService";
 import {Link, Navigate} from "react-router-dom";
 import {Typeahead} from 'react-bootstrap-typeahead';
+import {Tab} from "bootstrap";
 
 const Logo = "/images/logo.png"
 const Book1 = "/images/book1_example.jpg"
@@ -27,6 +28,7 @@ class HomePage extends Component {
         this.handleFilterChange = this.handleFilterChange.bind(this);
         this.handleSearchInputChange = this.handleSearchInputChange.bind(this);
         this.searchOptionClick = this.searchOptionClick.bind(this);
+        this.updatePage = this.updatePage.bind(this);
 
         this.state = {
             booksLoaded: false,
@@ -85,15 +87,7 @@ class HomePage extends Component {
                             })
                         }
                     }
-                    // let start = this.state.currentPageId;
-                    // if(this.state.currentPageId == undefined){
-                    //     start = 0;
-                    // }
-                    // let fin = 20 + this.state.currentPageId * 20;
-                    // if(data.length < 20 + this.state.currentPageId * 20){
-                    //     fin = data.length;
-                    // }
-                    // for (let i = 0 + start * 20; i < fin; i++) {
+                    console.log(this.state.pages)
                     for (let i = 0; i < data.length; i++) {
                         let imageUrl = imageApi.getImageUrl(data[i].id)
                         this.setState({
@@ -186,6 +180,24 @@ class HomePage extends Component {
         catch(err) {}
     }
 
+    updatePage(key){
+        console.log(key)
+            this.fetchBooks().then(() => {
+                let filteredBooks = [];
+                let fin = key * 20;
+                if(this.state.books.length < fin){
+                    fin = this.state.books.length;
+                }
+                for(let i = (key - 1) * 20; i < fin; i++){
+                    console.log(i);
+                    filteredBooks.push(this.state.books[i]);
+                }
+                this.setState({
+                    books: filteredBooks
+                })
+            })
+    }
+
     render() {
         const books = this.state.books.map((book) =>
             <Card style={{marginLeft: "4%", marginBottom: "40px", display: "inline-block", cursor: "pointer"}} id={book.id} onClick={this.handleBookClick}>
@@ -208,7 +220,7 @@ class HomePage extends Component {
         )
 
         const pages = this.state.pages.map((page) =>
-            <Link style={{color: this.state.currentPageId == page ? "red" : "blue", textDecoration: "none", marginLeft: "2px"}} to={"/home#" + page}>{page}</Link>
+            <Tab style={{color: this.state.currentPageId == page ? "red" : "blue", textDecoration: "none", textAlign: "center"}} to={{ pathname: "/home#" + page}} eventKey={page} title={page} onClick={this.updatePage}></Tab>
         )
 
         if (this.state.bookChosen) {
@@ -296,9 +308,9 @@ class HomePage extends Component {
                       <br/>
                   </div>
 
-                  <div style={{textAlign: "center"}}>
+                  <Tabs style={{alignItems: "center", justifyContent: "center"}} defaultActiveKey="1" className="mb-3" onSelect={this.updatePage}>
                       {pages}
-                  </div>
+                  </Tabs>
 
                   <div style={{height: "300px", marginTop: "50px"}}>
                       <Row style={{textAlign: "center", alignItems: "center"}} xs={5}>
