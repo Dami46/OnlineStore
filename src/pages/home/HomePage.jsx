@@ -5,6 +5,7 @@ import {NavbarTemplate} from "../navbar/NavbarTemplate";
 import * as imageApi from "../../services/ImageApi";
 import {Row, Card, Carousel, Form, FormControl, Button, FormSelect} from "react-bootstrap";
 import {PATH} from "../../services/ConfigurationUrlAService";
+import {Navigate} from "react-router-dom";
 
 const Logo = "/images/logo.png"
 const Book1 = "/images/book1_example.jpg"
@@ -20,21 +21,31 @@ class HomePage extends Component {
     constructor(props) {
         super(props);
 
+        this.handleBookClick = this.handleBookClick.bind(this);
+        this.filterBooksClick = this.filterBooksClick.bind(this);
+        this.handleFilterChange = this.handleFilterChange.bind(this);
+        this.handleSearchInputChange = this.handleSearchInputChange.bind(this);
+
         this.state = {
             booksLoaded: false,
             books: [],
             authors: [],
             categories: [],
             languages: [],
-            publishers: []
+            publishers: [],
+            filterOption: 'title',
+            searchInput: ''
         }
+
+        this.fetchBooks();
     }
 
     async fetchBooks(){
         console.log(URLAddress + '/api/bookshelf')
         if(this.state.booksLoaded == false) {
             this.setState({
-                booksLoaded: true,
+                bookChosen: false,
+                bookChosenId: '',
                 books: [],
                 authors: [],
                 categories: [],
@@ -44,15 +55,15 @@ class HomePage extends Component {
             await axios.get(URLAddress + '/api/bookshelf').then(booksResp => {
                 return booksResp.data.bookList;
             }).then(data => {
-                console.log(data)
                 if(this.state.books.length == 0) {
                     for (let i = 0; i < data.length; i++) {
-                        console.log(data[i])
+                        // console.log(data[i])
+                        let imageUrl = imageApi.getImageUrl(data[i].id)
                         this.setState({
                             books: this.state.books.concat({
                                 id: data[i].id,
                                 author: data[i].author,
-                                bookImage: imageApi.getImageUrl(data[i].id),
+                                bookImage: imageUrl,
                                 category: data[i].category,
                                 description: data[i].description,
                                 inStockNumber: data[i].inStockNumber,
@@ -78,18 +89,56 @@ class HomePage extends Component {
                             }),
                         })
                     }
-                    console.log(this.state.books)
                 }
             });
         }
     }
 
+    handleBookClick(event){
+        let id = event.currentTarget.id
+        this.setState({
+            bookChosen: true,
+            bookChosenId: id
+        }, () => {
+            console.log(this.state.bookChosenId)
+        })
+    }
+
+    filterBooksClick(){
+        this.fetchBooks().then(() => {
+            let filteredBooks = [];
+            let filterOpt = this.state.filterOption;
+            filteredBooks = this.state.books.filter((book) => book[filterOpt].toLowerCase().includes(this.state.searchInput.toLowerCase()))
+            this.setState({
+                books: filteredBooks
+            })
+        })
+    }
+
+    handleFilterChange(event){
+        this.setState({
+            filterOption: event.target.value
+        }, () => {
+            console.log(this.state.filterOption)
+        })
+    }
+
+    handleSearchInputChange(event){
+        this.setState({
+            searchInput: event.target.value
+        }, () => {
+            console.log(this.state.searchInput)
+        })
+    }
+
     render() {
-        this.fetchBooks()
         const books = this.state.books.map((book) =>
-            <Card style={{marginLeft: "4%", marginBottom: "40px", display: "inline-block", cursor: "pointer"}}>
+            <Card style={{marginLeft: "4%", marginBottom: "40px", display: "inline-block", cursor: "pointer"}} id={book.id} onClick={this.handleBookClick}>
                 <Card.Body>
-                    <Card.Img width="200" height="300" variant="top" src={book.bookImage}/>
+                    <Card.Img width="200" height="300" variant="top" src={book.bookImage} onError={({ currentTarget }) => {
+                        currentTarget.onerror = null;
+                        currentTarget.src=imageApi.getImageUrl("0");
+                    }}/>
                     <Card.Title>
                         {book.title}
                     </Card.Title>
@@ -102,6 +151,10 @@ class HomePage extends Component {
                 </Card.Body>
             </Card>
         )
+
+        if (this.state.bookChosen) {
+            return <Navigate to={{pathname: "/books#" + this.state.bookChosenId}} />
+        }
 
         return (
           <div>
@@ -162,20 +215,21 @@ class HomePage extends Component {
 
               <div style={{marginLeft: "20%", width: "60%"}}>
                   <Form className="d-flex">
-                      <Form.Select style={{ width: "20%"}}>
-                          <option>Title</option>
-                          <option>Author</option>
-                          <option>Category</option>
-                          <option>Language</option>
-                          <option>Publisher</option>
+                      <Form.Select style={{ width: "20%"}} onChange={this.handleFilterChange}>
+                          <option value="title">Title</option>
+                          <option value="author">Author</option>
+                          <option value="category">Category</option>
+                          <option value="language">Language</option>
+                          <option value="publisher">Publisher</option>
                       </Form.Select>
                       <FormControl
                           type="search"
                           placeholder="Search"
                           className="me-2"
                           aria-label="Search"
+                          onChange={this.handleSearchInputChange}
                       />
-                      <Button variant="primary">Search</Button>
+                      <Button variant="primary" onClick={this.filterBooksClick}>Search</Button>
                   </Form>
               </div>
 
