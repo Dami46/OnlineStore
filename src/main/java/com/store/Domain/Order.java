@@ -18,13 +18,13 @@ public class Order {
 	private String orderStatus;
 	private BigDecimal orderTotal;
 	
-	@OneToMany(mappedBy = "order", cascade=CascadeType.ALL )
+	@OneToMany(mappedBy = "order", cascade=CascadeType.ALL)
 	private List<CartItem> cartItemList;
 	
-	@OneToOne(cascade=CascadeType.ALL)
+	@OneToOne(cascade = CascadeType.MERGE)
 	private ShippingAddress shippingAddress;
 
-	@OneToOne(cascade=CascadeType.ALL)
+	@OneToOne(cascade = CascadeType.MERGE)
 	private BillingAddress billingAddress;
 
 	@ManyToOne
@@ -101,7 +101,6 @@ public class Order {
 	public void setUser(User user) {
 		this.user = user;
 	}
-
 
 	public BillingAddress getBillingAddress() {
 		return billingAddress;

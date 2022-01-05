@@ -1,15 +1,11 @@
 package com.store.Controler;
 
 
-import com.store.Domain.BalanceRequest;
-import com.store.Domain.Book;
-import com.store.Domain.CartItem;
-import com.store.Domain.User;
-import com.store.Service.BalanceService;
-import com.store.Service.BookService;
-import com.store.Service.CartItemService;
-import com.store.Service.UserService;
+import com.store.Domain.*;
+import com.store.Service.*;
+import com.store.Utility.MailConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 @RestController
@@ -35,6 +32,14 @@ public class CheckoutController {
     @Autowired
     private CartItemService cartItemService;
 
+    @Autowired
+    private OrderService orderService;
+
+    @Autowired
+    private JavaMailSender mailSender;
+
+    @Autowired
+    private MailConstructor mailConstructor;
 
     @RequestMapping(value = "/buyItem", params = "buyBook")
     public ResponseEntity<Model> buyItem(
@@ -104,7 +109,11 @@ public class CheckoutController {
     }
 
     @RequestMapping(value = "/checkout", method = RequestMethod.POST)
-    public ResponseEntity<Model> checkoutPost(@RequestParam("id") Long bookId, Principal principal, Model model) {
+    public ResponseEntity<Model> checkoutPost(
+            @ModelAttribute("shippingAddress") ShippingAddress shippingAddress,
+            @ModelAttribute("billingAddress") BillingAddress billingAddress,
+            @ModelAttribute("shippingMethod") String shippingMethod,
+            @RequestParam("id") Long bookId, Principal principal, Model model) {
 
         Book book = bookService.findById(bookId).orElse(null);
         User user = userService.findByUsername(principal.getName());
@@ -119,6 +128,10 @@ public class CheckoutController {
         model.addAttribute("book", book);
 
         Objects.requireNonNull(book).setInStockNumber(book.getInStockNumber() - 1);
+        Order order = orderService.createOrder(book,shippingAddress, billingAddress, shippingMethod, user);
+
+        mailSender.send(mailConstructor.constructOrderConfirmationEmail(user, order, Locale.ENGLISH));
+
         user.setBalance(Math.round((user.getBalance() - book.getOurPrice()) * 100.0) / 100.0);
         userService.save(user);
 

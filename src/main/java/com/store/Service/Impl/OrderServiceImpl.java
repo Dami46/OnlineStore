@@ -1,12 +1,14 @@
 package com.store.Service.Impl;
 
 import com.store.Domain.*;
+import com.store.Repository.BookRepository;
 import com.store.Repository.OrderRepository;
 import com.store.Service.CartItemService;
 import com.store.Service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.Date;
@@ -15,12 +17,14 @@ import java.util.List;
 @Service
 public class OrderServiceImpl implements OrderService {
 
-
     @Autowired
     private OrderRepository orderRepository;
 
     @Autowired
     private CartItemService cartItemService;
+
+    @Autowired
+    private BookRepository bookRepository;
 
     @Override
     public synchronized Order createOrder(ShoppingCart shoppingCart, ShippingAddress shippingAddress,
@@ -37,10 +41,34 @@ public class OrderServiceImpl implements OrderService {
             Book book = cartItem.getBook();
             cartItem.setOrder(order);
             book.setInStockNumber(book.getInStockNumber() - cartItem.getQty());
+            bookRepository.save(book);
         }
         order.setCartItemList(cartItemList);
         order.setOrderDate(Calendar.getInstance().getTime());
         order.setOrderTotal(shoppingCart.getTotalPrize());
+        shippingAddress.setOrder(order);
+        billingAddress.setOrder(order);
+        order.setUser(user);
+        order.setShippingDate(getDeliveryDate(shippingMethod));
+        order = orderRepository.save(order);
+
+        return order;
+    }
+
+    @Override
+    public synchronized Order createOrder(Book book,ShippingAddress shippingAddress,
+                                          BillingAddress billingAddress, String shippingMethod, User user) {
+        Order order = new Order();
+        order.setBillingAddress(billingAddress);
+        order.setOrderStatus("DONE");
+        order.setShippingAddress(shippingAddress);
+        order.setShippingMethod(shippingMethod);
+        order.setOrderTotal(BigDecimal.valueOf(book.getOurPrice()));
+        order.setOrderDate(Calendar.getInstance().getTime());
+
+        book.setInStockNumber(book.getInStockNumber() - 1);
+        bookRepository.save(book);
+
         shippingAddress.setOrder(order);
         billingAddress.setOrder(order);
         order.setUser(user);

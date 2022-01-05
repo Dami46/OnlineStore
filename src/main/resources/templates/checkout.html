@@ -212,7 +212,6 @@
 													</p>
 													<p th:if="${book.inStockNumber==0}"
 														style="color: darkred;">Product Unavailable</p>
-													<!--<a th:href="@{/shoppingCart/removeItem?id=}+${cartItem.id}">delete</a>-->
 												</div>
 											</div>
 
@@ -242,7 +241,7 @@
 						</div>
 
 						<div th:if="${insufficientUserBalance}" style="color: red">
-							<h5 class="alert alert-warning">You dont have enough money in your balance to complete checkout.</h5>
+							<h5 class="alert alert-warning">You don't have enough money in your balance to complete checkout.</h5>
 						</div>
 					</div>
 				</div>

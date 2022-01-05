@@ -6,5 +6,7 @@ public interface OrderService {
 
     Order createOrder(ShoppingCart shoppingCart, ShippingAddress shippingAddress, BillingAddress billingAddress, String shippingMethod, User user);
 
+    Order createOrder(Book book,ShippingAddress shippingAddress, BillingAddress billingAddress, String shippingMethod, User user);
+
     Order findOne(Long id);
 }
