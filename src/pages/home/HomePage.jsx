@@ -5,7 +5,8 @@ import {NavbarTemplate} from "../navbar/NavbarTemplate";
 import * as imageApi from "../../services/ImageApi";
 import {Row, Card, Carousel, Form, FormControl, Button, FormSelect} from "react-bootstrap";
 import {PATH} from "../../services/ConfigurationUrlAService";
-import {Navigate} from "react-router-dom";
+import {Link, Navigate} from "react-router-dom";
+import {Typeahead} from 'react-bootstrap-typeahead';
 
 const Logo = "/images/logo.png"
 const Book1 = "/images/book1_example.jpg"
@@ -25,16 +26,30 @@ class HomePage extends Component {
         this.filterBooksClick = this.filterBooksClick.bind(this);
         this.handleFilterChange = this.handleFilterChange.bind(this);
         this.handleSearchInputChange = this.handleSearchInputChange.bind(this);
+        this.searchOptionClick = this.searchOptionClick.bind(this);
 
         this.state = {
             booksLoaded: false,
+            bookChosen: false,
+            bookChosenId: '',
+            currentPageId: window.location.href.split('#')[1],
+            pageCount: 0,
+            pages: [],
             books: [],
+            titles: [],
             authors: [],
-            categories: [],
+            categorys: [],
             languages: [],
             publishers: [],
             filterOption: 'title',
+            options: [],
             searchInput: ''
+        }
+
+        if(this.state.currentPageId == undefined){
+            this.setState({
+                currentPageId: 1
+            })
         }
 
         this.fetchBooks();
@@ -47,17 +62,39 @@ class HomePage extends Component {
                 bookChosen: false,
                 bookChosenId: '',
                 books: [],
+                titles: [],
                 authors: [],
-                categories: [],
+                categorys: [],
                 languages: [],
-                publishers: []
+                publishers: [],
+                nextPageChosen: false,
+                nextPageId: 0,
+                currentPageId: 1,
+                pageCount: 0,
+                pages: [],
             })
             await axios.get(URLAddress + '/api/bookshelf').then(booksResp => {
                 return booksResp.data.bookList;
             }).then(data => {
                 if(this.state.books.length == 0) {
+                    for(let j = 0; j < data.length; j++){
+                        if(j % 20 == 0){
+                            this.setState({
+                                pageCount: this.state.pageCount + 1,
+                                pages: this.state.pages.concat(this.state.pageCount + 1),
+                            })
+                        }
+                    }
+                    // let start = this.state.currentPageId;
+                    // if(this.state.currentPageId == undefined){
+                    //     start = 0;
+                    // }
+                    // let fin = 20 + this.state.currentPageId * 20;
+                    // if(data.length < 20 + this.state.currentPageId * 20){
+                    //     fin = data.length;
+                    // }
+                    // for (let i = 0 + start * 20; i < fin; i++) {
                     for (let i = 0; i < data.length; i++) {
-                        // console.log(data[i])
                         let imageUrl = imageApi.getImageUrl(data[i].id)
                         this.setState({
                             books: this.state.books.concat({
@@ -76,21 +113,26 @@ class HomePage extends Component {
                                 title: data[i].title,
                             }),
                             authors: this.state.authors.concat({
-                                author: data[i].author,
+                                name: data[i].author,
                             }),
-                            categories: this.state.categories.concat({
-                                category: data[i].category,
+                            categorys: this.state.categorys.concat({
+                                name: data[i].category,
                             }),
                             languages: this.state.languages.concat({
-                                language: data[i].language,
+                                name: data[i].language,
                             }),
                             publishers: this.state.publishers.concat({
-                                publisher: data[i].publisher,
+                                name: data[i].publisher,
+                            }),
+                            titles: this.state.titles.concat({
+                                name: data[i].title,
                             }),
                         })
                     }
                 }
-            });
+            }, () => {
+                console.log(this.state.pages)
+            })
         }
     }
 
@@ -107,8 +149,7 @@ class HomePage extends Component {
     filterBooksClick(){
         this.fetchBooks().then(() => {
             let filteredBooks = [];
-            let filterOpt = this.state.filterOption;
-            filteredBooks = this.state.books.filter((book) => book[filterOpt].toLowerCase().includes(this.state.searchInput.toLowerCase()))
+            filteredBooks = this.state.books.filter((book) => book[this.state.filterOption].toLowerCase().includes(this.state.searchInput.toLowerCase()))
             this.setState({
                 books: filteredBooks
             })
@@ -117,9 +158,11 @@ class HomePage extends Component {
 
     handleFilterChange(event){
         this.setState({
-            filterOption: event.target.value
+            filterOption: event.target.value,
+            options: this.state[event.target.value + "s"]
         }, () => {
             console.log(this.state.filterOption)
+            console.log(this.state.options)
         })
     }
 
@@ -129,6 +172,18 @@ class HomePage extends Component {
         }, () => {
             console.log(this.state.searchInput)
         })
+
+    }
+
+    searchOptionClick(event){
+        try {
+            this.setState({
+                searchInput: event[0].name
+            }, () => {
+                console.log(this.state.searchInput)
+            })
+        }
+        catch(err) {}
     }
 
     render() {
@@ -152,6 +207,10 @@ class HomePage extends Component {
             </Card>
         )
 
+        const pages = this.state.pages.map((page) =>
+            <Link style={{color: this.state.currentPageId == page ? "red" : "blue", textDecoration: "none", marginLeft: "2px"}} to={"/home#" + page}>{page}</Link>
+        )
+
         if (this.state.bookChosen) {
             return <Navigate to={{pathname: "/books#" + this.state.bookChosenId}} />
         }
@@ -164,79 +223,88 @@ class HomePage extends Component {
               </div>
 
               <div>
-                  <Carousel>
-                      <Carousel.Item>
-                          <img
-                              className="d-block w-100"
-                              src={Book1_slide}
-                              width="100"
-                              height="200"
-                              alt="First book"
+                  <div>
+                      <Carousel>
+                          <Carousel.Item>
+                              <img
+                                  className="d-block w-100"
+                                  src={Book1_slide}
+                                  width="100"
+                                  height="200"
+                                  alt="First book"
+                              />
+                              <Carousel.Caption>
+                                  <h3>First book label</h3>
+                                  <p>Nulla vitae elit libero, a pharetra augue mollis interdum.</p>
+                              </Carousel.Caption>
+                          </Carousel.Item>
+                          <Carousel.Item>
+                              <img
+                                  className="d-block w-100"
+                                  src={Book2_slide}
+                                  width="100"
+                                  height="200"
+                                  alt="Second book"
+                              />
+
+                              <Carousel.Caption>
+                                  <h3>Second book label</h3>
+                                  <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                              </Carousel.Caption>
+                          </Carousel.Item>
+                          <Carousel.Item>
+                              <img
+                                  className="d-block w-100"
+                                  src={Book3_slide}
+                                  width="100"
+                                  height="200"
+                                  alt="Third book"
+                              />
+
+                              <Carousel.Caption>
+                                  <h3>Third book label</h3>
+                                  <p>Praesent commodo cursus magna, vel scelerisque nisl consectetur.</p>
+                              </Carousel.Caption>
+                          </Carousel.Item>
+                      </Carousel>
+                  </div>
+
+                  <div>
+                      <br/>
+                  </div>
+
+                  <div style={{marginLeft: "20%", width: "60%"}}>
+                      <Form className="d-flex">
+                          <Form.Select style={{ width: "20%"}} onChange={this.handleFilterChange}>
+                              <option value="title">Title</option>
+                              <option value="author">Author</option>
+                              <option value="category">Category</option>
+                              <option value="language">Language</option>
+                              <option value="publisher">Publisher</option>
+                          </Form.Select>
+                          <Typeahead
+                              style={{width: "70%"}}
+                              id="basic-typeahead-single"
+                              labelKey="name"
+                              className="me-2"
+                              onChange={this.searchOptionClick}
+                              options={this.state.options}
+                              placeholder="Search"
                           />
-                          <Carousel.Caption>
-                              <h3>First book label</h3>
-                              <p>Nulla vitae elit libero, a pharetra augue mollis interdum.</p>
-                          </Carousel.Caption>
-                      </Carousel.Item>
-                      <Carousel.Item>
-                          <img
-                              className="d-block w-100"
-                              src={Book2_slide}
-                              width="100"
-                              height="200"
-                              alt="Second book"
-                          />
+                          <Button variant="primary" onClick={this.filterBooksClick}>Search</Button>
+                      </Form>
+                      <br/>
+                  </div>
 
-                          <Carousel.Caption>
-                              <h3>Second book label</h3>
-                              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                          </Carousel.Caption>
-                      </Carousel.Item>
-                      <Carousel.Item>
-                          <img
-                              className="d-block w-100"
-                              src={Book3_slide}
-                              width="100"
-                              height="200"
-                              alt="Third book"
-                          />
+                  <div style={{textAlign: "center"}}>
+                      {pages}
+                  </div>
 
-                          <Carousel.Caption>
-                              <h3>Third book label</h3>
-                              <p>Praesent commodo cursus magna, vel scelerisque nisl consectetur.</p>
-                          </Carousel.Caption>
-                      </Carousel.Item>
-                  </Carousel>
-              </div>
-
-              <div>
-                  <br/>
-              </div>
-
-              <div style={{marginLeft: "20%", width: "60%"}}>
-                  <Form className="d-flex">
-                      <Form.Select style={{ width: "20%"}} onChange={this.handleFilterChange}>
-                          <option value="title">Title</option>
-                          <option value="author">Author</option>
-                          <option value="category">Category</option>
-                          <option value="language">Language</option>
-                          <option value="publisher">Publisher</option>
-                      </Form.Select>
-                      <FormControl
-                          type="search"
-                          placeholder="Search"
-                          className="me-2"
-                          aria-label="Search"
-                          onChange={this.handleSearchInputChange}
-                      />
-                      <Button variant="primary" onClick={this.filterBooksClick}>Search</Button>
-                  </Form>
-              </div>
-
-              <div style={{height: "300px", marginTop: "50px"}}>
-                  <Row style={{textAlign: "center", alignItems: "center"}} xs={5}>
-                      {books}
-                  </Row>
+                  <div style={{height: "300px", marginTop: "50px"}}>
+                      <Row style={{textAlign: "center", alignItems: "center"}} xs={5}>
+                          {books}
+                      </Row>
+                  </div>
               </div>
           </div>
         );

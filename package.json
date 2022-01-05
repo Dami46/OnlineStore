@@ -13,9 +13,11 @@
     "navbar-react": "^1.0.4",
     "react": "^17.0.2",
     "react-bootstrap": "^2.0.3",
+    "react-bootstrap-typeahead": "^6.0.0-alpha.4",
     "react-dom": "^17.0.2",
     "react-router-dom": "^6.2.1",
     "react-scripts": "4.0.3",
+    "react-search-autocomplete": "^5.4.4",
     "rxjs": "^7.4.0",
     "web-vitals": "^1.1.2"
   },
@@ -44,7 +46,7 @@
     ]
   },
   "devDependencies": {
-    "history": "^5.2.0",
-    "@azure/storage-blob": "^12.1.1"
+    "@azure/storage-blob": "^12.1.1",
+    "history": "^5.2.0"
   }
 }
