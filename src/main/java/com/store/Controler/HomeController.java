@@ -1,6 +1,8 @@
 package com.store.Controler;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.store.Domain.*;
+import com.store.Dto.RegistrationDto;
 import com.store.Security.PasswordResetToken;
 import com.store.Security.Role;
 import com.store.Security.UserRole;
@@ -9,6 +11,8 @@ import com.store.Service.Impl.UserSecurityService;
 import com.store.Utility.MailConstructor;
 import com.store.Utility.SecurityUtility;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,19 +20,20 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.websocket.server.PathParam;
+import java.io.IOException;
 import java.security.Principal;
 import java.util.*;
+import java.util.stream.Collectors;
 
-@Controller
+@RestController
 public class HomeController {
 
     @Autowired
@@ -55,14 +60,15 @@ public class HomeController {
     @Autowired
     private CartItemService cartItemService;
 
+    private static ObjectMapper objectMapper = new ObjectMapper();
 
     @RequestMapping("/")
-    public String index() {
-        return "index";
+    public ResponseEntity<?> index() {
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @RequestMapping("/myProfile")
-    public String myAccount(Model model, Principal principal) {
+    @RequestMapping(value = "/myProfile")
+    public ResponseEntity<Model> myAccount(Model model, Principal principal) {
         User user = userService.findByUsername(principal.getName());
         model.addAttribute("user", user);
         model.addAttribute("userShippingList", user.getUserShippingList());
@@ -73,12 +79,12 @@ public class HomeController {
         model.addAttribute("listOfShippingAddresses", true);
         model.addAttribute("classActiveEdit", true);
 
-        return "myProfile";
+        return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
-    @RequestMapping("/listOfShippingAddresses")
-    public String listOfShippingAddresses(
-            Model model, Principal principal, HttpServletRequest request
+    @RequestMapping(value = "listOfShippingAddresses")
+    public ResponseEntity<Model> listOfShippingAddresses(
+            Model model, Principal principal
     ) {
         User user = userService.findByUsername(principal.getName());
 
@@ -97,16 +103,16 @@ public class HomeController {
         model.addAttribute("classActiveShipping", true);
         model.addAttribute("listOfShippingAddresses", true);
 
-        return "myProfile";
+        return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
-    @RequestMapping("/orderDetail")
-    public String orderDetail(@RequestParam("id") Long orderId, Principal principal, Model model) {
+    @RequestMapping(value = "orderDetail")
+    public ResponseEntity<Model> orderDetail(@RequestParam("id") Long orderId, Principal principal, Model model) {
         User user = userService.findByUsername(principal.getName());
         Order order = orderService.findOne(orderId);
 
         if (!order.getUser().getId().equals(user.getId())) {
-            return "badRequestPage";
+            return new ResponseEntity<>(model, HttpStatus.BAD_REQUEST);
         } else {
             List<CartItem> cartItemList = cartItemService.findByOrder(order);
             model.addAttribute("cartItemList", cartItemList);
@@ -124,12 +130,12 @@ public class HomeController {
             model.addAttribute("listOfCreditCards", true);
             model.addAttribute("displayOrderDetail", true);
 
-            return "myProfile";
+            return new ResponseEntity<>(model, HttpStatus.OK);
         }
     }
 
-    @RequestMapping("/addNewShippingAddress")
-    public String addNewShippingAddress(
+    @RequestMapping(value = "addNewShippingAddress")
+    public ResponseEntity<Model> addNewShippingAddress(
             Model model, Principal principal
     ) {
         User user = userService.findByUsername(principal.getName());
@@ -146,12 +152,12 @@ public class HomeController {
         model.addAttribute("userShippingList", user.getUserShippingList());
         model.addAttribute("orderList", user.getOrderList());
 
-        return "myProfile";
+        return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/addNewShippingAddress", method = RequestMethod.POST)
-    public String addNewShippingAddressPost(
-            @ModelAttribute("userShipping") UserShipping userShipping,
+    @RequestMapping(value = "addNewShippingAddress", method = RequestMethod.POST)
+    public ResponseEntity<Model> addNewShippingAddressPost(
+            @RequestParam("userShipping") UserShipping userShipping,
             Principal principal, Model model
     ) {
         User user = userService.findByUsername(principal.getName());
@@ -163,18 +169,18 @@ public class HomeController {
         model.addAttribute("classActiveShipping", true);
         model.addAttribute("orderList", user.getOrderList());
 
-        return "myProfile";
+        return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
-    @RequestMapping("/updateUserShipping")
-    public String updateUserShipping(
-            @ModelAttribute("id") Long shippingAddressId, Principal principal, Model model
+    @RequestMapping(value = "updateUserShipping/{id]")
+    public ResponseEntity<Model> updateUserShipping(
+            @PathParam("id") Long shippingAddressId, Principal principal, Model model
     ) {
         User user = userService.findByUsername(principal.getName());
         UserShipping userShipping = userShippingService.findById(shippingAddressId);
 
         if (!user.getId().equals(userShipping.getUser().getId())) {
-            return "badRequestPage";
+            return new ResponseEntity<>(model, HttpStatus.BAD_REQUEST);
         } else {
             model.addAttribute("user", user);
             model.addAttribute("userShipping", userShipping);
@@ -184,13 +190,13 @@ public class HomeController {
             model.addAttribute("userShippingList", user.getUserShippingList());
             model.addAttribute("orderList", user.getOrderList());
 
-            return "myProfile";
+            return new ResponseEntity<>(model, HttpStatus.OK);
         }
     }
 
     @RequestMapping(value = "/setDefaultShippingAddress", method = RequestMethod.POST)
-    public String setDefaultShippingAddress(
-            @ModelAttribute("defaultShippingAddressId") Long defaultShippingId, Principal principal, Model model
+    public ResponseEntity<Model> setDefaultShippingAddress(
+            @PathParam("defaultShippingAddressId") Long defaultShippingId, Principal principal, Model model
     ) {
         User user = userService.findByUsername(principal.getName());
         userService.setUserDefaultShipping(defaultShippingId, user);
@@ -203,19 +209,18 @@ public class HomeController {
         model.addAttribute("userShippingList", user.getUserShippingList());
         model.addAttribute("orderList", user.getOrderList());
 
-        return "myProfile";
+        return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
-    @RequestMapping("/removeUserShipping")
-    public String removeUserShipping(
-            @ModelAttribute("id") Long userShippingId, Principal principal, Model model
+    @RequestMapping(value = "removeUserShipping")
+    public ResponseEntity<Model> removeUserShipping(
+            @PathParam("id") Long userShippingId, Principal principal, Model model
     ) {
         User user = userService.findByUsername(principal.getName());
         UserShipping userShipping = userShippingService.findById(userShippingId);
 
-        if (user.getId() != userShipping.getUser().getId()) {
+        if (!Objects.equals(user.getId(), userShipping.getUser().getId())) {
             model.addAttribute("emptyList", true);
-            return "myProfile";
         } else {
             model.addAttribute("user", user);
 
@@ -228,14 +233,14 @@ public class HomeController {
             model.addAttribute("userShippingList", user.getUserShippingList());
             model.addAttribute("orderList", user.getOrderList());
 
-            return "myProfile";
         }
+        return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/updateUserInfo", method = RequestMethod.POST)
-    public String updateUserInfo(
-            @ModelAttribute("user") User user,
-            @ModelAttribute("newPassword") String newPassword,
+    public ResponseEntity<Model> updateUserInfo(
+            @RequestParam("user") User user,
+            @RequestParam("newPassword") String newPassword,
             Model model
     ) throws Exception {
         User currentUser = userService.findById(user.getId());
@@ -246,17 +251,17 @@ public class HomeController {
 
         /*check email already exists*/
         if (userService.findByEmail(user.getEmail()) != null) {
-            if (userService.findByEmail(user.getEmail()).getId() != currentUser.getId()) {
+            if (!Objects.equals(userService.findByEmail(user.getEmail()).getId(), currentUser.getId())) {
                 model.addAttribute("emailExists", true);
-                return "myProfile";
+                return new ResponseEntity<>(model, HttpStatus.OK);
             }
         }
 
         /*check username already exists*/
         if (userService.findByUsername(user.getUsername()) != null) {
-            if (userService.findByUsername(user.getUsername()).getId() != currentUser.getId()) {
+            if (!Objects.equals(userService.findByUsername(user.getUsername()).getId(), currentUser.getId())) {
                 model.addAttribute("usernameExists", true);
-                return "myProfile";
+                return new ResponseEntity<>(model, HttpStatus.OK);
             }
         }
 
@@ -269,7 +274,7 @@ public class HomeController {
             } else {
                 model.addAttribute("incorrectPassword", true);
 
-                return "myProfile";
+                return new ResponseEntity<>(model, HttpStatus.OK);
             }
         }
 
@@ -293,18 +298,18 @@ public class HomeController {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        return "myProfile";
+        return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
     @RequestMapping("/login")
-    public String login(Model model) {
+    public ResponseEntity<Model> login(Model model) {
         model.addAttribute("classActiveLogin", true);
-        return "myAccount";
+        return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
 
     @RequestMapping("/bookshelf")
-    public String bookshelf(Model model, Principal principal) {
+    public ResponseEntity<Model> bookshelf(Model model, Principal principal) {
         if (principal != null) {
             String username = principal.getName();
             User user = userService.findByUsername(username);
@@ -315,11 +320,11 @@ public class HomeController {
         model.addAttribute("bookList", bookList);
         model.addAttribute("activeAll", true);
 
-        return "bookshelf";
+        return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
     @RequestMapping("/bookDetail")
-    public String bookDetail(@PathParam("id") Long id, Model model, Principal principal) {
+    public ResponseEntity<Model> bookDetail(@PathParam("id") Long id, Model model, Principal principal) {
 
         if (principal != null) {
             String username = principal.getName();
@@ -334,35 +339,38 @@ public class HomeController {
         model.addAttribute("qtyList", qtyList);
         model.addAttribute("qty", 1);
 
-        return "bookDetail";
+        return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
 
     @RequestMapping(value = "/newAccount", method = RequestMethod.POST)
-    public String newUserPost(
+    public ResponseEntity<Model> newUserPost(
             HttpServletRequest request,
-            @ModelAttribute("email") String userEmail,
-            @ModelAttribute("username") String username,
             Model model) throws Exception {
-        model.addAttribute("classActiveNewAccount", true);
-        model.addAttribute("email", userEmail);
-        model.addAttribute("username", username);
 
-        if (userService.findByUsername(username) != null) {
+        String requestBody = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+
+        RegistrationDto registrationDto = objectMapper.readValue(requestBody, RegistrationDto.class);
+
+        model.addAttribute("classActiveNewAccount", true);
+        model.addAttribute("email", registrationDto.getEmail());
+        model.addAttribute("username", registrationDto.getUsername());
+
+        if (userService.findByUsername(registrationDto.getUsername()) != null) {
             model.addAttribute("userNameExists", true);
 
-            return "myAccount";
+            return new ResponseEntity<>(model, HttpStatus.FORBIDDEN);
         }
 
-        if (userService.findByEmail(userEmail) != null) {
+        if (userService.findByEmail(registrationDto.getEmail()) != null) {
             model.addAttribute("emailExists", true);
 
-            return "myAccount";
+            return new ResponseEntity<>(model, HttpStatus.FORBIDDEN);
         }
 
         User user = new User();
-        user.setUsername(username);
-        user.setEmail(userEmail);
+        user.setUsername(registrationDto.getUsername());
+        user.setEmail(registrationDto.getEmail());
         user.setBalance(100.00);
 
         String password = SecurityUtility.randomPassword();
@@ -388,17 +396,17 @@ public class HomeController {
         model.addAttribute("emailSent", "true");
         model.addAttribute("orderList", user.getOrderList());
 
-        return "myAccount";
+        return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
     @RequestMapping("/newAccount")
-    public String newAccount(Locale locale, @RequestParam("token") String token, Model model) {
+    public ResponseEntity<Model> newAccount(Locale locale, @RequestParam("token") String token, Model model) {
         PasswordResetToken passToken = userService.getPasswordResetToken(token);
 
         if (passToken == null) {
             String message = "Invalid Token.";
             model.addAttribute("message", message);
-            return "redirect:/badRequest";
+            return new ResponseEntity<>(model, HttpStatus.BAD_REQUEST); //z TEGO OK TRZEBA ZROBIĆ REDIRECT DO /bad request
         }
 
         User user = passToken.getUser();
@@ -414,21 +422,24 @@ public class HomeController {
         model.addAttribute("user", user);
         model.addAttribute("classActiveEdit", true);
 
-        return "myProfile";
+        return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
     @RequestMapping("/forgetPassword")
-    public String forgetPassword(
+    public ResponseEntity<Model> forgetPassword(
             HttpServletRequest request,
-            @ModelAttribute("email") String email,
             Model model
-    ) {
+    ) throws IOException {
+        String requestBody = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+
+        RegistrationDto registrationDto = objectMapper.readValue(requestBody, RegistrationDto.class);
+
         model.addAttribute("classActiveForgetPassword", true);
-        User user = userService.findByEmail(email);
+        User user = userService.findByEmail(registrationDto.getEmail());
 
         if (user == null) {
             model.addAttribute("emailNotExist", true);
-            return "myAccount";
+            return new ResponseEntity<>(model, HttpStatus.FORBIDDEN);
         }
 
         String password = SecurityUtility.randomPassword();
@@ -445,15 +456,15 @@ public class HomeController {
         mailSender.send(newEmail);
 
         model.addAttribute("forgetPasswordEmailSent", "true");
-        return "myAccount";
+        return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/removeUser", method = RequestMethod.POST)
-    public String remove(
-            @ModelAttribute("id") String id, Model model
+    public ResponseEntity<Model> remove(
+            @PathParam("id") String id, Model model
     ) {
         userService.removeOne(Long.parseLong(id.substring(9)));
-        return "redirect:/logout";
+        return new ResponseEntity<>(model, HttpStatus.OK); //z TEGO OK TRZEBA ZROBIĆ REDIRECT DO /LOGOUT
     }
 
 }

@@ -4,20 +4,18 @@ import com.store.Domain.*;
 import com.store.Service.*;
 import com.store.Utility.MailConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
-@Controller
+@RestController
 @RequestMapping("/shoppingCart")
 public class ShoppingCartController {
 
@@ -57,7 +55,7 @@ public class ShoppingCartController {
     private Payment payment = new Payment();
 
     @RequestMapping("/cart")
-    public String shoppingCart(Model model, Principal principal) {
+    public ResponseEntity<Model> shoppingCart(Model model, Principal principal) {
         User user = userService.findByUsername(principal.getName());
         ShoppingCart shoppingCart = user.getShoppingCart();
 
@@ -67,11 +65,11 @@ public class ShoppingCartController {
         model.addAttribute("cartItemList", cartItemList);
         model.addAttribute("shoppingCart", shoppingCart);
 
-        return "shoppingCart";
+        return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
     @RequestMapping("/updateCartItem")
-    public String updateShoppingCart(
+    public ResponseEntity<Model> updateShoppingCart(
             @ModelAttribute("id") Long cartItemId,
             @ModelAttribute("qty") int qty, Model model
     ) {
@@ -84,43 +82,43 @@ public class ShoppingCartController {
             model.addAttribute("notEnoughStock", true);
         }
 
-        return "forward:/shoppingCart/cart";
+        return new ResponseEntity<>(model, HttpStatus.CONTINUE); //"forward:/shoppingCart/cart"
     }
 
     @RequestMapping("/removeItem")
-    public String removeItem(@RequestParam("id") Long id) {
+    public ResponseEntity<?> removeItem(@RequestParam("id") Long id) {
         cartItemService.removeCartItem(cartItemService.findById(id));
 
-        return "forward:/shoppingCart/cart";
+        return new ResponseEntity<>(HttpStatus.CONTINUE); //"forward:/shoppingCart/cart"
     }
 
     @RequestMapping("/cartCheckout")
-    public String checkout(@RequestParam("id") Long cartId,
-                           @RequestParam(value = "missingRequiredField", required = false) boolean missingRequiredField, Model model,
-                           Principal principal) {
+    public ResponseEntity<Model> checkout(@RequestParam("id") Long cartId,
+                                          @RequestParam(value = "missingRequiredField", required = false) boolean missingRequiredField, Model model,
+                                          Principal principal) {
         User user = userService.findByUsername(principal.getName());
 
         if (!Objects.equals(cartId, user.getShoppingCart().getId())) {
-            return "badRequestPage";
+            return new ResponseEntity<>(model, HttpStatus.BAD_REQUEST);
         }
 
         List<CartItem> cartItemList = cartItemService.findByShoppingCart(user.getShoppingCart());
 
         if (cartItemList.size() == 0) {
             model.addAttribute("emptyCart", true);
-            return "forward:/shoppingCart/cart";
+            return new ResponseEntity<>(model, HttpStatus.CONTINUE); //"forward:/shoppingCart/cart"
         }
 
         for (CartItem cartItem : cartItemList) {
             if (cartItem.getBook().getInStockNumber() < cartItem.getQty()) {
                 model.addAttribute("notEnoughStock", true);
-                return "forward:/shoppingCart/cart";
+                return new ResponseEntity<>(model, HttpStatus.CONTINUE); //"forward:/shoppingCart/cart"
             }
         }
 
         if (user.getBalance() < user.getShoppingCart().getTotalPrize().doubleValue()) {
             model.addAttribute("insufficientUserBalance", true);
-            return "forward:/shoppingCart/cart";
+            return new ResponseEntity<>(model, HttpStatus.CONTINUE); //"forward:/shoppingCart/cart"
         } else {
             model.addAttribute("insufficientUserBalance", false);
         }
@@ -170,16 +168,16 @@ public class ShoppingCartController {
             model.addAttribute("missingRequiredField", true);
         }
 
-        return "cartCheckout";
+        return new ResponseEntity<>(model, HttpStatus.OK);
 
     }
 
     @RequestMapping(value = "/cartCheckout", method = RequestMethod.POST)
-    public String checkoutPost(@ModelAttribute("shippingAddress") ShippingAddress shippingAddress,
-                               @ModelAttribute("billingAddress") BillingAddress billingAddress,
-                               @ModelAttribute("payment") Payment payment,
-                               @ModelAttribute("billingSameAsShipping") String billingSameAsShipping,
-                               @ModelAttribute("shippingMethod") String shippingMethod, Principal principal, Model model) {
+    public ResponseEntity<Model> checkoutPost(@ModelAttribute("shippingAddress") ShippingAddress shippingAddress,
+                                              @ModelAttribute("billingAddress") BillingAddress billingAddress,
+                                              @ModelAttribute("payment") Payment payment,
+                                              @ModelAttribute("billingSameAsShipping") String billingSameAsShipping,
+                                              @ModelAttribute("shippingMethod") String shippingMethod, Principal principal, Model model) {
         ShoppingCart shoppingCart = userService.findByUsername(principal.getName()).getShoppingCart();
 
         List<CartItem> cartItemList = cartItemService.findByShoppingCart(shoppingCart);
@@ -206,7 +204,7 @@ public class ShoppingCartController {
                 || billingAddress.getBillingAddressState().isEmpty()
                 || billingAddress.getBillingAddressName().isEmpty()
                 || billingAddress.getBillingAddressZipcode().isEmpty()) {
-            return "redirect:/checkout?id=" + shoppingCart.getId() + "&missingRequiredField=true";
+            return new ResponseEntity<>(model, HttpStatus.CONTINUE); //"redirect:/checkout?id=" + shoppingCart.getId() + "&missingRequiredField=true"
         }
 
         User user = userService.findByUsername(principal.getName());
@@ -220,17 +218,17 @@ public class ShoppingCartController {
 
         model.addAttribute("estimatedDeliveryDate", order.getShippingDate());
 
-        return "cartOrderSubmittedPage";
+        return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
     @RequestMapping("/setShippingAddress")
-    public String setShippingAddress(@RequestParam("userShippingId") Long userShippingId, Principal principal,
-                                     Model model) {
+    public ResponseEntity<Model> setShippingAddress(@RequestParam("userShippingId") Long userShippingId, Principal principal,
+                                                    Model model) {
         User user = userService.findByUsername(principal.getName());
         UserShipping userShipping = userShippingService.findById(userShippingId);
 
         if (!userShipping.getUser().getId().equals(user.getId())) {
-            return "badRequestPage";
+            return new ResponseEntity<>(model, HttpStatus.BAD_REQUEST);
         } else {
             shippingAddressService.setByUserShipping(userShipping, shippingAddress);
 
@@ -260,7 +258,7 @@ public class ShoppingCartController {
 
             model.addAttribute("emptyShippingList", false);
 
-            return "cartCheckout";
+            return new ResponseEntity<>(model, HttpStatus.OK);
         }
     }
 }
