@@ -43,7 +43,7 @@ public class SearchController {
 
         if (bookList.isEmpty()) {
             model.addAttribute("emptyList", true);
-            return new ResponseEntity<>(model, HttpStatus.OK);
+            return new ResponseEntity<>(model, HttpStatus.NO_CONTENT);
         }
 
         model.addAttribute("bookList", bookList);
@@ -66,12 +66,12 @@ public class SearchController {
 
         if (bookList.isEmpty()) {
             model.addAttribute("emptyList", true);
-            return new ResponseEntity<>(model, HttpStatus.OK
+            return new ResponseEntity<>(model, HttpStatus.NO_CONTENT
             );
         }
 
         model.addAttribute("bookList", bookList);
 
-        return new ResponseEntity<>(model, HttpStatus.CONTINUE);
+        return new ResponseEntity<>(model, HttpStatus.OK);
     }
 }

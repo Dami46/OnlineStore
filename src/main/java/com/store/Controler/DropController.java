@@ -7,6 +7,8 @@ import com.store.Service.BookService;
 import com.store.Service.DropService;
 import com.store.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -32,7 +34,7 @@ public class DropController {
 
 
     @RequestMapping("/drop")
-    public String dropList(Model model, Principal principal) {
+    public ResponseEntity<Model> dropList(Model model, Principal principal) {
         if (principal != null) {
             String username = principal.getName();
             User user = userService.findByUsername(username);
@@ -43,7 +45,7 @@ public class DropController {
 
         if (itemToDropList.isEmpty()) {
             model.addAttribute("emptyList", true);
-            return "drop";
+            return new ResponseEntity<>(model, HttpStatus.NO_CONTENT);
         }
 
         for (DropItem dropItem : itemToDropList) {
@@ -53,11 +55,11 @@ public class DropController {
 
         model.addAttribute("itemToDropList", itemToDropList);
 
-        return "drop";
+        return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
     @RequestMapping("/dropDetail")
-    public String dropDetail(@PathParam("id") Long id, Model model, Principal principal) {
+    public ResponseEntity<Model> dropDetail(@PathParam("id") Long id, Model model, Principal principal) {
 
         User user = null;
         if (principal != null) {
@@ -85,11 +87,11 @@ public class DropController {
         }
 
         model.addAttribute("dropItem", dropItem);
-        return "dropDetail";
+        return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
     @RequestMapping("/signForDrop")
-    public String signForDrop(@ModelAttribute("id") Long dropItemId, Principal principal, Model model) {
+    public ResponseEntity<Model> signForDrop(@ModelAttribute("id") Long dropItemId, Principal principal, Model model) {
 
         if (principal != null) {
             String username = principal.getName();
@@ -107,7 +109,7 @@ public class DropController {
             }
         }
 
-        return "redirect:/dropDetail?id=" + dropItemId;
+        return new ResponseEntity<>(model, HttpStatus.OK); // "redirect:/dropDetail?id=" + dropItemId;
     }
 
 }
