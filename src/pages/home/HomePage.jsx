@@ -9,10 +9,6 @@ import {Link, Navigate} from "react-router-dom";
 import {Typeahead} from 'react-bootstrap-typeahead';
 import {Tab} from "bootstrap";
 
-const Logo = "/images/logo.png"
-const Book1 = "/images/book1_example.jpg"
-const Book2 = "/images/book2_example.jpg"
-const Book3 = "/images/book3_example.jpg"
 const Book1_slide = "/images/book1_example_slide.jpg"
 const Book2_slide = "/images/book2_example_slide.jpg"
 const Book3_slide = "/images/book3_example_slide.jpg"
@@ -43,7 +39,7 @@ class HomePage extends Component {
             categorys: [],
             languages: [],
             publishers: [],
-            filterOption: 'title',
+            filterOption: 'titles',
             options: [],
             searchInput: ''
         }
@@ -58,7 +54,6 @@ class HomePage extends Component {
     }
 
     async fetchBooks(){
-        console.log(URLAddress + '/api/bookshelf')
         if(this.state.booksLoaded == false) {
             this.setState({
                 bookChosen: false,
@@ -87,7 +82,6 @@ class HomePage extends Component {
                             })
                         }
                     }
-                    console.log(this.state.pages)
                     for (let i = 0; i < data.length; i++) {
                         let imageUrl = imageApi.getImageUrl(data[i].id)
                         this.setState({

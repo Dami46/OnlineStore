@@ -6,6 +6,11 @@ import {Tab} from "bootstrap";
 import axios from "axios";
 import {useNavigate, Navigate} from 'react-router-dom';
 import {PATH} from "../../services/ConfigurationUrlAService";
+import Globals from "../../Globals";
+import Cookies from 'universal-cookie';
+
+const cookies = new Cookies();
+
 
 const URLAddress = PATH;
 
@@ -82,19 +87,23 @@ class LoginPage extends Component {
         }).then(loginResp => {
             console.log(loginResp.status)
             if(loginResp.status == 200){
+                console.log(loginResp.data)
                 this.setState({
-                    logged: true
+                    logged: true,
+                    invalidCredentials: false
                 });
+                cookies.set('isLogged', 'true', { path: '/' });
+                cookies.set('token', loginResp.data.token, { path: '/' });
             }
         }).catch(err => {
             console.log(err)
             if(err.response.status == 401) {
                 this.setState({
+                    logged: false,
                     invalidCredentials: true
                 })
             }
         })
-        // NavigateToAccount();
     }
 
     async submitRegister(event){
@@ -103,19 +112,31 @@ class LoginPage extends Component {
             email: this.state.email,
             username: this.state.username
         }).then(loginResp => {
-            console.log(loginResp.status)
+            console.log(loginResp)
             if(loginResp.status == 200){
                 this.setState({
+                    userNameAlreadyExist: false,
+                    userEmailAlreadyExist: false,
                     emailSent: true
                 });
             }
         }).catch(err => {
-            console.log(err)
+            console.log(err.response.data)
+            console.log(err.response.data.emailExists)
             if(err.response.status == 403) {
-                this.setState({
-                    userNameAlreadyExist: true,
-                    userEmailAlreadyExist: true
-                })
+                if(err.response.data.userNameExists == true){
+                    this.setState({
+                        emailSent: false,
+                        userNameAlreadyExist: true
+                    });
+                }
+                else if(err.response.data.emailExists == true){
+                    this.setState({
+                        emailSent: false,
+                        emailAlreadyExist: true
+                    })
+                }
+
             }
         })
     }
@@ -125,15 +146,15 @@ class LoginPage extends Component {
         await axios.post(URLAddress + '/api/forgetPassword', {
             email: this.state.email
         }).then(loginResp => {
-            console.log(loginResp.status)
             if(loginResp.status == 200){
                 this.setState({
+                    emailNotExist: false,
                     emailForgetPasswordSent: true
                 });
             }
         }).catch(err => {
-            console.log(err)
             this.setState({
+                emailForgetPasswordSent: false,
                 emailNotExist: true
             })
         })

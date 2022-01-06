@@ -12,6 +12,7 @@ import {ContactPage} from "./pages/contact/ContactPage";
 import {DropsPage} from "./pages/drops/DropsPage";
 import {LoginPage} from "./pages/account/LoginPage";
 import {BalancePage} from "./pages/balance/Balance";
+import {DropDetails} from "./pages/drops/DropDetails";
 
 
 class App extends Component {
@@ -35,6 +36,7 @@ class App extends Component {
                     <Route exact path="/account" element={<AccountPage/>}/>
                     <Route exact path="/shopping" element={<CartPage/>}/>
                     <Route exact path="/drops" element={<DropsPage/>}/>
+                    <Route exact path="/drop" element={<DropDetails/>}/>
                     <Route exact path="/contact" element={<ContactPage/>}/>
                     <Route exact path="/balance" element={<BalancePage/>}/>
                     <Route exact path="/404" element={<NotFound/>}/>

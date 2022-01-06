@@ -1,15 +1,27 @@
 import {Component} from 'react';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
-import NavDropdown from 'react-bootstrap/NavDropdown';
 import Container from 'react-bootstrap/Container';
-import Carousel from "react-bootstrap/Carousel";
-import axios from "axios";
-import Button from "bootstrap/js/src/button";
+import Globals from "../../Globals";
+import Cookies from 'universal-cookie';
+
+const cookies = new Cookies();
 
 const Logo = "/images/logo.png"
 
+// let isLogged = cookies.get('isLogged')
+let isLogged = false
+
+function logoutPressed(){
+    // Globals.isUserLogged = false;
+    cookies.remove('isLogged');
+    cookies.set('isLogged', 'false', { path: '/' });
+    console.log(isLogged)
+    isLogged = cookies.get('isLogged')
+}
+
 class NavbarTemplate extends Component {
+
     render() {
         return (
             <Navbar fixed="top" bg="white" variant="light">
@@ -30,11 +42,16 @@ class NavbarTemplate extends Component {
                             <Nav.Link style={{fontSize: "30px", fontWeight: "bold"}} href="/drops">Drops</Nav.Link>
                         </Nav>
                         <Nav>
-                            <Nav.Link style={{fontSize: "30px", fontWeight: "bold"}} href="/login">Login</Nav.Link>
+                            {/*<Nav.Link style={{fontSize: "30px", fontWeight: "bold"}} href="/login" hidden={Globals.isUserLogged}>Login</Nav.Link>*/}
+                            {/*<Nav.Link style={{fontSize: "30px", fontWeight: "bold"}} href="/account" hidden={!Globals.isUserLogged}>Account</Nav.Link>*/}
+                            {/*<Nav.Link style={{fontSize: "30px", fontWeight: "bold"}} href="/shopping">Shopping Cart</Nav.Link>*/}
+                            {/*<Nav.Link style={{fontSize: "30px", fontWeight: "bold"}} href="/balance" hidden={!Globals.isUserLogged}>Balance</Nav.Link>*/}
+                            {/*<Nav.Link style={{fontSize: "30px", fontWeight: "bold"}} href="/home" hidden={!Globals.isUserLogged} onClick={logoutPressed}>Logout</Nav.Link>*/}
+                            <Nav.Link style={{fontSize: "30px", fontWeight: "bold"}} href="/login" hidden={isLogged}>Login</Nav.Link>
+                            <Nav.Link style={{fontSize: "30px", fontWeight: "bold"}} href="/account" hidden={!isLogged}>Account</Nav.Link>
                             <Nav.Link style={{fontSize: "30px", fontWeight: "bold"}} href="/shopping">Shopping Cart</Nav.Link>
-                            {/*<Nav.Link style={{fontSize: "30px", fontWeight: "bold"}} href="/contact">Contact</Nav.Link>*/}
-                            <Nav.Link style={{fontSize: "30px", fontWeight: "bold"}} href="/balance" hidden>Balance</Nav.Link>
-                            <button className="btn navbar-btn" hidden>Logout</button>
+                            <Nav.Link style={{fontSize: "30px", fontWeight: "bold"}} href="/balance" hidden={!isLogged}>Balance</Nav.Link>
+                            <Nav.Link style={{fontSize: "30px", fontWeight: "bold"}} href="/home" hidden={!isLogged} onClick={logoutPressed}>Logout</Nav.Link>
                         </Nav>
                     </Navbar.Collapse>
                 </Container>

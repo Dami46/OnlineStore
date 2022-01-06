@@ -3,9 +3,11 @@ import './AccountPage.css';
 import {NavbarTemplate} from "../navbar/NavbarTemplate";
 import {Tabs} from "react-bootstrap";
 import {Tab} from "bootstrap";
-import axios from "axios";
-import {useNavigate} from 'react-router-dom';
 import {PATH} from "../../services/ConfigurationUrlAService";
+import Cookies from 'universal-cookie';
+import axios from "axios";
+
+const cookies = new Cookies();
 
 const URLAddress = PATH;
 
@@ -34,13 +36,22 @@ class AccountPage extends Component {
     constructor(props) {
         super(props);
 
+        this.getUserDetails = this.getUserDetails.bind(this);
 
         this.state = {
             username: ''
         }
+
     }
 
-
+    async getUserDetails(){
+        await axios.get(PATH + "api/myProfile", {
+            token: cookies.get('token')
+        })
+        .then(res => {
+            console.log(res.data);
+        })
+    }
 
     render() {
         return (
