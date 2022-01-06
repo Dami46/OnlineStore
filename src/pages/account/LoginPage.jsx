@@ -92,8 +92,9 @@ class LoginPage extends Component {
                     logged: true,
                     invalidCredentials: false
                 });
-                cookies.set('isLogged', 'true', { path: '/' });
+                cookies.set('isLogged', true, { path: '/' });
                 cookies.set('token', loginResp.data.token, { path: '/' });
+                console.log(cookies.get('isLogged'))
             }
         }).catch(err => {
             console.log(err)

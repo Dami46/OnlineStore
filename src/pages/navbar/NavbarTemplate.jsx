@@ -2,27 +2,30 @@ import {Component} from 'react';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import Container from 'react-bootstrap/Container';
-import Globals from "../../Globals";
 import Cookies from 'universal-cookie';
 
 const cookies = new Cookies();
 
 const Logo = "/images/logo.png"
 
-// let isLogged = cookies.get('isLogged')
-let isLogged = false
-
-function logoutPressed(){
-    // Globals.isUserLogged = false;
-    cookies.remove('isLogged');
-    cookies.set('isLogged', 'false', { path: '/' });
-    console.log(isLogged)
-    isLogged = cookies.get('isLogged')
-}
-
 class NavbarTemplate extends Component {
+    constructor() {
+        super();
+    }
+
+    async logoutPressed(){
+        await cookies.remove('isLogged',  { path: '/' })
+        .then(async () =>  {
+            await cookies.remove('token',  { path: '/' });
+        })
+        .then(async () =>  {
+            await cookies.set('isLogged', false, { path: '/' });
+        })
+    }
 
     render() {
+        console.log(cookies.get('isLogged'))
+
         return (
             <Navbar fixed="top" bg="white" variant="light">
                 <Container>
@@ -42,16 +45,11 @@ class NavbarTemplate extends Component {
                             <Nav.Link style={{fontSize: "30px", fontWeight: "bold"}} href="/drops">Drops</Nav.Link>
                         </Nav>
                         <Nav>
-                            {/*<Nav.Link style={{fontSize: "30px", fontWeight: "bold"}} href="/login" hidden={Globals.isUserLogged}>Login</Nav.Link>*/}
-                            {/*<Nav.Link style={{fontSize: "30px", fontWeight: "bold"}} href="/account" hidden={!Globals.isUserLogged}>Account</Nav.Link>*/}
-                            {/*<Nav.Link style={{fontSize: "30px", fontWeight: "bold"}} href="/shopping">Shopping Cart</Nav.Link>*/}
-                            {/*<Nav.Link style={{fontSize: "30px", fontWeight: "bold"}} href="/balance" hidden={!Globals.isUserLogged}>Balance</Nav.Link>*/}
-                            {/*<Nav.Link style={{fontSize: "30px", fontWeight: "bold"}} href="/home" hidden={!Globals.isUserLogged} onClick={logoutPressed}>Logout</Nav.Link>*/}
-                            <Nav.Link style={{fontSize: "30px", fontWeight: "bold"}} href="/login" hidden={isLogged}>Login</Nav.Link>
-                            <Nav.Link style={{fontSize: "30px", fontWeight: "bold"}} href="/account" hidden={!isLogged}>Account</Nav.Link>
+                            <Nav.Link style={{fontSize: "30px", fontWeight: "bold"}} href="/login" hidden={cookies.get('isLogged')}>Login</Nav.Link>
+                            <Nav.Link style={{fontSize: "30px", fontWeight: "bold"}} href="/account" hidden={!cookies.get('isLogged')}>Account</Nav.Link>
                             <Nav.Link style={{fontSize: "30px", fontWeight: "bold"}} href="/shopping">Shopping Cart</Nav.Link>
-                            <Nav.Link style={{fontSize: "30px", fontWeight: "bold"}} href="/balance" hidden={!isLogged}>Balance</Nav.Link>
-                            <Nav.Link style={{fontSize: "30px", fontWeight: "bold"}} href="/home" hidden={!isLogged} onClick={logoutPressed}>Logout</Nav.Link>
+                            <Nav.Link style={{fontSize: "30px", fontWeight: "bold"}} href="/balance" hidden={!cookies.get('isLogged')}>Balance</Nav.Link>
+                            <Nav.Link style={{fontSize: "30px", fontWeight: "bold"}} href="/home" hidden={!cookies.get('isLogged')} onClick={this.logoutPressed}>Logout</Nav.Link>
                         </Nav>
                     </Navbar.Collapse>
                 </Container>
