@@ -42,11 +42,14 @@ class AccountPage extends Component {
             username: ''
         }
 
+        this.getUserDetails();
     }
 
     async getUserDetails(){
-        await axios.get(PATH + "api/myProfile", {
-            token: cookies.get('token')
+        console.log()
+        await axios.get(PATH + "api/myProfile", { params: {
+                token: cookies.get('token')
+            }
         })
         .then(res => {
             console.log(res.data);
