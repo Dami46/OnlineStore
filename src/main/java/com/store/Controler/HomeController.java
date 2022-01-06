@@ -8,6 +8,7 @@ import com.store.Security.Role;
 import com.store.Security.UserRole;
 import com.store.Service.*;
 import com.store.Service.Impl.UserSecurityService;
+import com.store.Utility.JwtUtil;
 import com.store.Utility.MailConstructor;
 import com.store.Utility.SecurityUtility;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,7 +61,10 @@ public class HomeController {
     @Autowired
     private CartItemService cartItemService;
 
-    private static ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @RequestMapping("/")
     public ResponseEntity<?> index() {
@@ -68,8 +72,10 @@ public class HomeController {
     }
 
     @RequestMapping(value = "/myProfile")
-    public ResponseEntity<Model> myAccount(Model model, Principal principal) {
-        User user = userService.findByUsername(principal.getName());
+    public ResponseEntity<Model> myAccount(@PathParam("token") String token, Model model) {
+
+        String userName = jwtUtil.parseToken(token);
+        User user = userService.findByUsername(userName);
         model.addAttribute("user", user);
         model.addAttribute("userShippingList", user.getUserShippingList());
         model.addAttribute("orderList", user.getOrderList());
