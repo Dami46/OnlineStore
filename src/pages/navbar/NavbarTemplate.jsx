@@ -24,7 +24,6 @@ class NavbarTemplate extends Component {
     }
 
     render() {
-        console.log(cookies.get('isLogged'))
 
         return (
             <Navbar fixed="top" bg="white" variant="light">

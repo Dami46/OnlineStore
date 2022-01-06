@@ -34,6 +34,7 @@ class HomePage extends Component {
             pageCount: 0,
             pages: [],
             books: [],
+            carouselBooks: [],
             titles: [],
             authors: [],
             categorys: [],
@@ -59,6 +60,7 @@ class HomePage extends Component {
                 bookChosen: false,
                 bookChosenId: '',
                 books: [],
+                carouselBooks: [],
                 titles: [],
                 authors: [],
                 categorys: [],
@@ -117,9 +119,15 @@ class HomePage extends Component {
                             }),
                         })
                     }
+                    for(let k = 0; k < 3; k++){
+                        this.setState({
+                            carouselBooks: this.state.carouselBooks.concat(this.state.books[k])
+                        })
+                    }
                 }
             }, () => {
                 console.log(this.state.pages)
+                console.log(this.state.carouselBooks)
             })
         }
     }
@@ -213,6 +221,22 @@ class HomePage extends Component {
             </Card>
         )
 
+        const carouselBooks = this.state.carouselBooks.map((book) =>
+            <Carousel.Item>
+                <img
+                    className="d-block w-100"
+                    src={book.bookImage}
+                    width="100"
+                    height="200"
+                    alt="First book"
+                />
+                <Carousel.Caption>
+                    <h3>{book.title}</h3>
+                    <p>{book.description}</p>
+                </Carousel.Caption>
+            </Carousel.Item>
+        )
+
         const pages = this.state.pages.map((page) =>
             <Tab style={{color: this.state.currentPageId == page ? "red" : "blue", textDecoration: "none", textAlign: "center"}} to={{ pathname: "/home#" + page}} eventKey={page} title={page} onClick={this.updatePage}></Tab>
         )
@@ -231,47 +255,7 @@ class HomePage extends Component {
               <div>
                   <div>
                       <Carousel>
-                          <Carousel.Item>
-                              <img
-                                  className="d-block w-100"
-                                  src={Book1_slide}
-                                  width="100"
-                                  height="200"
-                                  alt="First book"
-                              />
-                              <Carousel.Caption>
-                                  <h3>First book label</h3>
-                                  <p>Nulla vitae elit libero, a pharetra augue mollis interdum.</p>
-                              </Carousel.Caption>
-                          </Carousel.Item>
-                          <Carousel.Item>
-                              <img
-                                  className="d-block w-100"
-                                  src={Book2_slide}
-                                  width="100"
-                                  height="200"
-                                  alt="Second book"
-                              />
-
-                              <Carousel.Caption>
-                                  <h3>Second book label</h3>
-                                  <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                              </Carousel.Caption>
-                          </Carousel.Item>
-                          <Carousel.Item>
-                              <img
-                                  className="d-block w-100"
-                                  src={Book3_slide}
-                                  width="100"
-                                  height="200"
-                                  alt="Third book"
-                              />
-
-                              <Carousel.Caption>
-                                  <h3>Third book label</h3>
-                                  <p>Praesent commodo cursus magna, vel scelerisque nisl consectetur.</p>
-                              </Carousel.Caption>
-                          </Carousel.Item>
+                          {carouselBooks}
                       </Carousel>
                   </div>
 

@@ -46,7 +46,7 @@ class AccountPage extends Component {
     }
 
     async getUserDetails(){
-        console.log()
+        console.log(cookies.get('token'))
         await axios.get(PATH + "api/myProfile", { params: {
                 token: cookies.get('token')
             }
