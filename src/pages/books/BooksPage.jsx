@@ -23,7 +23,8 @@ class BooksPage extends Component {
             ourPrice: '',
             publicationDate: '',
             publisher: '',
-            title: ''
+            title: '',
+            quantity: []
         }
 
         this.fetchBookDetails = this.fetchBookDetails.bind(this)
@@ -39,7 +40,8 @@ class BooksPage extends Component {
                 authors: [],
                 categories: [],
                 languages: [],
-                publishers: []
+                publishers: [],
+                quantity: []
             })
             await axios.get(URLAddress + '/api/bookDetail', { params: { id: this.state.id } }).then(bookResp => {
                 return bookResp.data.book;
@@ -60,11 +62,20 @@ class BooksPage extends Component {
                     publisher: data.publisher,
                     title: data.title
                 })
+                for(let i = 0; i <= data.inStockNumber; i++){
+                    this.setState({
+                        quantity: this.state.quantity.concat(i)
+                    })
+                }
             });
     }
 
 
     render() {
+        const quantity = this.state.quantity.map((numb) =>
+            <option value={numb}>{numb}</option>
+        )
+
         return (
             <div>
                 <div>
@@ -80,11 +91,11 @@ class BooksPage extends Component {
                     <form method="post" style={{marginLeft: "10%"}}>
                         <input hidden="hidden"/>
                         <div class="row" style={{marginTop: "20px"}}>
-                            <div class="col-xs-3">
-                                <img src={this.state.bookImage} class="img-responsive shelf-book"/>
+                            <div style={{}} class="col-xs-3">
+                                <img src={this.state.bookImage} style={{width: '200px', height: '300px'}} class="img-responsive shelf-book"/>
                             </div>
 
-                            <div class="col-xs-9">
+                            <div style={{}} class="col-xs-9">
                                 <h3><span style={{color: "forestgreen"}} hidden><i class="fa fa-check" aria-hidden="true" style={{color: "forestgreen"}}></i>Added to cart.</span></h3>
                                 <h3><span style={{color: "red"}} hidden>Oops, only <span>{this.state.inStockNumber}</span> In Stock.</span></h3>
                                 <h3>{this.state.title}</h3>
@@ -109,7 +120,7 @@ class BooksPage extends Component {
                                                         </p>
                                                         <span>Quantity: </span>
                                                         <select name="qty">
-                                                            <option></option>
+                                                            {quantity}
                                                         </select>
                                                         <br/> <br/>
                                                     </div>

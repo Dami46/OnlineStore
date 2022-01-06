@@ -5,13 +5,10 @@ import {NavbarTemplate} from "../navbar/NavbarTemplate";
 import * as imageApi from "../../services/ImageApi";
 import {Row, Card, Carousel, Form, FormControl, Button, FormSelect, Tabs} from "react-bootstrap";
 import {PATH} from "../../services/ConfigurationUrlAService";
-import {Link, Navigate} from "react-router-dom";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {Typeahead} from 'react-bootstrap-typeahead';
 import {Tab} from "bootstrap";
-
-const Book1_slide = "/images/book1_example_slide.jpg"
-const Book2_slide = "/images/book2_example_slide.jpg"
-const Book3_slide = "/images/book3_example_slide.jpg"
+import {Navigate} from 'react-router-dom';
 
 const URLAddress = PATH;
 
@@ -119,7 +116,7 @@ class HomePage extends Component {
                             }),
                         })
                     }
-                    for(let k = 0; k < 3; k++){
+                    for(let k = this.state.books.length - 1; k > this.state.books.length - 4; k--){
                         this.setState({
                             carouselBooks: this.state.carouselBooks.concat(this.state.books[k])
                         })
@@ -202,9 +199,9 @@ class HomePage extends Component {
 
     render() {
         const books = this.state.books.map((book) =>
-            <Card style={{marginLeft: "4%", marginBottom: "40px", display: "inline-block", cursor: "pointer"}} id={book.id} onClick={this.handleBookClick}>
+            <Card style={{marginLeft: "4%", marginBottom: "40px", height: '500px', width: '400px', display: "inline-block"}}>
                 <Card.Body>
-                    <Card.Img width="200" height="300" variant="top" src={book.bookImage} onError={({ currentTarget }) => {
+                    <Card.Img style={{width: "200px", height: "300px", cursor: "pointer"}} variant="top" src={book.bookImage} id={book.id} onClick={this.handleBookClick} onError={({ currentTarget }) => {
                         currentTarget.onerror = null;
                         currentTarget.src=imageApi.getImageUrl("0");
                     }}/>
@@ -217,6 +214,9 @@ class HomePage extends Component {
                     <Card.Text>
                         {book.description}
                     </Card.Text>
+                    <i style={{cursor: 'pointer'}} className="fa fa-shopping-cart">&nbsp;Add to cart</i>
+                    <br/>
+                    <i style={{cursor: 'pointer'}} className="fa">&nbsp;Buy now</i>
                 </Card.Body>
             </Card>
         )
@@ -295,6 +295,10 @@ class HomePage extends Component {
                           {books}
                       </Row>
                   </div>
+              </div>
+
+              <div style={{textAlign: 'center', marginTop: '50%', marginBottom: '5%'}}>
+                  <strong>Place for privacy policy </strong>
               </div>
           </div>
         );

@@ -39,21 +39,55 @@ class AccountPage extends Component {
         this.getUserDetails = this.getUserDetails.bind(this);
 
         this.state = {
-            username: ''
+            id: '',
+            username: '',
+            email: '',
+            firstName: '',
+            lastName: '',
+            password: '',
+            phone: '',
+            orderList: [],
+            userShipping: [],
+            userShippingList: [],
+            userPaymentList: [],
+            balance: 0,
+            balanceRequestList: [],
+            shoppingCart: []
         }
 
-        this.getUserDetails();
+        try{
+            this.getUserDetails();
+        }
+        catch (err) {}
     }
 
     async getUserDetails(){
-        console.log(cookies.get('token'))
         await axios.get(PATH + "api/myProfile", { params: {
                 token: cookies.get('token')
             }
         })
-        .then(res => {
-            console.log(res.data);
+        .then(response => {
+            return response.data;
+        }).then(res => {
+            console.log(res)
+            this.setState({
+                id: res.user.id,
+                username: res.user.username,
+                email: res.user.email,
+                firstName: res.user.firstName,
+                lastName: res.user.lastName,
+                password: res.user.password,
+                phone: res.user.phone,
+                orderList: res.orderList,
+                userShipping:  res.userShipping,
+                userShippingList: res.userShippingList,
+                balance: res.user.balance,
+                balanceRequestList: res.user.balanceRequestList,
+                shoppingCart: []
+            })
+            console.log(this.state)
         })
+
     }
 
     render() {
@@ -94,38 +128,38 @@ class AccountPage extends Component {
                                                     <div className="row">
                                                         <div className="col-xs-6">
                                                             <label htmlFor="firstName"> First Name</label>
-                                                            <input type="text" className="form-control" id="firstName" name="firstName"/>
+                                                            <input style={{textAlign: "center"}} type="text" className="form-control" id="firstName" name="firstName" value={this.state.firstName}/>
                                                         </div>
                                                         <div className="col-xs-6">
                                                             <label htmlFor="lastName"> Last Name</label>
-                                                            <input type="text" className="form-control" id="lastName" name="lastName"/>
+                                                            <input style={{textAlign: "center"}} type="text" className="form-control" id="lastName" name="lastName" value={this.state.lastName}/>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div className="form-group">
                                                     <label htmlFor="userName"> User Name</label>
-                                                    <input type="text" className="form-control" id="userName" name="username"/>
+                                                    <input style={{textAlign: "center"}} type="text" className="form-control" id="userName" name="username" value={this.state.username}/>
                                                 </div>
                                                 <div className="form-group">
                                                     <label htmlFor="currentPassword">Current Password</label>
-                                                    <input type="password" className="form-control" id="currentPassword" name="password"/>
+                                                    <input style={{textAlign: "center"}} type="password" className="form-control" id="currentPassword" name="password" value={this.state.password}/>
                                                 </div>
 
                                                 <div className="form-group">
                                                     <label htmlFor="email">* Email Adress</label>
-                                                    <input type="text" className="form-control" id="email" name="email"/>
+                                                    <input style={{textAlign: "center"}} type="text" className="form-control" id="email" name="email" value={this.state.email}/>
                                                 </div>
                                                 <p style={{color: "#828282"}} hidden>You can't change your email yet.</p>
 
                                                 <div className="form-group">
                                                     <label htmlFor="txtNewPassword">Password</label>&nbsp;
                                                     <span id="checkPasswordMatch" style={{color: "red"}}></span>
-                                                    <input type="password" className="form-control" id="txtNewPassword" name="newPassword"/>
+                                                    <input style={{textAlign: "center"}} type="password" className="form-control" id="txtNewPassword" name="newPassword"/>
                                                 </div>
 
                                                 <div className="form-group">
                                                     <label htmlFor="txtConfirmPassword">Confirm Password</label>
-                                                    <input type="password" className="form-control" id="txtConfirmPassword"/>
+                                                    <input style={{textAlign: "center"}} type="password" className="form-control" id="txtConfirmPassword"/>
                                                 </div>
                                                 <p style={{color: "#828282"}} hidden> To change current password enter the new in both fields</p>
 
