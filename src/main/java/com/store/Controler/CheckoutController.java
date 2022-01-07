@@ -1,21 +1,27 @@
 package com.store.Controler;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.store.Domain.*;
+import com.store.Dto.BalanceRequestDto;
 import com.store.Service.*;
+import com.store.Utility.JwtUtil;
 import com.store.Utility.MailConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.stereotype.Controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.websocket.server.PathParam;
+import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @RestController
 public class CheckoutController {
@@ -40,6 +46,11 @@ public class CheckoutController {
 
     @Autowired
     private MailConstructor mailConstructor;
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @RequestMapping(value = "/buyItem", params = "buyBook")
     public ResponseEntity<Model> buyItem(
@@ -128,7 +139,7 @@ public class CheckoutController {
         model.addAttribute("book", book);
 
         Objects.requireNonNull(book).setInStockNumber(book.getInStockNumber() - 1);
-        Order order = orderService.createOrder(book,shippingAddress, billingAddress, shippingMethod, user);
+        Order order = orderService.createOrder(book, shippingAddress, billingAddress, shippingMethod, user);
 
         mailSender.send(mailConstructor.constructOrderConfirmationEmail(user, order, Locale.ENGLISH));
 
@@ -139,22 +150,23 @@ public class CheckoutController {
     }
 
     @RequestMapping(value = "/updateUserBalance", method = RequestMethod.GET)
-    public ResponseEntity<Model> balance(Model model, Principal principal) {
+    public ResponseEntity<Model> balance(@PathParam("token") String token, Model model) {
 
-        User user = userService.findByUsername(principal.getName());
+        String userName = jwtUtil.parseToken(token);
+        User user = userService.findByUsername(userName);
         BalanceRequest balanceRequest = new BalanceRequest();
 
         List<BalanceRequest> requestList = balanceService.findAll();
-        int userIds = 0;
+        int userRequests = 0;
 
         for (BalanceRequest request : requestList) {
             if (Objects.equals(request.getUser().getId(), user.getId())) {
-                userIds++;
+                userRequests++;
             }
         }
-        model.addAttribute("numberOfRequests", userIds);
+        model.addAttribute("numberOfRequests", userRequests);
 
-        if (userIds >= 3) {
+        if (userRequests >= 3) {
             model.addAttribute("tooManyRequests", true);
         } else {
             model.addAttribute("tooManyRequests", false);
@@ -170,25 +182,32 @@ public class CheckoutController {
 
 
     @RequestMapping(value = "/updateUserBalance", method = RequestMethod.POST)
-    public ResponseEntity<Model> addBalancePost(@ModelAttribute("balanceRequest") BalanceRequest balanceRequest,
-                                                Principal principal, Model model) {
+    public ResponseEntity<Model> addBalancePost(HttpServletRequest httpServletRequest, Model model) throws IOException {
 
-        User user = userService.findByUsername(principal.getName());
-        BalanceRequest balanceRequest1 = balanceService.addBalance(user, balanceRequest);
+        String requestBody = httpServletRequest.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+        BalanceRequestDto balanceRequestDto = objectMapper.readValue(requestBody, BalanceRequestDto.class);
+        String userName = jwtUtil.parseToken(balanceRequestDto.getToken());
+
+        User user = userService.findByUsername(userName);
+        BalanceRequest balanceRequest = new BalanceRequest();
+        balanceRequest.setUser(user);
+        balanceRequest.setSumToAdd(balanceRequestDto.getSumToAdd());
+
+        balanceService.addBalance(balanceRequest);
 
         List<BalanceRequest> requestList = balanceService.findAll();
-        int userIds = 0;
+        int userRequests = 0;
 
         for (BalanceRequest request : requestList) {
             if (Objects.equals(request.getUser().getId(), user.getId())) {
-                userIds++;
+                userRequests++;
             }
         }
-        model.addAttribute("numberOfRequests", userIds);
+        model.addAttribute("numberOfRequests", userRequests);
 
-        if (userIds >= 3) {
+        if (userRequests >= 3) {
             model.addAttribute("tooManyRequests", true);
-            return new ResponseEntity<>(model, HttpStatus.CONTINUE);  //"redirect:/updateUserBalance"
+            return new ResponseEntity<>(model, HttpStatus.TOO_MANY_REQUESTS);  //"redirect:/updateUserBalance"
         } else {
             model.addAttribute("tooManyRequests", false);
         }

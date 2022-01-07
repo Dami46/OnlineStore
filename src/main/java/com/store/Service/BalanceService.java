@@ -1,7 +1,6 @@
 package com.store.Service;
 
 import com.store.Domain.BalanceRequest;
-import com.store.Domain.User;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,5 +13,5 @@ public interface BalanceService {
 
     BalanceRequest save(BalanceRequest book);
 
-    BalanceRequest addBalance(User user, BalanceRequest balanceRequest);
+    void addBalance(BalanceRequest balanceRequest);
 }
