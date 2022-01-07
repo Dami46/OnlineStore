@@ -2,6 +2,7 @@ package com.store.Controler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.store.Domain.*;
+import com.store.Dto.DeleteUserDto;
 import com.store.Dto.RegistrationDto;
 import com.store.Dto.UserUpdateInfoDto;
 import com.store.Security.PasswordResetToken;
@@ -256,8 +257,8 @@ public class HomeController {
         if (currentUser == null) {
             throw new Exception("User not found");
         }
-    //check current password
-        if(Objects.nonNull(userUpdateInfoDto.getPassword())){
+        //check current password
+        if (Objects.nonNull(userUpdateInfoDto.getPassword())) {
             BCryptPasswordEncoder passwordEncoder = SecurityUtility.passwordEncoder();
             String dbPassword = currentUser.getPassword();
             if (passwordEncoder.matches(userUpdateInfoDto.getPassword(), dbPassword)) {
@@ -285,7 +286,7 @@ public class HomeController {
         }
 
 //		update password
-        if (userUpdateInfoDto.getNewPassword() != null && !userUpdateInfoDto.getNewPassword() .isEmpty() && !userUpdateInfoDto.getNewPassword() .equals("")) {
+        if (userUpdateInfoDto.getNewPassword() != null && !userUpdateInfoDto.getNewPassword().isEmpty() && !userUpdateInfoDto.getNewPassword().equals("")) {
             BCryptPasswordEncoder passwordEncoder = SecurityUtility.passwordEncoder();
             String dbPassword = currentUser.getPassword();
             if (passwordEncoder.matches(userUpdateInfoDto.getPassword(), dbPassword)) {
@@ -480,10 +481,28 @@ public class HomeController {
 
     @RequestMapping(value = "/removeUser", method = RequestMethod.POST)
     public ResponseEntity<Model> remove(
-            @PathParam("id") String id, Model model
-    ) {
-        userService.removeOne(Long.parseLong(id.substring(9)));
-        return new ResponseEntity<>(model, HttpStatus.OK); //z TEGO OK TRZEBA ZROBIĆ REDIRECT DO /LOGOUT
+            HttpServletRequest request, Model model
+    ) throws IOException {
+
+        String requestBody = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+
+        DeleteUserDto deleteUserDto = objectMapper.readValue(requestBody, DeleteUserDto.class);
+
+        User currentUser = userService.findById(deleteUserDto.getId());
+
+        if (Objects.nonNull(deleteUserDto.getPassword())) {
+            BCryptPasswordEncoder passwordEncoder = SecurityUtility.passwordEncoder();
+            String dbPassword = currentUser.getPassword();
+            if (passwordEncoder.matches(deleteUserDto.getPassword(), dbPassword)) {
+                model.addAttribute("incorrectCurrentPassword", false);
+            } else {
+                model.addAttribute("incorrectCurrentPassword", true);
+                return new ResponseEntity<>(model, HttpStatus.NOT_ACCEPTABLE);
+            }
+        }
+
+        userService.removeOne(currentUser.getId());
+        return new ResponseEntity<>(model, HttpStatus.OK); //z TEGO OK TRZEBA ZROBIĆ REDIRECT DO /LOGOUT LUB DO GŁÓWNEJ
     }
 
 }

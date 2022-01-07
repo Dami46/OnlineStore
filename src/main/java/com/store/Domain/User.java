@@ -1,6 +1,7 @@
 package com.store.Domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.store.Security.Authority;
 import com.store.Security.UserRole;
 import org.springframework.security.core.GrantedAuthority;
@@ -31,6 +32,7 @@ public class User implements UserDetails {
     @Column(columnDefinition = "FLOAT default 100.00", updatable = true)
     private double balance;
 
+    @JsonIgnoreProperties("user")
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
     private ShoppingCart shoppingCart;
 
