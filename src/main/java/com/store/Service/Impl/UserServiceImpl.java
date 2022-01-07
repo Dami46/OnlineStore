@@ -118,6 +118,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void updateShippingAddress(UserShipping userShipping, User user) {
+        userShipping.setUser(user);
+        userShippingRepository.save(userShipping);
+    }
+
+    @Override
     public void setUserDefaultShipping(Long userShippingId, User user) {
         List<UserShipping> userShippingList = (List<UserShipping>) userShippingRepository.findAll();
 

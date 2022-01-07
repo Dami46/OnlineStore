@@ -183,7 +183,7 @@ public class HomeController {
         return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "updateUserShipping/{id]", method = RequestMethod.PUT)
+    @RequestMapping(value = "updateUserShipping", method = RequestMethod.PUT)
     public ResponseEntity<Model> updateUserShipping(HttpServletRequest request, Model model) throws IOException {
 
         String requestBody = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
@@ -197,10 +197,12 @@ public class HomeController {
         if (!user.getId().equals(shipping.getUser().getId())) {
             return new ResponseEntity<>(model, HttpStatus.BAD_REQUEST);
         } else {
+            shipping = userShipping.userShippingDtoToUserShipping(userShipping);
             model.addAttribute("user", user);
             model.addAttribute("userShipping", shipping);
 
-            model.addAttribute("addNewShippingAddress", true);
+            userService.updateShippingAddress(shipping, user);
+
             model.addAttribute("classActiveShipping", true);
             model.addAttribute("userShippingList", user.getUserShippingList());
             model.addAttribute("orderList", user.getOrderList());

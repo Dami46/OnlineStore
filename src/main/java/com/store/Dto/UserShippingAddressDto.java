@@ -2,6 +2,8 @@ package com.store.Dto;
 
 import com.store.Domain.UserShipping;
 
+import java.util.Objects;
+
 public class UserShippingAddressDto {
     private Long id;
     private String userShippingName;
@@ -16,6 +18,9 @@ public class UserShippingAddressDto {
 
     public UserShipping userShippingDtoToUserShipping(UserShippingAddressDto dto) {
         UserShipping shipping = new UserShipping();
+        if(Objects.nonNull(dto.getId())) {
+            shipping.setId(dto.getId());
+        }
         shipping.setUserShippingName(dto.getUserShippingName());
         shipping.setUserShippingStreet1(dto.getUserShippingStreet1());
         shipping.setUserShippingStreet2(dto.getUserShippingStreet2());
