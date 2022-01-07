@@ -36,6 +36,7 @@ public class User implements UserDetails {
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
     private ShoppingCart shoppingCart;
 
+    @JsonIgnoreProperties("user")
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
     private List<BalanceRequest> balanceRequestList;
 
