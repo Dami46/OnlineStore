@@ -1,11 +1,6 @@
 package com.store.Domain;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 
 @Entity
 public class UserShipping {
@@ -20,7 +15,6 @@ public class UserShipping {
     private String userShippingCountry;
     private String userShippingZipcode;
     private boolean userShippingDefault;
-
 
     @ManyToOne
     @JoinColumn(name = "user_id")
