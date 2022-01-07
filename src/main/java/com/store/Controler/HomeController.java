@@ -256,6 +256,17 @@ public class HomeController {
         if (currentUser == null) {
             throw new Exception("User not found");
         }
+    //check current password
+        if(Objects.nonNull(userUpdateInfoDto.getPassword())){
+            BCryptPasswordEncoder passwordEncoder = SecurityUtility.passwordEncoder();
+            String dbPassword = currentUser.getPassword();
+            if (passwordEncoder.matches(userUpdateInfoDto.getPassword(), dbPassword)) {
+                model.addAttribute("incorrectCurrentPassword", false);
+            } else {
+                model.addAttribute("incorrectCurrentPassword", true);
+                return new ResponseEntity<>(model, HttpStatus.NOT_ACCEPTABLE);
+            }
+        }
 
         /*check email already exists*/
         if (userService.findByEmail(userUpdateInfoDto.getEmail()) != null) {
