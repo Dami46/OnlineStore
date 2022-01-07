@@ -85,7 +85,7 @@ class BalancePage extends Component {
                             <div class="tab-pane">
                                 <div class="panel-group">
                                     <div class="panel panel-default" style={{border: "none"}}>
-                                        <div class="panel-body" style={{backgroundColor: "#ededed", marginTop: "20px"}}>
+                                        <div class="panel-body" style={{backgroundColor: "#ededed", marginTop: "20px", marginLeft: "20%", width: "60%", textAlign: "center"}}>
 
                                             <div class="alert alert-success" hidden={!this.state.requestAccepted}>
                                                 <strong>Update Success! Wait for admin to accept your request</strong>
@@ -107,7 +107,7 @@ class BalancePage extends Component {
                                                     <div class="row">
                                                         <div class="col-xs-6">
                                                             <label for="balance"> Balance </label>
-                                                            <span type="text" class="form-control" id="balance" name="balance" readonly="readonly">
+                                                            <span style={{marginTop: '20px'}} type="text" class="form-control" id="balance" name="balance" readonly="readonly">
                                                                 {this.state.balance}
                                                             </span>
                                                         </div>
@@ -115,10 +115,17 @@ class BalancePage extends Component {
                                                 </div>
 
                                                 <div>
+                                                    <br/>
+                                                </div>
+
+                                                <div>
                                                     <label for="sumToAdd"> Recharge your balance </label>
-                                                    <input type="number" class="form-control" id="sumToAdd" name="sumToAdd" step="0.01" min="0.00" onChange={this.handleBalanceChange} placeholder="You can add money here"/>
+                                                    <input type="number" style={{marginTop: '20px', marginLeft: '20%', width: '60%'}} class="form-control" id="sumToAdd" name="sumToAdd" step="0.01" min="0.00" onChange={this.handleBalanceChange} placeholder="You can add money here"/>
                                                 </div>
                                             </form>
+                                            <div>
+                                                <br/>
+                                            </div>
                                             <button type="submit" className="btn btn-success" onClick={this.askForMoney} disabled={!this.state.newRequestAvailable}>
                                                 Add balance
                                             </button>
