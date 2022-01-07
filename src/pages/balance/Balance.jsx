@@ -120,7 +120,7 @@ class BalancePage extends Component {
 
                                                 <div>
                                                     <label for="sumToAdd"> Recharge your balance </label>
-                                                    <input type="number" style={{marginTop: '20px', marginLeft: '20%', width: '60%'}} class="form-control" id="sumToAdd" name="sumToAdd" step="0.01" min="0.00" onChange={this.handleBalanceChange} placeholder="You can add money here"/>
+                                                    <input type="number" style={{marginTop: '20px', marginLeft: '20%', width: '60%', textAlign: 'center'}} class="form-control" id="sumToAdd" name="sumToAdd" step="0.01" min="0.00" onChange={this.handleBalanceChange} placeholder="You can add money here"/>
                                                 </div>
                                             </form>
                                             <div>
