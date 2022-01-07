@@ -81,7 +81,7 @@ class AccountPage extends Component {
     }
 
     async getUserDetails(){
-        await axios.get(PATH + "api/myProfile", { params: {
+        await axios.get(PATH + "/api/myProfile", { params: {
                 token: cookies.get('token')
             }
         })
@@ -187,18 +187,22 @@ class AccountPage extends Component {
             phone: this.state.phone,
             newPassword: newPasswordToSend
         }).then(updateResp => {
+            console.log(updateResp)
             return updateResp.status;
         }).then(async stat => {
             await this.getUserDetails();
             return stat;
         }).then(status => {
+            console.log(status)
             if(status == 200){
                 this.setState({
                     updateSuccess: true,
                     incorrectPassword: false
                 })
             }
-            else if(status == 406){
+        }).catch(err => {
+            console.log(err)
+            if(err.response.status == 406){
                 this.setState({
                     updateSuccess: false,
                     incorrectPassword: true
@@ -208,7 +212,10 @@ class AccountPage extends Component {
     }
 
     async deleteAccountClick(){
-        await axios.get(URLAddress + '/api/removeUser').then(removeResp => {
+        await axios.post(URLAddress + '/api/removeUser', {
+            id: this.state.id,
+            password: this.state.password
+        }).then(removeResp => {
             console.log(removeResp.status)
             return removeResp.status;
         }).then(async (status) => {
@@ -222,6 +229,14 @@ class AccountPage extends Component {
                 })
                 .then(async () =>  {
                     await cookies.set('isLogged', false, { path: '/' });
+                })
+            }
+        }).catch(err => {
+            console.log(err)
+            if(err.response.status == 406){
+                this.setState({
+                    updateSuccess: false,
+                    incorrectPassword: true
                 })
             }
         })
@@ -310,18 +325,15 @@ class AccountPage extends Component {
                                                 <p style={{color: "#828282"}} hidden> To change current password enter the new in both fields</p>
                                             </form>
 
-                                            <div className="form-group">
+                                            <div className="form-group" style={{marginTop: '10px'}}>
                                                 <button id="updateUserInfoButton" type="submit" className="btn btn-primary" onClick={this.saveChangesClick} disabled={!this.state.changesAllowed}>
                                                     Save All
                                                 </button>
                                             </div>
 
-                                            <div className="form-group">
-                                                <label>
-                                                    <input hidden="hidden" name="id"/>
-                                                </label>
-                                                <button className="btn btn-danger btn-xs delete-user" type="submit" value="delete">
-                                                    <span className="fa fa-times" onClick={this.deleteAccountClick}></span> Delete
+                                            <div className="form-group" style={{marginTop: '10px'}}>
+                                                <button className="btn btn-danger btn-xs delete-user" type="submit" value="delete" onClick={this.deleteAccountClick} disabled={!this.state.changesAllowed}>
+                                                    <span className="fa fa-times"></span> Delete
                                                 </button>
                                             </div>
                                         </div>
