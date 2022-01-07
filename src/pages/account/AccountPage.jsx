@@ -38,6 +38,18 @@ class AccountPage extends Component {
 
         this.getUserDetails = this.getUserDetails.bind(this);
 
+        this.handleUsernameInputChange = this.handleUsernameInputChange.bind(this);
+        this.handleEmailInputChange = this.handleEmailInputChange.bind(this);
+        this.handlePhoneInputChange = this.handlePhoneInputChange.bind(this);
+        this.handleFirstnameInputChange = this.handleFirstnameInputChange.bind(this);
+        this.handleLastnameInputChange = this.handleLastnameInputChange.bind(this);
+        this.handleCurrentPasswordInputChange = this.handleCurrentPasswordInputChange.bind(this);
+        this.handleNewPasswordInputChange = this.handleNewPasswordInputChange.bind(this);
+        this.handleNewPasswordConfirmInputChange = this.handleNewPasswordConfirmInputChange.bind(this);
+
+        this.saveChangesClick = this.saveChangesClick.bind(this);
+        this.deleteAccountClick = this.deleteAccountClick.bind(this);
+
         this.state = {
             id: '',
             username: '',
@@ -45,6 +57,8 @@ class AccountPage extends Component {
             firstName: '',
             lastName: '',
             password: '',
+            newPassword: '',
+            newPasswordConfirm: '',
             phone: '',
             orderList: [],
             userShipping: [],
@@ -52,7 +66,10 @@ class AccountPage extends Component {
             userPaymentList: [],
             balance: 0,
             balanceRequestList: [],
-            shoppingCart: []
+            shoppingCart: [],
+            updateSuccess: false,
+            incorrectPassword: false,
+            changesAllowed: false
         }
 
         try{
@@ -83,11 +100,100 @@ class AccountPage extends Component {
                 userShippingList: res.userShippingList,
                 balance: res.user.balance,
                 balanceRequestList: res.user.balanceRequestList,
-                shoppingCart: []
+                shoppingCart: [],
+                updateSuccess: false,
+                incorrectPassword: false,
+                changesAllowed: false
             })
             console.log(this.state)
         })
 
+    }
+
+    handleUsernameInputChange(event){
+        this.setState({
+            username: event.target.value
+        })
+    }
+
+    handleEmailInputChange(event){
+        this.setState({
+            email: event.target.value
+        })
+    }
+
+    handlePhoneInputChange(event){
+        this.setState({
+            phone: event.target.value
+        })
+    }
+
+    handleFirstnameInputChange(event){
+        this.setState({
+            firstName: event.target.value
+        })
+    }
+
+    handleLastnameInputChange(event){
+        this.setState({
+            lastName: event.target.value
+        })
+    }
+
+    handleCurrentPasswordInputChange(event){
+        this.setState({
+            password: event.target.value
+        }, () => {
+            if(this.state.password != ''){
+                this.setState({
+                    changesAllowed: true
+                })
+            }
+            else{
+                this.setState({
+                    changesAllowed: false
+                })
+            }
+        })
+    }
+
+    handleNewPasswordInputChange(event){
+        this.setState({
+            newPassword: event.target.value
+        })
+    }
+
+    handleNewPasswordConfirmInputChange(event){
+        this.setState({
+            newPasswordConfirm: event.target.value
+        })
+    }
+
+    async saveChangesClick(){
+        let newPasswordToSend = this.state.newPasswordConfirm;
+        if(this.state.newPassword != this.state.newPasswordConfirm){
+            newPasswordToSend = ''
+        }
+        console.log(this.state)
+        await axios.post(URLAddress + '/api/updateUserInfo', {
+            id: this.state.id,
+            username: this.state.username,
+            email: this.state.email,
+            firstName: this.state.firstName,
+            lastName: this.state.lastName,
+            password: this.state.password,
+            phone: this.state.phone,
+            newPassword: newPasswordToSend
+        }).then(updateResp => {
+            console.log(updateResp)
+            return updateResp.status;
+        })
+    }
+
+    async deleteAccountClick(){
+        await axios.get(URLAddress + '/api/bookshelf').then(booksResp => {
+            return booksResp.data.bookList;
+        })
     }
 
     render() {
@@ -110,17 +216,17 @@ class AccountPage extends Component {
                                     <div className="panel panel-default" style={{border: "none"}}>
                                         <div className="panel-body" style={{backgroundColor: "#ededed", marginTop: "20px"}}>
 
-                                            <div className="alert alert-danger" hidden>
+                                            <div className="alert alert-danger" hidden={!this.state.incorrectPassword}>
                                                 <strong>Incorrect Password!</strong> Please enter the correct password for the current user.
                                             </div>
 
-                                            <div className="alert alert-success" hidden>
+                                            <div className="alert alert-success" hidden={!this.state.updateSuccess}>
                                                 <strong>Update Success!</strong>
                                             </div>
 
                                             <form method="post">
                                                 <input type="hidden" name="id"/>
-                                                <div className="bg-info" hidden>
+                                                <div className="bg-info" hidden={!this.state.updateSuccess}>
                                                     User info updated
                                                 </div>
 
@@ -128,43 +234,48 @@ class AccountPage extends Component {
                                                     <div className="row">
                                                         <div className="col-xs-6">
                                                             <label htmlFor="firstName"> First Name</label>
-                                                            <input style={{textAlign: "center"}} type="text" className="form-control" id="firstName" name="firstName" value={this.state.firstName}/>
+                                                            <input style={{textAlign: "center"}} type="text" className="form-control" id="firstName" name="firstName" onChange={this.handleFirstnameInputChange} value={this.state.firstName} placeholder="First name"/>
                                                         </div>
                                                         <div className="col-xs-6">
                                                             <label htmlFor="lastName"> Last Name</label>
-                                                            <input style={{textAlign: "center"}} type="text" className="form-control" id="lastName" name="lastName" value={this.state.lastName}/>
+                                                            <input style={{textAlign: "center"}} type="text" className="form-control" id="lastName" name="lastName" onChange={this.handleLastnameInputChange} value={this.state.lastName} placeholder="Last name"/>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div className="form-group">
                                                     <label htmlFor="userName"> User Name</label>
-                                                    <input style={{textAlign: "center"}} type="text" className="form-control" id="userName" name="username" value={this.state.username}/>
+                                                    <input style={{textAlign: "center"}} type="text" className="form-control" id="userName" name="username" onChange={this.handleUsernameInputChange} value={this.state.username} placeholder="Username"/>
                                                 </div>
                                                 <div className="form-group">
                                                     <label htmlFor="currentPassword">Current Password</label>
-                                                    <input style={{textAlign: "center"}} type="password" className="form-control" id="currentPassword" name="password" value={this.state.password}/>
+                                                    <input style={{textAlign: "center"}} type="password" className="form-control" id="currentPassword" onChange={this.handleCurrentPasswordInputChange} name="password" placeholder="To update account enter current password"/>
                                                 </div>
 
                                                 <div className="form-group">
-                                                    <label htmlFor="email">* Email Adress</label>
-                                                    <input style={{textAlign: "center"}} type="text" className="form-control" id="email" name="email" value={this.state.email}/>
+                                                    <label htmlFor="email">Email Adress</label>
+                                                    <input style={{textAlign: "center"}} type="text" className="form-control" id="email" name="email" onChange={this.handleEmailInputChange} value={this.state.email} placeholder="Email"/>
                                                 </div>
                                                 <p style={{color: "#828282"}} hidden>You can't change your email yet.</p>
 
                                                 <div className="form-group">
+                                                    <label htmlFor="phone">Phone Number</label>
+                                                    <input style={{textAlign: "center"}} type="text" className="form-control" id="phone" name="phone" onChange={this.handlePhoneInputChange} value={this.state.phone} placeholder="Phone number"/>
+                                                </div>
+
+                                                <div className="form-group">
                                                     <label htmlFor="txtNewPassword">Password</label>&nbsp;
                                                     <span id="checkPasswordMatch" style={{color: "red"}}></span>
-                                                    <input style={{textAlign: "center"}} type="password" className="form-control" id="txtNewPassword" name="newPassword"/>
+                                                    <input style={{textAlign: "center"}} type="password" className="form-control" id="txtNewPassword" onChange={this.handleNewPasswordInputChange} placeholder="Enter new password here" name="newPassword"/>
                                                 </div>
 
                                                 <div className="form-group">
                                                     <label htmlFor="txtConfirmPassword">Confirm Password</label>
-                                                    <input style={{textAlign: "center"}} type="password" className="form-control" id="txtConfirmPassword"/>
+                                                    <input style={{textAlign: "center"}} type="password" className="form-control" onChange={this.handleNewPasswordConfirmInputChange} placeholder="Reenter new password to confirm" id="txtConfirmPassword"/>
                                                 </div>
                                                 <p style={{color: "#828282"}} hidden> To change current password enter the new in both fields</p>
 
 
-                                                <button id="updateUserInfoButton" type="submit" className="btn btn-primary" disabled>
+                                                <button id="updateUserInfoButton" type="submit" className="btn btn-primary" onClick={this.saveChangesClick} disabled={!this.state.changesAllowed}>
                                                     Save All
                                                 </button>
                                             </form>
@@ -174,7 +285,7 @@ class AccountPage extends Component {
                                                     <input hidden="hidden" name="id"/>
                                                 </label>
                                                 <button className="btn btn-danger btn-xs delete-user" type="submit" value="delete">
-                                                    <span className="fa fa-times"></span> Delete
+                                                    <span className="fa fa-times" onClick={this.deleteAccountClick}></span> Delete
                                                 </button>
                                             </div>
                                         </div>
