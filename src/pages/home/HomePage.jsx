@@ -9,6 +9,9 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {Typeahead} from 'react-bootstrap-typeahead';
 import {Tab} from "bootstrap";
 import {Navigate} from 'react-router-dom';
+import Cookies from 'universal-cookie';
+
+const cookies = new Cookies();
 
 const URLAddress = PATH;
 
@@ -221,21 +224,25 @@ class HomePage extends Component {
             </Card>
         )
 
-        const carouselBooks = this.state.carouselBooks.map((book) =>
-            <Carousel.Item>
-                <img
-                    className="d-block w-100"
-                    src={book.bookImage}
-                    width="100"
-                    height="200"
-                    alt="First book"
-                />
-                <Carousel.Caption>
-                    <h3>{book.title}</h3>
-                    <p>{book.description}</p>
-                </Carousel.Caption>
-            </Carousel.Item>
-        )
+        let carouselBooks;
+        if(this.state.books.length > 3){
+            carouselBooks = this.state.carouselBooks.map((book) =>
+                <Carousel.Item>
+                    <img
+                        className="d-block w-100"
+                        src={book.bookImage}
+                        width="100"
+                        height="200"
+                        alt="First book"
+                    />
+                    <Carousel.Caption>
+                        <h3>{book.title}</h3>
+                        <p>{book.description}</p>
+                    </Carousel.Caption>
+                </Carousel.Item>
+            )
+        }
+
 
         const pages = this.state.pages.map((page) =>
             <Tab style={{color: this.state.currentPageId == page ? "red" : "blue", textDecoration: "none", textAlign: "center"}} to={{ pathname: "/home#" + page}} eventKey={page} title={page} onClick={this.updatePage}></Tab>

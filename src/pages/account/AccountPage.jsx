@@ -1,8 +1,8 @@
-import {Component} from 'react';
+import {Component, useState} from 'react';
 import './AccountPage.css';
 import {NavbarTemplate} from "../navbar/NavbarTemplate";
 import {Tabs} from "react-bootstrap";
-import {Tab} from "bootstrap";
+import {Tab, Modal} from "bootstrap";
 import {PATH} from "../../services/ConfigurationUrlAService";
 import Cookies from 'universal-cookie';
 import axios from "axios";
@@ -51,6 +51,24 @@ class AccountPage extends Component {
         this.saveChangesClick = this.saveChangesClick.bind(this);
         this.deleteAccountClick = this.deleteAccountClick.bind(this);
 
+        this.handleShippingNameInputChange = this.handleShippingNameInputChange.bind(this);
+        this.handleShippingStreetAddressOneInputChange = this.handleShippingStreetAddressOneInputChange.bind(this);
+        this.handleShippingStreetAddressTwoInputChange = this.handleShippingStreetAddressTwoInputChange.bind(this);
+        this.handleShippingCityInputChange = this.handleShippingCityInputChange.bind(this);
+        this.handleShippingStateInputChange = this.handleShippingStateInputChange.bind(this);
+        this.handleShippingCountryInputChange = this.handleShippingCountryInputChange.bind(this);
+        this.handleShippingZipcodeInputChange = this.handleShippingZipcodeInputChange.bind(this);
+
+        this.saveShippingAddressClick = this.saveShippingAddressClick.bind(this);
+        this.getShippingDetails = this.getShippingDetails.bind(this);
+        this.editSelected = this.editSelected.bind(this);
+        this.updateShippingOpen = this.updateShippingOpen.bind(this);
+        this.deleteShipping = this.deleteShipping.bind(this);
+        this.chooseDefaultShipping = this.chooseDefaultShipping.bind(this);
+        this.updateShippings = this.updateShippings.bind(this);
+        this.changeActiveTabShipping = this.changeActiveTabShipping.bind(this);
+        this.confirmUpdateShipping = this.confirmUpdateShipping.bind(this);
+
         this.state = {
             id: '',
             username: '',
@@ -62,7 +80,8 @@ class AccountPage extends Component {
             newPasswordConfirm: '',
             phone: '',
             orderList: [],
-            userShipping: [],
+            userShippingDefault: '',
+            newUserShippingDefault: '',
             userShippingList: [],
             userPaymentList: [],
             balance: 0,
@@ -71,7 +90,21 @@ class AccountPage extends Component {
             updateSuccess: false,
             incorrectPassword: false,
             changesAllowed: false,
-            logged: false,
+            logged: true,
+
+            shippingName: '',
+            shippingStreetAddressOne: '',
+            shippingStreetAddressTwo: '',
+            shippingCity: '',
+            shippingCountry: '',
+            shippingState: '',
+            shippingZipcode: '',
+            saveShippingAllowed: false,
+            newAddressSuccess: false,
+            activeShippingTab: 'list',
+            activeNewShipping: true,
+            updateShippingId: '',
+            isDefault: ''
         }
 
         try{
@@ -81,6 +114,17 @@ class AccountPage extends Component {
     }
 
     async getUserDetails(){
+        this.setState({
+            id: '',
+            username: '',
+            email: '',
+            firstName: '',
+            lastName: '',
+            password: '',
+            newPassword: '',
+            newPasswordConfirm: '',
+            phone: '',
+        })
         await axios.get(PATH + "/api/myProfile", { params: {
                 token: cookies.get('token')
             }
@@ -97,19 +141,54 @@ class AccountPage extends Component {
                 lastName: res.user.lastName,
                 password: res.user.password,
                 phone: res.user.phone,
-                orderList: res.orderList,
-                userShipping:  res.userShipping,
-                userShippingList: res.userShippingList,
+                // orderList: res.orderList,
+                // userShipping:  res.userShipping,
+                // userShippingList: res.userShippingList,
                 balance: res.user.balance,
                 balanceRequestList: res.user.balanceRequestList,
-                shoppingCart: [],
+                // shoppingCart: [],
                 updateSuccess: false,
                 incorrectPassword: false,
                 changesAllowed: false
             })
-            console.log(this.state)
+        }).then(async () => {
+            await this.getShippingDetails();
         })
+    }
 
+    async getShippingDetails(){
+        this.setState({
+            userShippingDefault: [],
+            userShippingList: [],
+        })
+        await axios.get(PATH + "/api/listOfShippingAddresses", { params: {
+                token: cookies.get('token')
+            }
+        }).then(resp => {
+            return resp.data.userShippingList;
+        }).then(shippingList => {
+            for(let i = 0; i < shippingList.length; i++){
+                this.setState({
+                    userShippingList: this.state.userShippingList.concat({
+                        id: shippingList[i].id,
+                        userShippingCity: shippingList[i].userShippingCity,
+                        userShippingCountry: shippingList[i].userShippingCountry,
+                        userShippingDefault: shippingList[i].userShippingDefault,
+                        userShippingName: shippingList[i].userShippingName,
+                        userShippingState: shippingList[i].userShippingState,
+                        userShippingStreet1: shippingList[i].userShippingStreet1,
+                        userShippingStreet2: shippingList[i].userShippingStreet2,
+                        userShippingZipcode: shippingList[i].userShippingZipcode,
+                    })
+                })
+                if(shippingList[i].userShippingDefault == true){
+                    this.setState({
+                        userShippingDefault: shippingList[i].id,
+                        newUserShippingDefault: shippingList[i].id,
+                    })
+                }
+            }
+        })
     }
 
     handleUsernameInputChange(event){
@@ -215,37 +294,225 @@ class AccountPage extends Component {
         await axios.post(URLAddress + '/api/removeUser', {
             id: this.state.id,
             password: this.state.password
-        }).then(removeResp => {
-            console.log(removeResp.status)
-            return removeResp.status;
-        }).then(async (status) => {
-            if(status == 200){
-                this.setState({
-                    logged: true,
-                })
-                await cookies.remove('isLogged',  { path: '/' })
-                .then(async () =>  {
-                    await cookies.remove('token',  { path: '/' });
-                })
-                .then(async () =>  {
-                    await cookies.set('isLogged', false, { path: '/' });
-                })
+        }).then(async resp => {
+            if(resp.status == 200){
+                await this.deleteAccount()
             }
         }).catch(err => {
-            console.log(err)
-            if(err.response.status == 406){
+            this.setState({
+                updateSuccess: false,
+                incorrectPassword: true
+            })
+        })
+    }
+
+   async deleteAccount(){
+        await cookies.remove('isLogged',  { path: '/' })
+        await cookies.remove('token',  { path: '/' });
+        await this.setState({
+            logged: false
+        })
+    }
+
+    handleShippingNameInputChange(event){
+        this.setState({
+            shippingName: event.target.value
+        })
+    }
+
+    handleShippingStreetAddressOneInputChange(event){
+        this.setState({
+            shippingStreetAddressOne: event.target.value
+        })
+    }
+
+    handleShippingStreetAddressTwoInputChange(event){
+        this.setState({
+            shippingStreetAddressTwo: event.target.value
+        })
+    }
+
+    handleShippingCityInputChange(event){
+        this.setState({
+            shippingCity: event.target.value
+        })
+    }
+
+    handleShippingStateInputChange(event){
+        this.setState({
+            shippingState: event.target.value
+        })
+    }
+
+    handleShippingCountryInputChange(event){
+        this.setState({
+            shippingCountry: event.target.value
+        })
+    }
+
+    handleShippingZipcodeInputChange(event){
+        this.setState({
+            shippingZipcode: event.target.value
+        })
+    }
+
+    checkShippingFields(){
+        if(this.state.shippingName != '' &
+            this.state.shippingStreetAddressOne != '' &&
+            this.state.shippingStreetAddressTwo != '' &&
+            this.state.shippingCity != '' &&
+            this.state.shippingState != '' &&
+            this.state.shippingCountry != '' &&
+            this.state.shippingZipcode != ''
+        ){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
+    async saveShippingAddressClick(){
+        if(this.checkShippingFields()){
+            await axios.post(URLAddress + '/api/addNewShippingAddress', {
+                token: cookies.get('token'),
+                userShippingName: this.state.shippingName,
+                userShippingStreet1: this.state.shippingStreetAddressOne,
+                userShippingStreet2: this.state.shippingStreetAddressTwo,
+                userShippingCity: this.state.shippingCity,
+                userShippingState: this.state.shippingState,
+                userShippingCountry: this.state.shippingCountry,
+                userShippingZipcode: this.state.shippingZipcode,
+                userShippingDefault: true
+            }).then(async resp => {
+                if(resp.status == 200){
+                    this.setState({
+                        newAddressSuccess: true
+                    })
+                    this.getShippingDetails();
+                }
+            })
+        }
+    }
+
+    editSelected(){
+        this.setState({
+            newAddressSuccess: false
+        })
+    }
+
+    updateShippingOpen(event){
+        this.setState({
+            activeShippingTab: 'edit'
+        })
+        for(let i = 0; i < this.state.userShippingList.length; i++){
+            if(event.target.id == this.state.userShippingList[i].id){
                 this.setState({
-                    updateSuccess: false,
-                    incorrectPassword: true
+                    updateShippingId: event.target.id,
+                    shippingName: this.state.userShippingList[i].userShippingName,
+                    shippingStreetAddressOne: this.state.userShippingList[i].userShippingStreet1,
+                    shippingStreetAddressTwo: this.state.userShippingList[i].userShippingStreet2,
+                    shippingCity: this.state.userShippingList[i].userShippingCity,
+                    shippingCountry: this.state.userShippingList[i].userShippingCountry,
+                    shippingState: this.state.userShippingList[i].userShippingState,
+                    shippingZipcode: this.state.userShippingList[i].userShippingZipcode,
+                    activeNewShipping: false,
+                    isDefault: this.state.userShippingList[i].userShippingDefault,
                 })
+            }
+        }
+    }
+
+    async confirmUpdateShipping(){
+        console.log(this.state)
+        await axios.put(URLAddress + '/api/updateUserShipping', {
+            id: this.state.updateShippingId,
+            token: cookies.get('token'),
+            userShippingName: this.state.shippingName,
+            userShippingStreet1: this.state.shippingStreetAddressOne,
+            userShippingStreet2: this.state.shippingStreetAddressTwo,
+            userShippingCity: this.state.shippingCity,
+            userShippingState: this.state.shippingState,
+            userShippingCountry: this.state.shippingCountry,
+            userShippingZipcode: this.state.shippingZipcode,
+            userShippingDefault: this.state.isDefault
+        }).then(async resp => {
+            console.log(resp)
+            if(resp.status == 200){
+                this.getShippingDetails();
             }
         })
     }
 
+    async deleteShipping(event){
+        await axios.delete(URLAddress + '/api/removeUserShipping', { data: {
+            token: cookies.get('token'),
+            id: event.target.id,
+            userShippingDefault: event.target.id == this.state.userShippingDefault
+        }}).then(async resp => {
+            if(resp.status == 200){
+                this.setState({
+                    activeShippingTab: 'list'
+                })
+                this.getShippingDetails();
+            }
+        })
+    }
+
+    chooseDefaultShipping(event){
+        this.setState({
+            newUserShippingDefault: event.target.value
+        })
+    }
+
+    async updateShippings(){
+        await axios.post(URLAddress + '/api/setDefaultShippingAddress', {
+            token: cookies.get('token'),
+            id: this.state.userShippingDefault,
+            userShippingDefault: this.state.userShippingDefault == this.state.newUserShippingDefault
+        }).then(async resp => {
+            console.log(resp)
+            if(resp.status == 200){
+                this.getShippingDetails();
+            }
+        })
+    }
+
+    changeActiveTabShipping(key){
+        this.setState({
+            activeShippingTab: key
+        })
+        if(this.state.activeShippingTab == 'list'){
+            this.setState({
+                shippingName: '',
+                shippingStreetAddressOne: '',
+                shippingStreetAddressTwo: '',
+                shippingCity: '',
+                shippingCountry: '',
+                shippingState: '',
+                shippingZipcode: '',
+            })
+        }
+        else{
+            this.setState({
+                activeNewShipping: true
+            })
+        }
+    }
+
     render() {
-        if (this.state.logged) {
+        if(!this.state.logged) {
             return <Navigate to='/home' />
         }
+
+        const shippingList = this.state.userShippingList.map((shipping) =>
+            <tr>
+                <td><input onClick={this.chooseDefaultShipping} type="radio" name="defaultShippingAddressId" checked={shipping.newUserShippingDefault} value={shipping.id}/><span></span>
+                </td>
+                <td style={{fontWeight: shipping.id == this.state.userShippingDefault ? 'bold' : 'normal'}}>{shipping.userShippingStreet1} {shipping.userShippingStreet2} {shipping.userShippingCity} {shipping.userShippingZipcode} {shipping.userShippingState}</td>
+                <td><a><i style={{cursor: 'pointer'}} id={shipping.id} className="fa fa-pencil" onClick={this.updateShippingOpen}></i></a>&nbsp;&nbsp;<a><i style={{cursor: 'pointer'}} id={shipping.id} className="fa fa-times" onClick={this.deleteShipping}></i></a></td>
+            </tr>
+        )
 
         return (
             <div>
@@ -257,6 +524,7 @@ class AccountPage extends Component {
                     <br/>
                     <br/>
                 </div>
+
 
                 <div>
                     <Tabs style={tableHeaderStyle} defaultActiveKey="edit" className="mb-3">
@@ -493,80 +761,93 @@ class AccountPage extends Component {
                                             </ol>
 
                                             <div>
-                                                <form method="post">
-                                                    <table className="table">
-                                                        <thead>
-                                                        <tr>
-                                                            <th>Default</th>
-                                                            <th>Shipping Address</th>
-                                                            <th>Operations</th>
-                                                        </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                        <tr>
-                                                            <td><input type="radio" name="defaultShippingAddressId"/><span></span>
-                                                            </td>
-                                                            <td>Default address field</td>
-                                                            <td><a><i className="fa fa-pencil"></i></a>&nbsp;&nbsp;<a><i className="fa fa-times"></i></a></td>
-                                                        </tr>
-                                                        </tbody>
-                                                    </table>
+                                                <Tabs style={tableHeaderStyle} activeKey={this.state.activeShippingTab} defaultActiveKey="list" className="mb-3" onSelect={this.changeActiveTabShipping}>
+                                                    <Tab style={tableBodyStyle} id="list" eventKey="list" title="List">
+                                                        <form method="post">
+                                                            <table className="table">
+                                                                <thead>
+                                                                <tr>
+                                                                    <th>Default</th>
+                                                                    <th>Shipping Address</th>
+                                                                    <th>Operations</th>
+                                                                </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                {shippingList}
+                                                                </tbody>
+                                                            </table>
+                                                        </form>
 
-                                                    <button className="btn btn-primary" type="submit">
-                                                        Save
-                                                    </button>
+                                                        <div>
+                                                            <button className="btn btn-primary" type="submit" onClick={this.updateShippings}>
+                                                                Save
+                                                            </button>
+                                                        </div>
+                                                    </Tab>
 
-                                                </form>
-                                            </div>
+                                                    <Tab style={tableBodyStyle} id="edit" eventKey="edit" title="Edit" onSelect={this.editSelected}>
+                                                        <div>
+                                                            <form method="post">
+                                                                <div className="bg-info" hidden>
+                                                                    User info updated.
+                                                                </div>
 
-                                            <div>
-                                                <form method="post">
-                                                    <div className="bg-info" hidden>
-                                                        User info updated.
-                                                    </div>
+                                                                <div className="alert alert-success" hidden={!this.state.newAddressSuccess}>
+                                                                    <strong>New Shipping Address Added</strong>
+                                                                </div>
 
-                                                    <input hidden="hidden" name="id"/>
+                                                                <hr/>
+                                                                <div className="form-group">
+                                                                    <h4>Shipping Address</h4>
+                                                                </div>
+                                                                <div className="form-group">
+                                                                    <label htmlFor="shippingName">* Name</label>
+                                                                    <input style={{textAlign: 'center'}} type="text" className="form-control" id="shippingName" placeholder="Receiver Name" required="required" value={this.state.shippingName} onChange={this.handleShippingNameInputChange}/>
+                                                                </div>
+                                                                <div className="form-group">
+                                                                    <label htmlFor="shippingAddress">* Street Address</label>
+                                                                    <input style={{textAlign: 'center'}} type="text" className="form-control" id="shippingAddress" placeholder="Street Address 1" value={this.state.shippingStreetAddressOne} onChange={this.handleShippingStreetAddressOneInputChange}/>
+                                                                    <input style={{textAlign: 'center'}} type="text" className="form-control" placeholder="Street Address 2" value={this.state.shippingStreetAddressTwo} onChange={this.handleShippingStreetAddressTwoInputChange}/>
+                                                                </div>
 
-                                                    <hr/>
-                                                    <div className="form-group">
-                                                        <h4>Shipping Address</h4>
-                                                    </div>
-                                                    <div className="form-group">
-                                                        <label htmlFor="shippingName">* Name</label>
-                                                        <input type="text" className="form-control" id="shippingName" placeholder="Receiver Name" required="required"/>
-                                                    </div>
-                                                    <div className="form-group">
-                                                        <label htmlFor="shippingAddress">* Street Address</label>
-                                                        <input type="text" className="form-control" id="shippingAddress" placeholder="Street Address 1"/>
-                                                        <input type="text" className="form-control" placeholder="Street Address 2"/>
-                                                    </div>
+                                                                <div className="row">
+                                                                    <div className="col-xs-4">
+                                                                        <div className="form-group">
+                                                                            <label htmlFor="shippingCity">* City</label>
+                                                                            <input style={{textAlign: 'center'}} type="text" className="form-control" id="shippingCity" placeholder="Shipping City" required="required" value={this.state.shippingCity} onChange={this.handleShippingCityInputChange}/>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="col-xs-4">
+                                                                        <div className="form-group">
+                                                                            <label htmlFor="shippingState">* State</label>
+                                                                            <input style={{textAlign: 'center'}} id="shippingState" className="form-control" placeholder="Shipping State" required="required" value={this.state.shippingState} onChange={this.handleShippingStateInputChange}/>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="col-xs-4">
+                                                                        <div className="form-group">
+                                                                            <label htmlFor="shippingCountry">* Country</label>
+                                                                            <input style={{textAlign: 'center'}} type="text" className="form-control" id="shippingCountry" placeholder="Shipping Country" required="required" value={this.state.shippingCountry} onChange={this.handleShippingCountryInputChange}/>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="col-xs-4">
+                                                                        <div className="form-group">
+                                                                            <label htmlFor="shippingZipcode">* Zipcode</label>
+                                                                            <input style={{textAlign: 'center'}} type="text" className="form-control" id="shippingZipcode" placeholder="Shipping Zipcode" required="required" value={this.state.shippingZipcode} onChange={this.handleShippingZipcodeInputChange}/>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
 
-                                                    <div className="row">
-                                                        <div className="col-xs-4">
-                                                            <div className="form-group">
-                                                                <label htmlFor="shippingCity">* City</label>
-                                                                <input type="text" className="form-control" id="shippingCity" placeholder="Shipping City" required="required"/>
+                                                                <hr/>
+                                                            </form>
+
+                                                            <div className="form-group" style={{marginTop: '10px'}}>
+                                                                <button style={{textAlign: 'center'}} type="submit" className="btn btn-primary btn-lg" onClick={this.state.activeNewShipping ? this.saveShippingAddressClick : this.confirmUpdateShipping}>
+                                                                    Save All
+                                                                </button>
                                                             </div>
                                                         </div>
-                                                        <div className="col-xs-4">
-                                                            <div className="form-group">
-                                                                <label htmlFor="shippingState">* State</label>
-                                                                <input id="shippingState" className="form-control" required="required"/>
-                                                            </div>
-                                                        </div>
-                                                        <div className="col-xs-4">
-                                                            <div className="form-group">
-                                                                <label htmlFor="shippingZipcode">* Zipcode</label>
-                                                                <input type="text" className="form-control" id="shippingZipcode" placeholder="Shipping Zipcode" required="required"/>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <hr/>
-                                                    <button type="submit" className="btn btn-primary btn-lg">
-                                                        Save All
-                                                    </button>
-                                                </form>
+                                                    </Tab>
+                                                </Tabs>
                                             </div>
                                         </div>
                                     </div>

@@ -24,7 +24,6 @@ class NavbarTemplate extends Component {
     }
 
     render() {
-
         return (
             <Navbar fixed="top" bg="white" variant="light">
                 <Container>
@@ -40,7 +39,7 @@ class NavbarTemplate extends Component {
                     <Navbar.Collapse id="basic-navbar-nav">
                         <Nav className="me-auto">
                             <Nav.Link style={{fontSize: "30px", fontWeight: "bold"}} href="/">Home</Nav.Link>
-                            <Nav.Link style={{fontSize: "30px", fontWeight: "bold"}} href="/books">Books</Nav.Link>
+                            <Nav.Link style={{fontSize: "30px", fontWeight: "bold"}} href="/">Books</Nav.Link>
                             <Nav.Link style={{fontSize: "30px", fontWeight: "bold"}} href="/drops">Drops</Nav.Link>
                         </Nav>
                         <Nav>
