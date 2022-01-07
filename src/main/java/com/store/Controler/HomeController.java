@@ -2,9 +2,7 @@ package com.store.Controler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.store.Domain.*;
-import com.store.Dto.DeleteUserDto;
-import com.store.Dto.RegistrationDto;
-import com.store.Dto.UserUpdateInfoDto;
+import com.store.Dto.*;
 import com.store.Security.PasswordResetToken;
 import com.store.Security.Role;
 import com.store.Security.UserRole;
@@ -91,10 +89,10 @@ public class HomeController {
     }
 
     @RequestMapping(value = "listOfShippingAddresses")
-    public ResponseEntity<Model> listOfShippingAddresses(
-            Model model, Principal principal
-    ) {
-        User user = userService.findByUsername(principal.getName());
+    public ResponseEntity<Model> listOfShippingAddresses(@PathParam("token") String token, Model model) {
+
+        String userName = jwtUtil.parseToken(token);
+        User user = userService.findByUsername(userName);
 
         List<UserShipping> userShippingList = user.getUserShippingList();
         if (userShippingList.isEmpty()) {
@@ -143,10 +141,10 @@ public class HomeController {
     }
 
     @RequestMapping(value = "addNewShippingAddress")
-    public ResponseEntity<Model> addNewShippingAddress(
-            Model model, Principal principal
-    ) {
-        User user = userService.findByUsername(principal.getName());
+    public ResponseEntity<Model> addNewShippingAddress(@PathParam("token") String token, Model model) {
+
+        String userName = jwtUtil.parseToken(token);
+        User user = userService.findByUsername(userName);
         model.addAttribute("user", user);
 
         model.addAttribute("addNewShippingAddress", true);
@@ -164,12 +162,17 @@ public class HomeController {
     }
 
     @RequestMapping(value = "addNewShippingAddress", method = RequestMethod.POST)
-    public ResponseEntity<Model> addNewShippingAddressPost(
-            @RequestParam("userShipping") UserShipping userShipping,
-            Principal principal, Model model
-    ) {
-        User user = userService.findByUsername(principal.getName());
-        userService.updateUserShipping(userShipping, user);
+    public ResponseEntity<Model> addNewShippingAddressPost(HttpServletRequest request, Model model) throws IOException {
+
+        String requestBody = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+        UserShippingAddressDto userShipping = objectMapper.readValue(requestBody, UserShippingAddressDto.class);
+
+        String userName = jwtUtil.parseToken(userShipping.getToken());
+        User user = userService.findByUsername(userName);
+
+        UserShipping shipping = userShipping.userShippingDtoToUserShipping(userShipping);
+
+        userService.updateUserShipping(shipping, user);
 
         model.addAttribute("user", user);
         model.addAttribute("userShippingList", user.getUserShippingList());
@@ -180,18 +183,22 @@ public class HomeController {
         return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "updateUserShipping/{id]")
-    public ResponseEntity<Model> updateUserShipping(
-            @PathParam("id") Long shippingAddressId, Principal principal, Model model
-    ) {
-        User user = userService.findByUsername(principal.getName());
-        UserShipping userShipping = userShippingService.findById(shippingAddressId);
+    @RequestMapping(value = "updateUserShipping/{id]", method = RequestMethod.PUT)
+    public ResponseEntity<Model> updateUserShipping(HttpServletRequest request, Model model) throws IOException {
 
-        if (!user.getId().equals(userShipping.getUser().getId())) {
+        String requestBody = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+        UserShippingAddressDto userShipping = objectMapper.readValue(requestBody, UserShippingAddressDto.class);
+
+        String userName = jwtUtil.parseToken(userShipping.getToken());
+        User user = userService.findByUsername(userName);
+
+        UserShipping shipping = userShippingService.findById(userShipping.getId());
+
+        if (!user.getId().equals(shipping.getUser().getId())) {
             return new ResponseEntity<>(model, HttpStatus.BAD_REQUEST);
         } else {
             model.addAttribute("user", user);
-            model.addAttribute("userShipping", userShipping);
+            model.addAttribute("userShipping", shipping);
 
             model.addAttribute("addNewShippingAddress", true);
             model.addAttribute("classActiveShipping", true);
@@ -203,11 +210,14 @@ public class HomeController {
     }
 
     @RequestMapping(value = "/setDefaultShippingAddress", method = RequestMethod.POST)
-    public ResponseEntity<Model> setDefaultShippingAddress(
-            @PathParam("defaultShippingAddressId") Long defaultShippingId, Principal principal, Model model
-    ) {
-        User user = userService.findByUsername(principal.getName());
-        userService.setUserDefaultShipping(defaultShippingId, user);
+    public ResponseEntity<Model> setDefaultShippingAddress(HttpServletRequest request, Model model) throws IOException {
+
+        String requestBody = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+        DefaultShippingAddressDto userShipping = objectMapper.readValue(requestBody, DefaultShippingAddressDto.class);
+
+        String userName = jwtUtil.parseToken(userShipping.getToken());
+        User user = userService.findByUsername(userName);
+        userService.setUserDefaultShipping(userShipping.getId(), user);
 
         model.addAttribute("user", user);
 
@@ -220,19 +230,22 @@ public class HomeController {
         return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "removeUserShipping")
-    public ResponseEntity<Model> removeUserShipping(
-            @PathParam("id") Long userShippingId, Principal principal, Model model
-    ) {
-        User user = userService.findByUsername(principal.getName());
-        UserShipping userShipping = userShippingService.findById(userShippingId);
+    @RequestMapping(value = "removeUserShipping", method = RequestMethod.DELETE)
+    public ResponseEntity<Model> removeUserShipping(HttpServletRequest request, Model model) throws IOException {
 
-        if (!Objects.equals(user.getId(), userShipping.getUser().getId())) {
+        String requestBody = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+        DefaultShippingAddressDto userShipping = objectMapper.readValue(requestBody, DefaultShippingAddressDto.class);
+
+        String userName = jwtUtil.parseToken(userShipping.getToken());
+        User user = userService.findByUsername(userName);
+        UserShipping shipping = userShippingService.findById(userShipping.getId());
+
+        if (!Objects.equals(user.getId(), shipping.getUser().getId())) {
             model.addAttribute("emptyList", true);
         } else {
             model.addAttribute("user", user);
 
-            userShippingService.removeById(userShippingId);
+            userShippingService.removeById(userShipping.getId());
 
             model.addAttribute("listOfShippingAddresses", true);
             model.addAttribute("classActiveShipping", true);
