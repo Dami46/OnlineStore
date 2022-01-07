@@ -11,6 +11,10 @@ import java.util.Set;
 public interface UserService {
     PasswordResetToken getPasswordResetToken(final String token);
 
+    PasswordResetToken getPasswordResetTokenByUser(User user);
+
+    void removePasswordToken(Long id);
+
     void createPasswordResetTokenForUser(final User user, final String token);
 
     User findByUsername(String username);

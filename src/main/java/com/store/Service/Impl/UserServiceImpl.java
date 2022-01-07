@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +41,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public PasswordResetToken getPasswordResetToken(final String token) {
         return passwordResetTokenRepository.findByToken(token);
+    }
+
+    @Override
+    public PasswordResetToken getPasswordResetTokenByUser(User user) {
+        return passwordResetTokenRepository.findByUser(user);
+    }
+
+    @Override
+    public void removePasswordToken(Long id) {
+        passwordResetTokenRepository.deleteById(id);
     }
 
     @Override

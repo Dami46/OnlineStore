@@ -500,6 +500,8 @@ public class HomeController {
                 return new ResponseEntity<>(model, HttpStatus.NOT_ACCEPTABLE);
             }
         }
+        PasswordResetToken passToken = userService.getPasswordResetTokenByUser(currentUser);
+        userService.removePasswordToken(passToken.getId());
 
         userService.removeOne(currentUser.getId());
         return new ResponseEntity<>(model, HttpStatus.OK); //z TEGO OK TRZEBA ZROBIĆ REDIRECT DO /LOGOUT LUB DO GŁÓWNEJ
