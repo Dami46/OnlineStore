@@ -6,6 +6,7 @@ import {Tab} from "bootstrap";
 import {PATH} from "../../services/ConfigurationUrlAService";
 import Cookies from 'universal-cookie';
 import axios from "axios";
+import {Navigate} from "react-router-dom";
 
 const cookies = new Cookies();
 
@@ -69,7 +70,8 @@ class AccountPage extends Component {
             shoppingCart: [],
             updateSuccess: false,
             incorrectPassword: false,
-            changesAllowed: false
+            changesAllowed: false,
+            logged: false,
         }
 
         try{
@@ -185,18 +187,51 @@ class AccountPage extends Component {
             phone: this.state.phone,
             newPassword: newPasswordToSend
         }).then(updateResp => {
-            console.log(updateResp)
             return updateResp.status;
+        }).then(async stat => {
+            await this.getUserDetails();
+            return stat;
+        }).then(status => {
+            if(status == 200){
+                this.setState({
+                    updateSuccess: true,
+                    incorrectPassword: false
+                })
+            }
+            else if(status == 406){
+                this.setState({
+                    updateSuccess: false,
+                    incorrectPassword: true
+                })
+            }
         })
     }
 
     async deleteAccountClick(){
-        await axios.get(URLAddress + '/api/bookshelf').then(booksResp => {
-            return booksResp.data.bookList;
+        await axios.get(URLAddress + '/api/removeUser').then(removeResp => {
+            console.log(removeResp.status)
+            return removeResp.status;
+        }).then(async (status) => {
+            if(status == 200){
+                this.setState({
+                    logged: true,
+                })
+                await cookies.remove('isLogged',  { path: '/' })
+                .then(async () =>  {
+                    await cookies.remove('token',  { path: '/' });
+                })
+                .then(async () =>  {
+                    await cookies.set('isLogged', false, { path: '/' });
+                })
+            }
         })
     }
 
     render() {
+        if (this.state.logged) {
+            return <Navigate to='/home' />
+        }
+
         return (
             <div>
                 <div>
@@ -273,12 +308,13 @@ class AccountPage extends Component {
                                                     <input style={{textAlign: "center"}} type="password" className="form-control" onChange={this.handleNewPasswordConfirmInputChange} placeholder="Reenter new password to confirm" id="txtConfirmPassword"/>
                                                 </div>
                                                 <p style={{color: "#828282"}} hidden> To change current password enter the new in both fields</p>
+                                            </form>
 
-
+                                            <div className="form-group">
                                                 <button id="updateUserInfoButton" type="submit" className="btn btn-primary" onClick={this.saveChangesClick} disabled={!this.state.changesAllowed}>
                                                     Save All
                                                 </button>
-                                            </form>
+                                            </div>
 
                                             <div className="form-group">
                                                 <label>
