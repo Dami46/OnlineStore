@@ -91,11 +91,11 @@ class BooksPage extends Component {
                     <form method="post" style={{marginLeft: "10%"}}>
                         <input hidden="hidden"/>
                         <div class="row" style={{marginTop: "20px"}}>
-                            <div style={{}} class="col-xs-3">
-                                <img src={this.state.bookImage} style={{width: '200px', height: '300px'}} class="img-responsive shelf-book"/>
+                            <div style={{display: 'inline-block'}} class="col-xs-3">
+                                <img src={this.state.bookImage} style={{width: '270px', height: '350px', marginLeft: '35%'}} class="img-responsive shelf-book"/>
                             </div>
 
-                            <div style={{}} class="col-xs-9">
+                            <div style={{display: 'inline-block'}} class="col-xs-9">
                                 <h3><span style={{color: "forestgreen"}} hidden><i class="fa fa-check" aria-hidden="true" style={{color: "forestgreen"}}></i>Added to cart.</span></h3>
                                 <h3><span style={{color: "red"}} hidden>Oops, only <span>{this.state.inStockNumber}</span> In Stock.</span></h3>
                                 <h3>{this.state.title}</h3>
@@ -107,6 +107,7 @@ class BooksPage extends Component {
                                         <p><strong>Language: </strong> <span>{this.state.language}</span></p>
                                         <p><strong>Category: </strong> <span>{this.state.category}</span></p>
                                         <p><strong>Number of pages: </strong><span>{this.state.numberOfPages}</span> </p>
+                                        <p style={{width: '60%'}}><strong>Description: </strong>{this.state.description}</p>
                                     </div>
 
                                     <div class="col-xs-7">
@@ -124,17 +125,6 @@ class BooksPage extends Component {
                                                         </select>
                                                         <br/> <br/>
                                                     </div>
-                                                    <div class="col-xs-6">
-                                                        <h4 style={{color: "green"}} hidden> In stock</h4>
-                                                        <h4 style={{color: "green"}} hidden> Only <span> in stock</span></h4>
-                                                        <h4 style={{color: "darkred"}} hidden> Unavailable </h4>
-
-                                                        <input type="submit" class="btn btn-warning" name="addToCart" value="Add to cart" style={{color: "black", border: "1px solid", padding: "10px 40px 10px 40px"}}/>
-
-                                                    <br/> <br/>
-
-                                                    <input type="submit" class="btn btn-warning" name="buyBook" value="  Buy book" style={{color: "black", border: "1px solid", padding: "10px 40px 10px 40px"}}/>
-                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -144,6 +134,25 @@ class BooksPage extends Component {
                         <p></p>
                         </div>
                     </form>
+
+                    <div className="col-xs-6" style={{textAlign: 'center'}}>
+                        <h4 style={{color: "green"}} hidden> In stock</h4>
+                        <h4 style={{color: "green"}} hidden> Only <span> in stock</span></h4>
+                        <h4 style={{color: "darkred"}} hidden> Unavailable </h4>
+
+                        <input type="submit" className="btn btn-primary" name="addToCart" value="Add to cart"
+                               style={{
+                                   display: 'inline-block',
+                                   border: "1px solid",
+                                   padding: "10px 40px 10px 40px"
+                               }}/>
+                        <input type="submit" className="btn btn-primary" name="buyBook" value="  Buy book" style={{
+                            marginLeft: '20px',
+                            display: 'inline-block',
+                            border: "1px solid",
+                            padding: "10px 40px 10px 40px"
+                        }}/>
+                    </div>
                 </div>
             </div>
         );

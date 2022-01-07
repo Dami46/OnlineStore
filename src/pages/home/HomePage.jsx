@@ -213,8 +213,15 @@ class HomePage extends Component {
                     </Card.Title>
                     <Card.Subtitle>
                         {book.author}
+                        <br/>
+                        {book.publicationDate}
+                        <br/>
+                        {book.pageCount}
                     </Card.Subtitle>
                     <Card.Text>
+                        <div>
+                            <strong style={{color: 'red', display: 'inline-block'}}>{book.ourPrice}$</strong> <p style={{textDecoration: 'line-through', display: 'inline-block'}}>{book.listPrice}$</p>
+                        </div>
                         {book.description}
                     </Card.Text>
                     <i style={{cursor: 'pointer'}} className="fa fa-shopping-cart">&nbsp;Add to cart</i>
