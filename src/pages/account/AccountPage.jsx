@@ -439,6 +439,9 @@ class AccountPage extends Component {
         }).then(async resp => {
             console.log(resp)
             if(resp.status == 200){
+                this.setState({
+                    activeShippingTab: 'list'
+                })
                 this.getShippingDetails();
             }
         })
@@ -451,9 +454,6 @@ class AccountPage extends Component {
             userShippingDefault: event.target.id == this.state.userShippingDefault
         }}).then(async resp => {
             if(resp.status == 200){
-                this.setState({
-                    activeShippingTab: 'list'
-                })
                 this.getShippingDetails();
             }
         })
@@ -507,7 +507,7 @@ class AccountPage extends Component {
 
         const shippingList = this.state.userShippingList.map((shipping) =>
             <tr>
-                <td><input onClick={this.chooseDefaultShipping} type="radio" name="defaultShippingAddressId" checked={shipping.newUserShippingDefault} value={shipping.id}/><span></span>
+                <td><input onClick={this.chooseDefaultShipping} type="radio" name="defaultShippingAddressId" checked={this.state.userShippingDefault == shipping.id} value={shipping.id}/><span></span>
                 </td>
                 <td style={{fontWeight: shipping.id == this.state.userShippingDefault ? 'bold' : 'normal'}}>{shipping.userShippingStreet1} {shipping.userShippingStreet2} {shipping.userShippingCity} {shipping.userShippingZipcode} {shipping.userShippingState}</td>
                 <td><a><i style={{cursor: 'pointer'}} id={shipping.id} className="fa fa-pencil" onClick={this.updateShippingOpen}></i></a>&nbsp;&nbsp;<a><i style={{cursor: 'pointer'}} id={shipping.id} className="fa fa-times" onClick={this.deleteShipping}></i></a></td>

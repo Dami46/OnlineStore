@@ -303,10 +303,6 @@ class HomePage extends Component {
                       </Row>
                   </div>
               </div>
-
-              <div style={{textAlign: 'center', marginTop: '50%', marginBottom: '5%'}}>
-                  <strong>Place for privacy policy </strong>
-              </div>
           </div>
         );
     }
