@@ -3,6 +3,7 @@ package com.store.Controler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.store.Domain.*;
 import com.store.Dto.RegistrationDto;
+import com.store.Dto.UserUpdateInfoDto;
 import com.store.Security.PasswordResetToken;
 import com.store.Security.Role;
 import com.store.Security.UserRole;
@@ -244,50 +245,51 @@ public class HomeController {
     }
 
     @RequestMapping(value = "/updateUserInfo", method = RequestMethod.POST)
-    public ResponseEntity<Model> updateUserInfo(
-            @RequestParam("user") User user,
-            @RequestParam("newPassword") String newPassword,
-            Model model
-    ) throws Exception {
-        User currentUser = userService.findById(user.getId());
+    public ResponseEntity<Model> updateUserInfo(HttpServletRequest request, Model model) throws Exception {
+
+        String requestBody = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+
+        UserUpdateInfoDto userUpdateInfoDto = objectMapper.readValue(requestBody, UserUpdateInfoDto.class);
+
+        User currentUser = userService.findById(userUpdateInfoDto.getId());
 
         if (currentUser == null) {
             throw new Exception("User not found");
         }
 
         /*check email already exists*/
-        if (userService.findByEmail(user.getEmail()) != null) {
-            if (!Objects.equals(userService.findByEmail(user.getEmail()).getId(), currentUser.getId())) {
+        if (userService.findByEmail(userUpdateInfoDto.getEmail()) != null) {
+            if (!Objects.equals(userService.findByEmail(userUpdateInfoDto.getEmail()).getId(), currentUser.getId())) {
                 model.addAttribute("emailExists", true);
-                return new ResponseEntity<>(model, HttpStatus.OK);
+                return new ResponseEntity<>(model, HttpStatus.FORBIDDEN);
             }
         }
 
         /*check username already exists*/
-        if (userService.findByUsername(user.getUsername()) != null) {
-            if (!Objects.equals(userService.findByUsername(user.getUsername()).getId(), currentUser.getId())) {
+        if (userService.findByUsername(userUpdateInfoDto.getUsername()) != null) {
+            if (!Objects.equals(userService.findByUsername(userUpdateInfoDto.getUsername()).getId(), currentUser.getId())) {
                 model.addAttribute("usernameExists", true);
-                return new ResponseEntity<>(model, HttpStatus.OK);
+                return new ResponseEntity<>(model, HttpStatus.FORBIDDEN);
             }
         }
 
 //		update password
-        if (newPassword != null && !newPassword.isEmpty() && !newPassword.equals("")) {
+        if (userUpdateInfoDto.getNewPassword() != null && !userUpdateInfoDto.getNewPassword() .isEmpty() && !userUpdateInfoDto.getNewPassword() .equals("")) {
             BCryptPasswordEncoder passwordEncoder = SecurityUtility.passwordEncoder();
             String dbPassword = currentUser.getPassword();
-            if (passwordEncoder.matches(user.getPassword(), dbPassword)) {
-                currentUser.setPassword(passwordEncoder.encode(newPassword));
+            if (passwordEncoder.matches(userUpdateInfoDto.getPassword(), dbPassword)) {
+                currentUser.setPassword(passwordEncoder.encode(userUpdateInfoDto.getNewPassword()));
             } else {
                 model.addAttribute("incorrectPassword", true);
 
-                return new ResponseEntity<>(model, HttpStatus.OK);
+                return new ResponseEntity<>(model, HttpStatus.NOT_ACCEPTABLE);
             }
         }
 
-        currentUser.setFirstName(user.getFirstName());
-        currentUser.setLastName(user.getLastName());
-        currentUser.setUsername(user.getUsername());
-        currentUser.setEmail(user.getEmail());
+        currentUser.setFirstName(userUpdateInfoDto.getFirstName());
+        currentUser.setLastName(userUpdateInfoDto.getLastName());
+        currentUser.setUsername(userUpdateInfoDto.getUsername());
+        currentUser.setEmail(userUpdateInfoDto.getEmail());
 
         userService.save(currentUser);
 
