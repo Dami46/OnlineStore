@@ -4,6 +4,8 @@ package com.store.Controler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.store.Domain.*;
 import com.store.Dto.BalanceRequestDto;
+import com.store.Dto.BookCheckoutDto;
+import com.store.Dto.BuyBookDto;
 import com.store.Service.*;
 import com.store.Utility.JwtUtil;
 import com.store.Utility.MailConstructor;
@@ -52,13 +54,16 @@ public class CheckoutController {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    @RequestMapping(value = "/buyItem", params = "buyBook")
-    public ResponseEntity<Model> buyItem(
-            @ModelAttribute("book") Book book,
-            Model model, Principal principal
-    ) {
-        User user = userService.findByUsername(principal.getName());
-        book = bookService.findById(book.getId()).orElse(null);
+    @RequestMapping(value = "/buyItem", params = "buyBook", method = RequestMethod.POST)
+    public ResponseEntity<Model> buyItem(HttpServletRequest request, Model model) throws IOException {
+
+        String requestBody = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+        BuyBookDto bookDto = objectMapper.readValue(requestBody, BuyBookDto.class);
+
+        String userName = jwtUtil.parseToken(bookDto.getToken());
+
+        User user = userService.findByUsername(userName);
+        Book book = bookService.findById(bookDto.getId()).orElse(null);
 
         if (user.getBalance() < Objects.requireNonNull(book).getOurPrice()) {
             model.addAttribute("insufficientUserBalance", true);
@@ -68,7 +73,7 @@ public class CheckoutController {
 
         if (1 > book.getInStockNumber()) {
             model.addAttribute("notEnoughStock", true);
-            return new ResponseEntity<>(model, HttpStatus.CONTINUE); //"forward:/bookDetail?id=" + book.getId()
+            return new ResponseEntity<>(model, HttpStatus.NOT_ACCEPTABLE); //"forward:/bookDetail?id=" + book.getId()
         }
         model.addAttribute("user", user);
         model.addAttribute("addBookSuccess", true);
@@ -77,27 +82,32 @@ public class CheckoutController {
     }
 
     @RequestMapping(value = "/buyItem", method = RequestMethod.POST, params = "addToCart")
-    public ResponseEntity<Model> addItem(@ModelAttribute("book") Book book,
-                                         @ModelAttribute("qty") String quantity,
-                                         Model model, Principal principal) {
-        User user = userService.findByUsername(principal.getName());
-        book = bookService.findById(book.getId()).orElse(null);
+    public ResponseEntity<Model> addItem(HttpServletRequest request, Model model) throws IOException {
 
-        if (Integer.parseInt(quantity) > Objects.requireNonNull(book).getInStockNumber()) {
+        String requestBody = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+        BuyBookDto bookDto = objectMapper.readValue(requestBody, BuyBookDto.class);
+
+        String userName = jwtUtil.parseToken(bookDto.getToken());
+
+        User user = userService.findByUsername(userName);
+        Book book = bookService.findById(bookDto.getId()).orElse(null);
+
+        if (bookDto.getQuantity() > Objects.requireNonNull(book).getInStockNumber()) {
             model.addAttribute("notEnoughStock", true);
-            return new ResponseEntity<>(model, HttpStatus.CONTINUE); //"forward:/bookDetail?id=" + book.getId()
+            return new ResponseEntity<>(model, HttpStatus.NOT_ACCEPTABLE); //"forward:/bookDetail?id=" + book.getId()
         }
 
-        CartItem cartItem = cartItemService.addBookToCartItem(book, user, Integer.parseInt(quantity));
+        CartItem cartItem = cartItemService.addBookToCartItem(book, user, bookDto.getQuantity());
         model.addAttribute("addBookSuccess");
         return new ResponseEntity<>(model, HttpStatus.CONTINUE); //"forward:/shoppingCart/cart"
 
     }
 
     @RequestMapping("/checkout")
-    public ResponseEntity<Model> checkout(@RequestParam("id") Long bookId, Model model,
-                                          Principal principal) {
-        User user = userService.findByUsername(principal.getName());
+    public ResponseEntity<Model> checkout(@RequestParam("id") Long bookId, @RequestParam("token") String token, Model model) {
+        String userName = jwtUtil.parseToken(token);
+
+        User user = userService.findByUsername(userName);
 
         Book book = bookService.findById(bookId).orElse(null);
         model.addAttribute("book", book);
@@ -110,7 +120,7 @@ public class CheckoutController {
 
         if (Objects.requireNonNull(book).getInStockNumber() < 1) {
             model.addAttribute("notEnoughStock", true);
-            return new ResponseEntity<>(model, HttpStatus.CONTINUE); //"forward:/bookshelf"
+            return new ResponseEntity<>(model, HttpStatus.NOT_ACCEPTABLE); //"forward:/bookshelf"
         }
 
         model.addAttribute("classActiveShipping", true);
@@ -120,14 +130,15 @@ public class CheckoutController {
     }
 
     @RequestMapping(value = "/checkout", method = RequestMethod.POST)
-    public ResponseEntity<Model> checkoutPost(
-            @ModelAttribute("shippingAddress") ShippingAddress shippingAddress,
-            @ModelAttribute("billingAddress") BillingAddress billingAddress,
-            @ModelAttribute("shippingMethod") String shippingMethod,
-            @RequestParam("id") Long bookId, Principal principal, Model model) {
+    public ResponseEntity<Model> checkoutPost(HttpServletRequest request, Model model) throws IOException {
 
-        Book book = bookService.findById(bookId).orElse(null);
-        User user = userService.findByUsername(principal.getName());
+        String requestBody = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+        BookCheckoutDto checkoutDto = objectMapper.readValue(requestBody, BookCheckoutDto.class);
+
+        String userName = jwtUtil.parseToken(checkoutDto.getToken());
+
+        Book book = bookService.findById(checkoutDto.getBookId()).orElse(null);
+        User user = userService.findByUsername(userName);
 
         if (user.getBalance() < Objects.requireNonNull(book).getOurPrice()) {
             model.addAttribute("insufficientUserBalance", true);
@@ -139,7 +150,7 @@ public class CheckoutController {
         model.addAttribute("book", book);
 
         Objects.requireNonNull(book).setInStockNumber(book.getInStockNumber() - 1);
-        Order order = orderService.createOrder(book, shippingAddress, billingAddress, shippingMethod, user);
+        Order order = orderService.createOrder(book, checkoutDto.getShippingAddress(), checkoutDto.getBillingAddress(), checkoutDto.getShippingMethod(), user);
 
         mailSender.send(mailConstructor.constructOrderConfirmationEmail(user, order, Locale.ENGLISH));
 
