@@ -1,7 +1,9 @@
 package com.store.Controler;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.store.Domain.*;
 import com.store.Service.*;
+import com.store.Utility.JwtUtil;
 import com.store.Utility.MailConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,6 +12,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.websocket.server.PathParam;
 import java.security.Principal;
 import java.util.List;
 import java.util.Locale;
@@ -49,14 +52,19 @@ public class ShoppingCartController {
     @Autowired
     private OrderService orderService;
 
+    @Autowired
+    private JwtUtil jwtUtil;
 
+    private static final ObjectMapper objectMapper = new ObjectMapper();
     private ShippingAddress shippingAddress = new ShippingAddress();
     private BillingAddress billingAddress = new BillingAddress();
     private Payment payment = new Payment();
 
     @RequestMapping("/cart")
-    public ResponseEntity<Model> shoppingCart(Model model, Principal principal) {
-        User user = userService.findByUsername(principal.getName());
+    public ResponseEntity<Model> shoppingCart(@PathParam("token") String token, Model model) {
+        String userName = jwtUtil.parseToken(token);
+
+        User user = userService.findByUsername(userName);
         ShoppingCart shoppingCart = user.getShoppingCart();
 
         List<CartItem> cartItemList = cartItemService.findByShoppingCart(shoppingCart);
