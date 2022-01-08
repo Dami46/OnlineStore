@@ -2,7 +2,7 @@ import {Component, useState} from 'react';
 import './AccountPage.css';
 import {NavbarTemplate} from "../navbar/NavbarTemplate";
 import {Tabs} from "react-bootstrap";
-import {Tab, Modal} from "bootstrap";
+import {Tab} from "bootstrap";
 import {PATH} from "../../services/ConfigurationUrlAService";
 import Cookies from 'universal-cookie';
 import axios from "axios";

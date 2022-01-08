@@ -10,6 +10,7 @@ import {Typeahead} from 'react-bootstrap-typeahead';
 import {Tab} from "bootstrap";
 import {Navigate} from 'react-router-dom';
 import Cookies from 'universal-cookie';
+import EllipsisText from "react-ellipsis-text";
 
 const cookies = new Cookies();
 
@@ -25,6 +26,7 @@ class HomePage extends Component {
         this.handleSearchInputChange = this.handleSearchInputChange.bind(this);
         this.searchOptionClick = this.searchOptionClick.bind(this);
         this.updatePage = this.updatePage.bind(this);
+        this.buyBook = this.buyBook.bind(this);
 
         this.state = {
             booksLoaded: false,
@@ -42,7 +44,10 @@ class HomePage extends Component {
             publishers: [],
             filterOption: 'titles',
             options: [],
-            searchInput: ''
+            searchInput: '',
+            buyBook: false,
+            buyBookId: '',
+            wantToBuyBook: false
         }
 
         if(this.state.currentPageId == undefined){
@@ -55,6 +60,9 @@ class HomePage extends Component {
     }
 
     async fetchBooks(){
+        if(cookies.get('isLogged') == null){
+            cookies.remove('token',  { path: '/' })
+        }
         if(this.state.booksLoaded == false) {
             this.setState({
                 bookChosen: false,
@@ -127,7 +135,6 @@ class HomePage extends Component {
                 }
             }, () => {
                 console.log(this.state.pages)
-                console.log(this.state.carouselBooks)
             })
         }
     }
@@ -200,9 +207,35 @@ class HomePage extends Component {
             })
     }
 
+    async buyBook(event){
+        await cookies.remove('buyBook', { path: '/' });
+        await cookies.set('buyBook', { "bookId": event.target.id, "quantity": 1 }, { path: '/' });
+        if(cookies.get('token') == null){
+            this.setState({
+                wantToBuyBook: true
+            })
+        }
+        else{
+            await axios.post('/api/buyItem', {
+                id: cookies.get('buyBook').bookId,
+                quantity: cookies.get('buyBook').quantity,
+                token: cookies.get('token')
+            }, { params: {
+                    buyBook: 'buyBook'
+            }}).then(async resp =>{
+                if(resp.status == 200){
+                    await this.setState({
+                        buyBookId: event.target.id,
+                        buyBook: true
+                    })
+                }
+            })
+        }
+    }
+
     render() {
         const books = this.state.books.map((book) =>
-            <Card style={{marginLeft: "4%", marginBottom: "40px", height: '500px', width: '400px', display: "inline-block"}}>
+            <Card style={{marginLeft: "4%", marginBottom: "40px", height: '600px', width: '400px', display: "inline-block"}} id={book.id}>
                 <Card.Body>
                     <Card.Img style={{width: "200px", height: "300px", cursor: "pointer"}} variant="top" src={book.bookImage} id={book.id} onClick={this.handleBookClick} onError={({ currentTarget }) => {
                         currentTarget.onerror = null;
@@ -222,11 +255,16 @@ class HomePage extends Component {
                         <div>
                             <strong style={{color: 'red', display: 'inline-block'}}>{book.ourPrice}$</strong> <p style={{textDecoration: 'line-through', display: 'inline-block'}}>{book.listPrice}$</p>
                         </div>
-                        {book.description}
+                        <EllipsisText text={book.description} id={book.id} onClick={this.handleBookClick} length={"130"} />
                     </Card.Text>
-                    <i style={{cursor: 'pointer'}} className="fa fa-shopping-cart">&nbsp;Add to cart</i>
-                    <br/>
-                    <i style={{cursor: 'pointer'}} className="fa">&nbsp;Buy now</i>
+                    <div hidden={book.inStockNumber != 0}>
+                        <strong style={{color: 'red', display: 'inline-block'}}>No books in stock!</strong>
+                    </div>
+                    <div  hidden={book.inStockNumber == 0}>
+                        <i style={{cursor: 'pointer'}} className="fa fa-shopping-cart">&nbsp;Add to cart</i>
+                        <br/>
+                        <i style={{cursor: 'pointer'}} id={book.id} className="fa" onClick={this.buyBook}>&nbsp;Buy now</i>
+                    </div>
                 </Card.Body>
             </Card>
         )
@@ -255,8 +293,16 @@ class HomePage extends Component {
             <Tab style={{color: this.state.currentPageId == page ? "red" : "blue", textDecoration: "none", textAlign: "center"}} to={{ pathname: "/home#" + page}} eventKey={page} title={page} onClick={this.updatePage}></Tab>
         )
 
+        if (this.state.buyBook) {
+            return <Navigate to={{pathname: "/checkout#id#" + cookies.get('buyBook').bookId + '#quantity#' + cookies.get('buyBook').quantity}} />
+        }
+
         if (this.state.bookChosen) {
             return <Navigate to={{pathname: "/books#" + this.state.bookChosenId}} />
+        }
+
+        if(this.state.wantToBuyBook) {
+            return <Navigate to={{pathname: "/login"}} />
         }
 
         return (
