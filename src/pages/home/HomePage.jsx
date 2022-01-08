@@ -27,11 +27,13 @@ class HomePage extends Component {
         this.searchOptionClick = this.searchOptionClick.bind(this);
         this.updatePage = this.updatePage.bind(this);
         this.buyBook = this.buyBook.bind(this);
+        this.addToCart = this.addToCart.bind(this);
 
         this.state = {
             booksLoaded: false,
             bookChosen: false,
             bookChosenId: '',
+            addToCartId: '',
             currentPageId: window.location.href.split('#')[1],
             pageCount: 0,
             pages: [],
@@ -46,6 +48,7 @@ class HomePage extends Component {
             options: [],
             searchInput: '',
             buyBook: false,
+            checkCart: false,
             buyBookId: '',
             wantToBuyBook: false
         }
@@ -233,6 +236,32 @@ class HomePage extends Component {
         }
     }
 
+    async addToCart(event){
+        await cookies.remove('addToCart', { path: '/' });
+        await cookies.set('addToCart', { "bookId": event.target.id, "quantity": 1 }, { path: '/' });
+        if(cookies.get('token') == null){
+            this.setState({
+                wantToBuyBook: true
+            })
+        }
+        else{
+            await axios.post('/api/buyItem', {
+                id: cookies.get('addToCart').bookId,
+                quantity: cookies.get('addToCart').quantity,
+                token: cookies.get('token')
+            }, { params: {
+                    addToCart: 'addToCart'
+            }}).then(async resp =>{
+            if(resp.status == 200){
+                await this.setState({
+                    addToCartId: event.target.id,
+                    checkCart: true
+                })
+            }
+            })
+        }
+    }
+
     render() {
         const books = this.state.books.map((book) =>
             <Card style={{marginLeft: "4%", marginBottom: "40px", height: '600px', width: '400px', display: "inline-block"}} id={book.id}>
@@ -257,11 +286,11 @@ class HomePage extends Component {
                         </div>
                         <EllipsisText text={book.description} id={book.id} onClick={this.handleBookClick} length={"130"} />
                     </Card.Text>
-                    <div hidden={book.inStockNumber != 0}>
+                    <div hidden={book.inStockNumber > 0}>
                         <strong style={{color: 'red', display: 'inline-block'}}>No books in stock!</strong>
                     </div>
-                    <div  hidden={book.inStockNumber == 0}>
-                        <i style={{cursor: 'pointer'}} className="fa fa-shopping-cart">&nbsp;Add to cart</i>
+                    <div  hidden={book.inStockNumber <= 0}>
+                        <i style={{cursor: 'pointer'}} id={book.id} className="fa fa-shopping-cart" onClick={this.addToCart}>&nbsp;Add to cart</i>
                         <br/>
                         <i style={{cursor: 'pointer'}} id={book.id} className="fa" onClick={this.buyBook}>&nbsp;Buy now</i>
                     </div>
@@ -295,6 +324,10 @@ class HomePage extends Component {
 
         if (this.state.buyBook) {
             return <Navigate to={{pathname: "/checkout#id#" + cookies.get('buyBook').bookId + '#quantity#' + cookies.get('buyBook').quantity}} />
+        }
+
+        if (this.state.checkCart) {
+            return <Navigate to={{pathname: "/shopping#id#" + cookies.get('addToCart').bookId + '#quantity#' + cookies.get('addToCart').quantity}} />
         }
 
         if (this.state.bookChosen) {

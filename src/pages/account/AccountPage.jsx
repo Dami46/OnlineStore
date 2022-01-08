@@ -68,6 +68,7 @@ class AccountPage extends Component {
         this.updateShippings = this.updateShippings.bind(this);
         this.changeActiveTabShipping = this.changeActiveTabShipping.bind(this);
         this.confirmUpdateShipping = this.confirmUpdateShipping.bind(this);
+        this.getOrderDetails = this.getOrderDetails.bind(this);
 
         this.state = {
             id: '',
@@ -80,6 +81,7 @@ class AccountPage extends Component {
             newPasswordConfirm: '',
             phone: '',
             orderList: [],
+            orderChosen: '',
             userShippingDefault: '',
             newUserShippingDefault: '',
             userShippingList: [],
@@ -141,12 +143,9 @@ class AccountPage extends Component {
                 lastName: res.user.lastName,
                 password: res.user.password,
                 phone: res.user.phone,
-                // orderList: res.orderList,
-                // userShipping:  res.userShipping,
-                // userShippingList: res.userShippingList,
+                orderList: res.orderList,
                 balance: res.user.balance,
                 balanceRequestList: res.user.balanceRequestList,
-                // shoppingCart: [],
                 updateSuccess: false,
                 incorrectPassword: false,
                 changesAllowed: false
@@ -188,6 +187,17 @@ class AccountPage extends Component {
                     })
                 }
             }
+        })
+    }
+
+    async getOrderDetails(event){
+        await axios.get(PATH + "/api/orderDetail", { params: {
+            id: this.state.orderChosen,
+            token: cookies.get('token')
+        }}).then(resp => {
+            return resp.data;
+        }).then(data => {
+            console.log(data)
         })
     }
 

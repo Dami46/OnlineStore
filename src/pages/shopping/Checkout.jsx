@@ -4,7 +4,6 @@ import {Nav, Tabs, Col, Row} from "react-bootstrap";
 import {Tab} from "bootstrap";
 import axios from "axios";
 import Cookies from 'universal-cookie';
-import {getImageUrl} from "../../services/ImageApi";
 import * as imageApi from "../../services/ImageApi";
 
 const cookies = new Cookies();
@@ -310,6 +309,7 @@ class Checkout extends Component {
         .then(async resp => {
             if(resp.status == 200){
                 console.log('Sukces')
+            //    Przekierowanie do orderSubmittedPage
             }
         })
 

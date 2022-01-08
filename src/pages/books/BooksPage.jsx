@@ -3,6 +3,10 @@ import {NavbarTemplate} from "../navbar/NavbarTemplate";
 import axios from "axios";
 import * as imageApi from "../../services/ImageApi";
 import {PATH} from "../../services/ConfigurationUrlAService";
+import Cookies from 'universal-cookie';
+import {Navigate} from "react-router-dom";
+
+const cookies = new Cookies();
 
 const URLAddress = PATH;
 
@@ -41,7 +45,8 @@ class BooksPage extends Component {
                 categories: [],
                 languages: [],
                 publishers: [],
-                quantity: []
+                quantity: [],
+                buyBook: false,
             })
             await axios.get(URLAddress + '/api/bookDetail', { params: { id: this.state.id } }).then(bookResp => {
                 return bookResp.data.book;
@@ -70,11 +75,40 @@ class BooksPage extends Component {
             });
     }
 
+    async buyBook(event){
+        await cookies.remove('buyBook', { path: '/' });
+        await cookies.set('buyBook', { "bookId": event.target.id, "quantity": 1 }, { path: '/' });
+        if(cookies.get('token') == null){
+            this.setState({
+                wantToBuyBook: true
+            })
+        }
+        else{
+            await axios.post('/api/buyItem', {
+                id: cookies.get('buyBook').bookId,
+                quantity: cookies.get('buyBook').quantity,
+                token: cookies.get('token')
+            }, { params: {
+                    buyBook: 'buyBook'
+                }}).then(async resp =>{
+                if(resp.status == 200){
+                    await this.setState({
+                        buyBookId: event.target.id,
+                        buyBook: true
+                    })
+                }
+            })
+        }
+    }
 
     render() {
         const quantity = this.state.quantity.map((numb) =>
             <option value={numb}>{numb}</option>
         )
+
+        if (this.state.buyBook) {
+            return <Navigate to={{pathname: "/checkout#id#" + cookies.get('buyBook').bookId + '#quantity#' + cookies.get('buyBook').quantity}} />
+        }
 
         return (
             <div>
@@ -146,7 +180,7 @@ class BooksPage extends Component {
                                    border: "1px solid",
                                    padding: "10px 40px 10px 40px"
                                }}/>
-                        <input type="submit" className="btn btn-primary" name="buyBook" value="  Buy book" style={{
+                        <input type="submit" className="btn btn-primary" name="buyBook" value=" Buy book" style={{
                             marginLeft: '20px',
                             display: 'inline-block',
                             border: "1px solid",

@@ -14,6 +14,7 @@ import {LoginPage} from "./pages/account/LoginPage";
 import {BalancePage} from "./pages/balance/Balance";
 import {DropDetails} from "./pages/drops/DropDetails";
 import {Checkout} from "./pages/shopping/Checkout";
+import {OrderSubmittedPage} from "./pages/shopping/OrderSubmittedPage";
 
 
 class App extends Component {
@@ -41,6 +42,7 @@ class App extends Component {
                     <Route exact path="/drop" element={<DropDetails/>}/>
                     <Route exact path="/contact" element={<ContactPage/>}/>
                     <Route exact path="/balance" element={<BalancePage/>}/>
+                    <Route exact path="/orderSubmitted" element={<OrderSubmittedPage/>}/>
                     <Route exact path="/404" element={<NotFound/>}/>
                     <Route exact path="/401" element={<Unauthorised/>}/>
                     <Route path="*" element={<NotFound/>}/>
