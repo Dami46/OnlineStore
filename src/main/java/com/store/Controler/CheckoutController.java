@@ -114,6 +114,7 @@ public class CheckoutController {
 
         if (user.getBalance() < Objects.requireNonNull(book).getOurPrice()) {
             model.addAttribute("insufficientUserBalance", true);
+            return new ResponseEntity<>(model, HttpStatus.NOT_ACCEPTABLE);
         } else {
             model.addAttribute("insufficientUserBalance", false);
         }
@@ -142,6 +143,7 @@ public class CheckoutController {
 
         if (user.getBalance() < Objects.requireNonNull(book).getOurPrice()) {
             model.addAttribute("insufficientUserBalance", true);
+            return new ResponseEntity<>(model, HttpStatus.NOT_ACCEPTABLE);
         } else {
             model.addAttribute("insufficientUserBalance", false);
         }
@@ -149,8 +151,14 @@ public class CheckoutController {
         model.addAttribute("classActiveOrderCheckout", true);
         model.addAttribute("book", book);
 
+        ShippingAddress shippingAddress = checkoutDto.getShippingAddress();
+        BillingAddress billingAddress = checkoutDto.getBillingAddress();
+
+        orderService.saveShippingAddress(shippingAddress);
+        orderService.saveBillingAddress(billingAddress);
+
         Objects.requireNonNull(book).setInStockNumber(book.getInStockNumber() - 1);
-        Order order = orderService.createOrder(book, checkoutDto.getShippingAddress(), checkoutDto.getBillingAddress(), checkoutDto.getShippingMethod(), user);
+        Order order = orderService.createOrder(book, shippingAddress, billingAddress, checkoutDto.getShippingMethod(), user);
 
         mailSender.send(mailConstructor.constructOrderConfirmationEmail(user, order, Locale.ENGLISH));
 

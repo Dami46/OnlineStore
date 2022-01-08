@@ -1,8 +1,10 @@
 package com.store.Service.Impl;
 
 import com.store.Domain.*;
+import com.store.Repository.BillingAddressRepository;
 import com.store.Repository.BookRepository;
 import com.store.Repository.OrderRepository;
+import com.store.Repository.ShippingAddressRepository;
 import com.store.Service.CartItemService;
 import com.store.Service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,22 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private BookRepository bookRepository;
+
+    @Autowired
+    private ShippingAddressRepository shippingAddressRepository;
+
+    @Autowired
+    private BillingAddressRepository billingAddressRepository;
+
+    @Override
+    public void saveShippingAddress(ShippingAddress shippingAddress) {
+        shippingAddressRepository.save(shippingAddress);
+    }
+
+    @Override
+    public void saveBillingAddress(BillingAddress billingAddress) {
+        billingAddressRepository.save(billingAddress);
+    }
 
     @Override
     public synchronized Order createOrder(ShoppingCart shoppingCart, ShippingAddress shippingAddress,
