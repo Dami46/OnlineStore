@@ -101,8 +101,11 @@ public class ShoppingCartController {
     }
 
     @RequestMapping(value = "/removeItem", method = RequestMethod.DELETE)
-    public ResponseEntity<?> removeItem(@RequestParam("id") Long id) {
-        cartItemService.removeCartItem(cartItemService.findById(id));
+    public ResponseEntity<?> removeItem(HttpServletRequest request) throws IOException {
+        String requestBody = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+        UpdateCartItemDto cartItemDto = objectMapper.readValue(requestBody, UpdateCartItemDto.class);
+
+        cartItemService.removeCartItem(cartItemService.findById(cartItemDto.getCartItemId()));
 
         return new ResponseEntity<>(HttpStatus.OK); //"forward:/shoppingCart/cart"
     }
