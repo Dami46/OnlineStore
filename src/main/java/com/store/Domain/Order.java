@@ -1,5 +1,7 @@
 package com.store.Domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -20,10 +22,12 @@ public class Order {
 	
 	@OneToMany(mappedBy = "order", cascade=CascadeType.ALL)
 	private List<CartItem> cartItemList;
-	
+
+	@JsonIgnoreProperties("order")
 	@OneToOne(cascade = CascadeType.MERGE)
 	private ShippingAddress shippingAddress;
 
+	@JsonIgnoreProperties("order")
 	@OneToOne(cascade = CascadeType.MERGE)
 	private BillingAddress billingAddress;
 
