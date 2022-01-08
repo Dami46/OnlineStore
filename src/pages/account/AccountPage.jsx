@@ -1,7 +1,7 @@
 import {Component, useState} from 'react';
 import './AccountPage.css';
 import {NavbarTemplate} from "../navbar/NavbarTemplate";
-import {Tabs} from "react-bootstrap";
+import {Tabs, Button} from "react-bootstrap";
 import {Tab} from "bootstrap";
 import {PATH} from "../../services/ConfigurationUrlAService";
 import Cookies from 'universal-cookie';
@@ -68,7 +68,10 @@ class AccountPage extends Component {
         this.updateShippings = this.updateShippings.bind(this);
         this.changeActiveTabShipping = this.changeActiveTabShipping.bind(this);
         this.confirmUpdateShipping = this.confirmUpdateShipping.bind(this);
+
+        this.changeActiveTabOrders = this.changeActiveTabOrders.bind(this);
         this.getOrderDetails = this.getOrderDetails.bind(this);
+        this.openOrderDetails = this.openOrderDetails.bind(this);
 
         this.state = {
             id: '',
@@ -80,8 +83,34 @@ class AccountPage extends Component {
             newPassword: '',
             newPasswordConfirm: '',
             phone: '',
+
             orderList: [],
             orderChosen: '',
+            orderDetailsActive: false,
+            activeOrdersTab: 'orders',
+            orderDetails: {
+                userShippingCity: '',
+                userShippingCountry: '',
+                userShippingName: '',
+                userShippingState: '',
+                userShippingStreet1: '',
+                userShippingStreet2: '',
+                userShippingZipcode: '',
+                userPaymentCity: '',
+                userPaymentCountry: '',
+                userPaymentName: '',
+                userPaymentState: '',
+                userPaymentStreet1: '',
+                userPaymentStreet2: '',
+                userPaymentZipcode: '',
+                order: {
+                    id: ''
+                },
+                cartItemList: [],
+                total: '',
+                tax: ''
+            },
+
             userShippingDefault: '',
             newUserShippingDefault: '',
             userShippingList: [],
@@ -106,7 +135,7 @@ class AccountPage extends Component {
             activeShippingTab: 'list',
             activeNewShipping: true,
             updateShippingId: '',
-            isDefault: ''
+            isDefault: '',
         }
 
         try{
@@ -190,14 +219,37 @@ class AccountPage extends Component {
         })
     }
 
-    async getOrderDetails(event){
+    async getOrderDetails(orderChosen){
         await axios.get(PATH + "/api/orderDetail", { params: {
-            id: this.state.orderChosen,
+            id: orderChosen,
             token: cookies.get('token')
         }}).then(resp => {
             return resp.data;
         }).then(data => {
             console.log(data)
+            this.setState({
+                orderDetails: data
+            })
+            // userShippingCity: '',
+            //     userShippingCountry: '',
+            //     userShippingName: '',
+            //     userShippingState: '',
+            //     userShippingStreet1: '',
+            //     userShippingStreet2: '',
+            //     userShippingZipcode: '',
+            //     userPaymentCity: '',
+            //     userPaymentCountry: '',
+            //     userPaymentName: '',
+            //     userPaymentState: '',
+            //     userPaymentStreet1: '',
+            //     userPaymentStreet2: '',
+            //     userPaymentZipcode: '',
+            //     order: {
+            //     id: ''
+            // },
+            // cartItemList: [],
+            //     total: '',
+            //     tax: ''
         })
     }
 
@@ -488,6 +540,21 @@ class AccountPage extends Component {
         })
     }
 
+    changeActiveTabOrders(key){
+        this.setState({
+            activeOrdersTab: key
+        })
+    }
+
+    async openOrderDetails(event){
+        console.log(event.target.id)
+        await this.getOrderDetails(event.target.id);
+        await this.setState({
+            activeOrdersTab: 'orderDetails',
+            orderDetailsActive: true
+        })
+    }
+
     changeActiveTabShipping(key){
         this.setState({
             activeShippingTab: key
@@ -521,6 +588,17 @@ class AccountPage extends Component {
                 </td>
                 <td style={{fontWeight: shipping.id == this.state.userShippingDefault ? 'bold' : 'normal'}}>{shipping.userShippingStreet1} {shipping.userShippingStreet2} {shipping.userShippingCity} {shipping.userShippingZipcode} {shipping.userShippingState}</td>
                 <td><a><i style={{cursor: 'pointer'}} id={shipping.id} className="fa fa-pencil" onClick={this.updateShippingOpen}></i></a>&nbsp;&nbsp;<a><i style={{cursor: 'pointer'}} id={shipping.id} className="fa fa-times" onClick={this.deleteShipping}></i></a></td>
+            </tr>
+        )
+
+        const orders = this.state.orderList.map((order) =>
+            <tr>
+                <td>
+                <Button style={{fontWeight: "bold"}} variant="light" id={order.id} onClick={this.openOrderDetails}>{order.orderDate.substring(0, 10)} {order.orderDate.substring(12, 19)}</Button>
+                </td>
+                <td>{order.id}</td>
+                <td>${order.orderTotal}</td>
+                <td>{order.orderStatus}</td>
             </tr>
         )
 
@@ -625,126 +703,126 @@ class AccountPage extends Component {
                                 <div className="panel-group">
                                     <div className="panel panel-default" style={{border: "none"}}>
                                         <div className="panel-body" style={{backgroundColor: "#ededed", marginTop: "20px"}}>
-                                            <table className="table table-sm table-inverse">
-                                                <thead>
-                                                <tr>
-                                                    <th>Order Date</th>
-                                                    <th>Order Number</th>
-                                                    <th>Total</th>
-                                                    <th>Status</th>
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-                                                <tr>
-                                                    <td><a><span></span></a></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                </tr>
-                                                </tbody>
-                                            </table>
+                                            <Tabs activeKey={this.state.activeOrdersTab} style={tableHeaderStyle} defaultActiveKey="orders">
+                                                <Tab style={tableBodyStyle} eventKey="orders" title="Orders">
+                                                    <table className="table table-sm table-inverse">
+                                                        <thead>
+                                                        <tr>
+                                                            <th>Order Date</th>
+                                                            <th>Order Number</th>
+                                                            <th>Total</th>
+                                                            <th>Status</th>
+                                                        </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        {orders}
+                                                        </tbody>
+                                                    </table>
+                                                </Tab>
+                                                <Tab style={tableBodyStyle} eventKey="orderDetails" title="Order Details" hidden={!this.state.orderDetailsActive} disabled={!this.state.orderDetailsActive}>
+                                                    <div>
+                                                        <div className="row">
+                                                            <div className="col-xs-12">
+                                                                <div className="text-center">
+                                                                    <h2>
+                                                                        Order Detail for Purchase #<span>{this.state.orderDetails.order.id}</span>
+                                                                    </h2>
+                                                                </div>
+                                                                <hr/>
 
-                                            <div>
-                                                <div className="row">
-                                                    <div className="col-xs-12">
-                                                        <div className="text-center">
-                                                            <h2>
-                                                                Order Detail for Purchase #<span></span>
-                                                            </h2>
+                                                                <div className="row">
+                                                                    <div className="col-xs-4">
+                                                                        <div className="panel panel-default height">
+                                                                            <div className="panel-heading">
+                                                                                <strong>Billing Details</strong>
+                                                                            </div>
+                                                                            <div className="panel-body">
+                                                                                <span></span><br/>
+                                                                                <span></span><br/>
+                                                                                <span></span><br/>
+                                                                                <span></span><br/>
+                                                                                <span></span><br/>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div className="col-xs-4">
+                                                                        <div className="panel panel-default height">
+                                                                            <div className="panel-heading">
+                                                                                <strong>Shipping Details</strong>
+                                                                            </div>
+                                                                            <div className="panel-body">
+                                                                                <span></span><br/>
+                                                                                <span></span><br/>
+                                                                                <span></span><br/>
+                                                                                <span></span><br/>
+                                                                                <span></span><br/>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
                                                         </div>
-                                                        <hr/>
 
                                                         <div className="row">
-                                                            <div className="col-xs-4">
-                                                                <div className="panel panel-default height">
-                                                                    <div className="panel-heading">
-                                                                        <strong>Billing Details</strong>
-                                                                    </div>
-                                                                    <div className="panel-body">
-                                                                        <span></span><br/>
-                                                                        <span></span><br/>
-                                                                        <span></span><br/>
-                                                                        <span></span><br/>
-                                                                        <span></span><br/>
-                                                                    </div>
+                                                            <div className="col-md-12">
+                                                                <div className="panel-heading">
+                                                                    <h3 className="text-center">
+                                                                        <strong>Order Summary</strong>
+                                                                    </h3>
                                                                 </div>
-                                                            </div>
-
-                                                            <div className="col-xs-4">
-                                                                <div className="panel panel-default height">
-                                                                    <div className="panel-heading">
-                                                                        <strong>Shipping Details</strong>
-                                                                    </div>
-                                                                    <div className="panel-body">
-                                                                        <span></span><br/>
-                                                                        <span></span><br/>
-                                                                        <span></span><br/>
-                                                                        <span></span><br/>
-                                                                        <span></span><br/>
+                                                                <div className="panel-body">
+                                                                    <div className="table-responsive">
+                                                                        <table className="table table-condensed">
+                                                                            <thead>
+                                                                            <tr>
+                                                                                <td><strong>Item Name</strong></td>
+                                                                                <td className="text-center"><strong>Item Price</strong></td>
+                                                                                <td className="text-center"><strong>Item Quantity</strong></td>
+                                                                                <td className="text-right">
+                                                                                    <strong>Total</strong></td>
+                                                                            </tr>
+                                                                            </thead>
+                                                                            <tbody>
+                                                                            <tr>
+                                                                                <td></td>
+                                                                                <td className="text-center"></td>
+                                                                                <td className="text-center"></td>
+                                                                                <td className="text-center"></td>
+                                                                            </tr>
+                                                                            <tr>
+                                                                                <td className="highrow"></td>
+                                                                                <td className="highrow"></td>
+                                                                                <td className="highrow text-center">
+                                                                                    <strong>Subtotal</strong>
+                                                                                </td>
+                                                                                <td className="highrow text-right"></td>
+                                                                            </tr>
+                                                                            <tr>
+                                                                                <td className="emptyrow"></td>
+                                                                                <td className="emptyrow"></td>
+                                                                                <td className="emptyrow text-center">
+                                                                                    <strong>Tax</strong></td>
+                                                                                <td className="emptyrow text-right"></td>
+                                                                            </tr>
+                                                                            <tr>
+                                                                                <td className="emptyrow"><i
+                                                                                    className="fa fa-barcode iconbig"></i>
+                                                                                </td>
+                                                                                <td className="emptyrow"></td>
+                                                                                <td className="emptyrow text-center">
+                                                                                    <strong>Total</strong></td>
+                                                                                <td className="emptyrow text-right"></td>
+                                                                            </tr>
+                                                                            </tbody>
+                                                                        </table>
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </div>
-
-                                                <div className="row">
-                                                    <div className="col-md-12">
-                                                        <div className="panel-heading">
-                                                            <h3 className="text-center">
-                                                                <strong>Order Summary</strong>
-                                                            </h3>
-                                                        </div>
-                                                        <div className="panel-body">
-                                                            <div className="table-responsive">
-                                                                <table className="table table-condensed">
-                                                                    <thead>
-                                                                    <tr>
-                                                                        <td><strong>Item Name</strong></td>
-                                                                        <td className="text-center"><strong>Item Price</strong></td>
-                                                                        <td className="text-center"><strong>Item Quantity</strong></td>
-                                                                        <td className="text-right">
-                                                                            <strong>Total</strong></td>
-                                                                    </tr>
-                                                                    </thead>
-                                                                    <tbody>
-                                                                    <tr>
-                                                                        <td></td>
-                                                                        <td className="text-center"></td>
-                                                                        <td className="text-center"></td>
-                                                                        <td className="text-center"></td>
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <td className="highrow"></td>
-                                                                        <td className="highrow"></td>
-                                                                        <td className="highrow text-center">
-                                                                            <strong>Subtotal</strong>
-                                                                        </td>
-                                                                        <td className="highrow text-right"></td>
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <td className="emptyrow"></td>
-                                                                        <td className="emptyrow"></td>
-                                                                        <td className="emptyrow text-center">
-                                                                            <strong>Tax</strong></td>
-                                                                        <td className="emptyrow text-right"></td>
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <td className="emptyrow"><i
-                                                                            className="fa fa-barcode iconbig"></i>
-                                                                        </td>
-                                                                        <td className="emptyrow"></td>
-                                                                        <td className="emptyrow text-center">
-                                                                            <strong>Total</strong></td>
-                                                                        <td className="emptyrow text-right"></td>
-                                                                    </tr>
-                                                                    </tbody>
-                                                                </table>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                                </Tab>
+                                            </Tabs>
                                         </div>
                                     </div>
                                 </div>
