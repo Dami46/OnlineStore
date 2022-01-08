@@ -101,13 +101,11 @@ public class ShoppingCartController {
     }
 
     @RequestMapping(value = "/removeItem", method = RequestMethod.DELETE)
-    public ResponseEntity<?> removeItem(HttpServletRequest request) throws IOException {
-        String requestBody = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
-        UpdateCartItemDto cartItemDto = objectMapper.readValue(requestBody, UpdateCartItemDto.class);
+    public ResponseEntity<Model> removeItem(@RequestParam("id") Long id, Model model) {
+        cartItemService.removeCartItem(cartItemService.findById(id));
+        model.addAttribute("notEnoughStock", true);
 
-        cartItemService.removeCartItem(cartItemService.findById(cartItemDto.getCartItemId()));
-
-        return new ResponseEntity<>(HttpStatus.OK); //"forward:/shoppingCart/cart"
+        return new ResponseEntity<>(model, HttpStatus.OK); //"forward:/shoppingCart/cart"
     }
 
     @RequestMapping("/cartCheckout")
