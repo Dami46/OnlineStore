@@ -113,8 +113,11 @@ public class HomeController {
     }
 
     @RequestMapping(value = "orderDetail")
-    public ResponseEntity<Model> orderDetail(@RequestParam("id") Long orderId, Principal principal, Model model) {
-        User user = userService.findByUsername(principal.getName());
+    public ResponseEntity<Model> orderDetail(@RequestParam("id") Long orderId, @RequestParam("token") String token, Model model) {
+
+        String userName = jwtUtil.parseToken(token);
+
+        User user = userService.findByUsername(userName);
         Order order = orderService.findOne(orderId);
 
         if (!order.getUser().getId().equals(user.getId())) {
