@@ -2,6 +2,8 @@ package com.store.Controler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.store.Domain.*;
+import com.store.Dto.BuyBookDto;
+import com.store.Dto.UpdateCartItemDto;
 import com.store.Service.*;
 import com.store.Utility.JwtUtil;
 import com.store.Utility.MailConstructor;
@@ -12,11 +14,14 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.websocket.server.PathParam;
+import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/shoppingCart")
@@ -76,24 +81,26 @@ public class ShoppingCartController {
         return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
-    @RequestMapping("/updateCartItem")
-    public ResponseEntity<Model> updateShoppingCart(
-            @ModelAttribute("id") Long cartItemId,
-            @ModelAttribute("qty") int qty, Model model
-    ) {
-        CartItem cartItem = cartItemService.findById(cartItemId);
+    @RequestMapping(value = "/updateCartItem", method = RequestMethod.PUT)
+    public ResponseEntity<Model> updateShoppingCart(HttpServletRequest request, Model model) throws IOException {
+
+        String requestBody = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+        UpdateCartItemDto cartItemDto = objectMapper.readValue(requestBody, UpdateCartItemDto.class);
+
+        CartItem cartItem = cartItemService.findById(cartItemDto.getCartItemId());
         int quantity = cartItem.getBook().getInStockNumber();
-        if (quantity >= qty) {
-            cartItem.setQty(qty);
+        if (quantity >= cartItemDto.getQty()) {
+            cartItem.setQty(cartItemDto.getQty());
             cartItemService.updateCartItem(cartItem);
         } else {
             model.addAttribute("notEnoughStock", true);
+            return new ResponseEntity<>(model, HttpStatus.NOT_ACCEPTABLE);
         }
 
         return new ResponseEntity<>(model, HttpStatus.OK); //"forward:/shoppingCart/cart"
     }
 
-    @RequestMapping("/removeItem")
+    @RequestMapping(value = "/removeItem", method = RequestMethod.DELETE)
     public ResponseEntity<?> removeItem(@RequestParam("id") Long id) {
         cartItemService.removeCartItem(cartItemService.findById(id));
 
@@ -168,7 +175,7 @@ public class ShoppingCartController {
         model.addAttribute("payment", payment);
         model.addAttribute("billingAddress", billingAddress);
         model.addAttribute("cartItemList", cartItemList);
-        model.addAttribute("shoppingCart", user.getShoppingCart());
+        model.addAttribute("shoppingCart", shoppingCart);
 
         model.addAttribute("classActiveShipping", true);
 
@@ -243,8 +250,8 @@ public class ShoppingCartController {
             List<CartItem> cartItemList = cartItemService.findByShoppingCart(user.getShoppingCart());
 
             model.addAttribute("shippingAddress", shippingAddress);
-            model.addAttribute("payment", payment);
             model.addAttribute("billingAddress", billingAddress);
+            model.addAttribute("payment", payment);
             model.addAttribute("cartItemList", cartItemList);
             model.addAttribute("shoppingCart", user.getShoppingCart());
 
@@ -253,8 +260,6 @@ public class ShoppingCartController {
 
             model.addAttribute("userShippingList", userShippingList);
             model.addAttribute("userPaymentList", userPaymentList);
-
-            model.addAttribute("shippingAddress", shippingAddress);
 
             model.addAttribute("classActiveShipping", true);
 
