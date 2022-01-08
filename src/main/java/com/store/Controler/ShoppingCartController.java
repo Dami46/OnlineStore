@@ -82,14 +82,14 @@ public class ShoppingCartController {
             model.addAttribute("notEnoughStock", true);
         }
 
-        return new ResponseEntity<>(model, HttpStatus.CONTINUE); //"forward:/shoppingCart/cart"
+        return new ResponseEntity<>(model, HttpStatus.OK); //"forward:/shoppingCart/cart"
     }
 
     @RequestMapping("/removeItem")
     public ResponseEntity<?> removeItem(@RequestParam("id") Long id) {
         cartItemService.removeCartItem(cartItemService.findById(id));
 
-        return new ResponseEntity<>(HttpStatus.CONTINUE); //"forward:/shoppingCart/cart"
+        return new ResponseEntity<>(HttpStatus.OK); //"forward:/shoppingCart/cart"
     }
 
     @RequestMapping("/cartCheckout")
@@ -106,19 +106,19 @@ public class ShoppingCartController {
 
         if (cartItemList.size() == 0) {
             model.addAttribute("emptyCart", true);
-            return new ResponseEntity<>(model, HttpStatus.CONTINUE); //"forward:/shoppingCart/cart"
+            return new ResponseEntity<>(model, HttpStatus.FORBIDDEN); //"forward:/shoppingCart/cart"
         }
 
         for (CartItem cartItem : cartItemList) {
             if (cartItem.getBook().getInStockNumber() < cartItem.getQty()) {
                 model.addAttribute("notEnoughStock", true);
-                return new ResponseEntity<>(model, HttpStatus.CONTINUE); //"forward:/shoppingCart/cart"
+                return new ResponseEntity<>(model, HttpStatus.FORBIDDEN); //"forward:/shoppingCart/cart"
             }
         }
 
         if (user.getBalance() < user.getShoppingCart().getTotalPrize().doubleValue()) {
             model.addAttribute("insufficientUserBalance", true);
-            return new ResponseEntity<>(model, HttpStatus.CONTINUE); //"forward:/shoppingCart/cart"
+            return new ResponseEntity<>(model, HttpStatus.FORBIDDEN); //"forward:/shoppingCart/cart"
         } else {
             model.addAttribute("insufficientUserBalance", false);
         }
@@ -204,7 +204,7 @@ public class ShoppingCartController {
                 || billingAddress.getBillingAddressState().isEmpty()
                 || billingAddress.getBillingAddressName().isEmpty()
                 || billingAddress.getBillingAddressZipcode().isEmpty()) {
-            return new ResponseEntity<>(model, HttpStatus.CONTINUE); //"redirect:/checkout?id=" + shoppingCart.getId() + "&missingRequiredField=true"
+            return new ResponseEntity<>(model, HttpStatus.FORBIDDEN); //"redirect:/checkout?id=" + shoppingCart.getId() + "&missingRequiredField=true"
         }
 
         User user = userService.findByUsername(principal.getName());

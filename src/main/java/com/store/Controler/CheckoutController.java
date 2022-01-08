@@ -78,7 +78,7 @@ public class CheckoutController {
         model.addAttribute("user", user);
         model.addAttribute("addBookSuccess", true);
 
-        return new ResponseEntity<>(model, HttpStatus.CONTINUE); //"redirect:/checkout?id=" + book.getId()
+        return new ResponseEntity<>(model, HttpStatus.OK); //"redirect:/checkout?id=" + book.getId()
     }
 
     @RequestMapping(value = "/buyItem", method = RequestMethod.POST, params = "addToCart")
@@ -99,7 +99,7 @@ public class CheckoutController {
 
         CartItem cartItem = cartItemService.addBookToCartItem(book, user, bookDto.getQuantity());
         model.addAttribute("addBookSuccess");
-        return new ResponseEntity<>(model, HttpStatus.CONTINUE); //"forward:/shoppingCart/cart"
+        return new ResponseEntity<>(model, HttpStatus.OK); //"forward:/shoppingCart/cart"
 
     }
 
