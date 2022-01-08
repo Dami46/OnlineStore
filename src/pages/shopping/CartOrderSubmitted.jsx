@@ -5,7 +5,7 @@ import Cookies from 'universal-cookie';
 
 const cookies = new Cookies();
 
-class OrderSubmittedPage extends Component {
+class CartOrderSubmittedPage extends Component {
     constructor(props) {
         super(props);
 
@@ -79,4 +79,4 @@ class OrderSubmittedPage extends Component {
     }
 }
 
-export {OrderSubmittedPage};
+export {CartOrderSubmittedPage};

@@ -24,7 +24,7 @@ const tableBodyStyle = {
     textAlign: "center"
 }
 
-class Checkout extends Component {
+class CartCheckout extends Component {
     constructor(props) {
         super(props);
 
@@ -85,15 +85,15 @@ class Checkout extends Component {
 
     async getBookDetails(){
         await axios.get('/api/checkout?id=' + cookies.get('buyBook').bookId + '&token=' + cookies.get('token'))
-        .then(async resp =>{
-            return resp.data.book;
-        }).then(book => {
-            this.setState({
-                product: book,
-                quantity: 1,
-                price: book.ourPrice
+            .then(async resp =>{
+                return resp.data.book;
+            }).then(book => {
+                this.setState({
+                    product: book,
+                    quantity: 1,
+                    price: book.ourPrice
+                })
             })
-        })
     }
 
     changeActiveTab(key){
@@ -104,12 +104,12 @@ class Checkout extends Component {
 
     checkShipping(){
         if(this.state.shippingInfoName == '' ||
-        this.state.shippingInfoStreet1 == '' ||
-        this.state.shippingInfoStreet2 == '' ||
-        this.state.shippingInfoCity == '' ||
-        this.state.shippingInfoState == '' ||
-        this.state.shippingInfoCountry == '' ||
-        this.state.shippingInfoZipcode == ''){
+            this.state.shippingInfoStreet1 == '' ||
+            this.state.shippingInfoStreet2 == '' ||
+            this.state.shippingInfoCity == '' ||
+            this.state.shippingInfoState == '' ||
+            this.state.shippingInfoCountry == '' ||
+            this.state.shippingInfoZipcode == ''){
             this.setState({
                 paymentDisabled: true
             })
@@ -308,13 +308,13 @@ class Checkout extends Component {
             bookId: this.state.product.id,
             token: cookies.get('token')
         })
-        .then(async resp => {
-            if(resp.status == 200){
-                this.setState({
-                    orderSuccess: true
-                })
-            }
-        })
+            .then(async resp => {
+                if(resp.status == 200){
+                    this.setState({
+                        orderSuccess: true
+                    })
+                }
+            })
 
     }
 
@@ -338,7 +338,7 @@ class Checkout extends Component {
                     <div className="row">
                         <div>
                             <h2 className="section-headline">
-                                <span>Checkout</span>
+                                <span>Cart Checkout</span>
                             </h2>
                         </div>
                     </div>
@@ -412,7 +412,7 @@ class Checkout extends Component {
 
                                                 <br/>
                                                 <button data-toggle="collapse" data-parent="#accordion"
-                                                   className="btn btn-primary pull-right" href="#paymentInfo" disabled={this.state.paymentDisabled} onClick={this.goToPayment}>Next</button>
+                                                        className="btn btn-primary pull-right" href="#paymentInfo" disabled={this.state.paymentDisabled} onClick={this.goToPayment}>Next</button>
                                             </div>
                                         </div>
                                     </Tab>
@@ -466,7 +466,7 @@ class Checkout extends Component {
 
                                                 <br/>
                                                 <button data-toggle="collapse" data-parent="#accordion"
-                                                   className="btn btn-primary pull-right" href="#reviewItems" disabled={this.state.reviewDisabled} onClick={this.goToReview}>Next</button>
+                                                        className="btn btn-primary pull-right" href="#reviewItems" disabled={this.state.reviewDisabled} onClick={this.goToReview}>Next</button>
                                             </div>
                                         </div>
                                     </Tab>
@@ -517,14 +517,14 @@ class Checkout extends Component {
                                                         <div style={{marginLeft: "50px"}}>
                                                             <a><h4></h4></a>
                                                             <p hidden
-                                                                style={{color: "green"}}>In Stock</p>
+                                                               style={{color: "green"}}>In Stock</p>
                                                             <p hidden
-                                                                style={{color: "green"}}>
+                                                               style={{color: "green"}}>
                                                                 Only <span></span>
                                                                 In Stock
                                                             </p>
                                                             <p hidden
-                                                                style={{color: "darkred"}}>Product Unavailable</p>
+                                                               style={{color: "darkred"}}>Product Unavailable</p>
                                                         </div>
                                                     </div>
 
@@ -564,4 +564,4 @@ class Checkout extends Component {
     }
 }
 
-export {Checkout};
+export {CartCheckout};

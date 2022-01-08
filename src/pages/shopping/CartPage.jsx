@@ -26,13 +26,22 @@ class CartPage extends Component {
             totalItems: 0,
             continueShopping: false,
             checkOut: false,
-            newQuantity: 0
+            newQuantity: [],
+            quantityToSend: 0
         }
 
         this.getShoppingCart();
     }
 
     async getShoppingCart(){
+        await this.setState({
+            id: '',
+            products: [],
+            totalPrice: 0,
+            totalItems: 0,
+            continueShopping: false,
+            checkOut: false
+        })
         await axios.get('/api/shoppingCart/cart', { params: {
             token: cookies.get('token')
         }}).then(resp => {
@@ -46,6 +55,10 @@ class CartPage extends Component {
                         price: cart.cartItemList[i].subtotal,
                         quantity: cart.cartItemList[i].qty,
                         book: cart.cartItemList[i].book,
+                    }),
+                    newQuantity: this.state.newQuantity.concat({
+                        id: cart.cartItemList[i].id,
+                        quantity: cart.cartItemList[i].qty,
                     })
                 })
             }
@@ -68,18 +81,33 @@ class CartPage extends Component {
     }
 
     async handleUpdateClick(event){
-        await axios.put('/api/updateCartItem')
-            .then(resp => {
-                return resp.status;
-            }).then(status => {
-                if(status == 200){
-                    this.getShoppingCart()
-                }
-            })
+        for(let i = 0; i < this.state.newQuantity.length; i++){
+            if(this.state.newQuantity[i].id == event.target.id){
+                await this.setState({
+                    quantityToSend: this.state.newQuantity[i].quantity
+                })
+            }
+        }
+        await axios.put('/api/shoppingCart/updateCartItem', {
+            cartItemId: event.target.id,
+            qty: this.state.quantityToSend
+        })
+        .then(resp => {
+            return resp.status;
+        }).then(status => {
+            if(status == 200){
+                this.getShoppingCart()
+            }
+        })
     }
 
     handleQuantityChange(event){
         document.getElementsByClassName(event.target.id)[0].disabled = false;
+        for(let i = 0; i < this.state.newQuantity.length; i++){
+            if(this.state.newQuantity[i].id == event.target.id){
+                this.state.newQuantity[i].quantity = event.target.value;
+            }
+        }
     }
 
     handleContinueShoppingClick(){
@@ -114,7 +142,7 @@ class CartPage extends Component {
                                     Stock
                                 </p>
                                 <p style={{color: "darkred"}} hidden>Product Unavailable</p>
-                                <button className="btn btn-primary" id={product.id} onClick={this.handleDeleteClick}>delete</button>
+                                <button className="btn btn-primary" id={product.id} onClick={this.handleDeleteClick}>Delete</button>
                             </div>
                         </div>
 
@@ -123,9 +151,8 @@ class CartPage extends Component {
                         </div>
 
                         <div style={{display: "inline-block", marginLeft: "30%"}}>
-                            <input hidden="hidden" name="id"/>
                             <input className="form-control cartItemQty" style={{display: "inline-block"}} id={product.id} placeholder={product.quantity} onChange={this.handleQuantityChange}/>
-                            <button style={{marginTop: "10px"}} type="submit" className={"btn btn-primary " + product.id} disabled={true} id={product.id} onChange={this.handleUpdateClick}> Update
+                            <button style={{marginTop: "10px"}} className={"btn btn-primary " + product.id} id={product.id} onClick={this.handleUpdateClick}> Update
                             </button>
                         </div>
                     </div>
