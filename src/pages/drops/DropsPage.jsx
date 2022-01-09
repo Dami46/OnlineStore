@@ -272,7 +272,7 @@ class DropsPage extends Component {
             return <Navigate to={{pathname: "/drop#" + this.state.dropChosenId}} />
         }
 
-        if(this.state.wantToBuyBook) {
+        if(this.state.wantToJoinDrop) {
             return <Navigate to={{pathname: "/login"}} />
         }
 

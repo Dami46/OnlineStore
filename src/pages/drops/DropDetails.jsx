@@ -4,6 +4,8 @@ import axios from "axios";
 import * as imageApi from "../../services/ImageApi";
 import {PATH} from "../../services/ConfigurationUrlAService";
 import Cookies from 'universal-cookie';
+import {Navigate} from "react-router-dom";
+import {Button} from "react-bootstrap";
 
 const cookies = new Cookies();
 
@@ -12,6 +14,8 @@ const URLAddress = PATH;
 class DropDetails extends Component {
     constructor(props) {
         super(props);
+
+        this.signUpOff = this.signUpOff.bind(this);
 
         this.state = {
             id: window.location.href.split('#')[1],
@@ -65,9 +69,11 @@ class DropDetails extends Component {
             signingDate: '',
             userTodropList: '',
             wasRolled: '',
-            wasStarted: ''
+            wasStarted: '',
+            dropStarted: false,
+            userInDrop: false,
+            placeInDrop: 0
         })
-        console.log(this.state.id)
         let tok = '';
         if(cookies.get('token') != null){
             tok = cookies.get('token');
@@ -76,9 +82,10 @@ class DropDetails extends Component {
             id: this.state.id,
             token: tok
         }})).then(dropResp => {
-            return dropResp.data.dropItem;
-        }).then(data => {
-            console.log(data)
+            return dropResp.data;
+        }).then(resp => {
+            console.log(resp)
+            let data = resp.dropItem;
             this.setState({
                 bookDetails: {
                     id: data.book.id,
@@ -100,14 +107,37 @@ class DropDetails extends Component {
                 id: data.id,
                 rollDate: data.rollDate,
                 signingDate: data.signingDate,
-                userTodropList: data.userTodropList,
+                userToDropList: data.userToDropList,
                 wasRolled: data.wasRolled,
-                wasStarted: data.wasStarted
+                wasStarted: data.wasStarted,
+                dropStarted: resp.dropWasStarted,
+                userInDrop: resp.userInDrop,
+                placeInDrop: resp.placeInDrop
             })
         });
     }
 
+    async signUpOff(){
+        if(cookies.get('token') == null){
+            this.setState({
+                wantToJoinDrop: true
+            })
+        }
+        await axios.post('/api/signForDrop', {
+            dropItemId: this.state.id,
+            token: cookies.get('token')
+        }).then(resp => {
+            if(resp.status == 200){
+                this.fetchDropDetails();
+            }
+        })
+    }
+
     render() {
+        if(this.state.wantToJoinDrop) {
+            return <Navigate to={{pathname: "/login"}} />
+        }
+
         return (
             <div>
                 <div>
@@ -161,21 +191,23 @@ class DropDetails extends Component {
                         <h4 style={{color: "green"}} hidden> Only <span> in stock</span></h4>
                         <h4 style={{color: "darkred"}} hidden> Unavailable </h4>
 
-                        <button type="submit" className="btn btn-primary" name="signUp"
+                        <Button variant={"success"} className="btn" name="signUp" hidden={this.state.userInDrop} onClick={this.signUpOff}
+                                // disabled={!this.state.dropWasStarted}
                                 style={{
                                     display: 'inline-block',
                                     border: "1px solid",
                                     padding: "10px 40px 10px 40px"
                                 }}
-                        >Sign Up</button>
-                        <button type="submit" className="btn btn-primary" name="signOff"
+                        >Sign Up</Button>
+                        <Button variant={"danger"} className="btn" name="signOff" hidden={!this.state.userInDrop} onClick={this.signUpOff}
+                                // disabled={!this.state.dropWasStarted}
                                 style={{
                                     marginLeft: '20px',
                                     display: 'inline-block',
                                     border: "1px solid",
                                     padding: "10px 40px 10px 40px"
                                 }}
-                        >Sign Off</button>
+                        >Sign Off</Button>
                     </div>
                 </div>
             </div>
