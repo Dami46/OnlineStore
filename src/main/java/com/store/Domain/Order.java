@@ -19,6 +19,7 @@ public class Order {
 	private String shippingMethod;
 	private String orderStatus;
 	private BigDecimal orderTotal;
+	private Long bookId;
 	
 	@OneToMany(mappedBy = "order", cascade=CascadeType.ALL)
 	private List<CartItem> cartItemList;
@@ -112,5 +113,13 @@ public class Order {
 
 	public void setBillingAddress(BillingAddress billingAddress) {
 		this.billingAddress = billingAddress;
+	}
+
+	public Long getBookId() {
+		return bookId;
+	}
+
+	public void setBookId(Long bookId) {
+		this.bookId = bookId;
 	}
 }

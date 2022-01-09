@@ -102,7 +102,6 @@ public class HomeController {
         }
 
         model.addAttribute("user", user);
-        model.addAttribute("userPaymentList", user.getUserPaymentList());
         model.addAttribute("userShippingList", user.getUserShippingList());
         model.addAttribute("orderList", user.getOrderList());
 
@@ -119,25 +118,22 @@ public class HomeController {
 
         User user = userService.findByUsername(userName);
         Order order = orderService.findOne(orderId);
+        Book book = new Book();
+
+        if (Objects.nonNull(order.getBookId())) {
+            book = bookService.findById(order.getBookId()).orElse(null);
+            model.addAttribute("singleBook", true);
+        } else {
+            model.addAttribute("singleBook", false);
+        }
 
         if (!order.getUser().getId().equals(user.getId())) {
-            return new ResponseEntity<>(model, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(model, HttpStatus.UNAUTHORIZED);
         } else {
             List<CartItem> cartItemList = cartItemService.findByOrder(order);
             model.addAttribute("cartItemList", cartItemList);
-            model.addAttribute("user", user);
             model.addAttribute("order", order);
-
-            model.addAttribute("userPaymentList", user.getUserPaymentList());
-            model.addAttribute("userShippingList", user.getUserShippingList());
-            model.addAttribute("orderList", user.getOrderList());
-
-            UserShipping userShipping = new UserShipping();
-            model.addAttribute("userShipping", userShipping);
-            model.addAttribute("listOfShippingAddresses", true);
-            model.addAttribute("classActiveOrders", true);
-            model.addAttribute("listOfCreditCards", true);
-            model.addAttribute("displayOrderDetail", true);
+            model.addAttribute("boughtBook", book);
 
             return new ResponseEntity<>(model, HttpStatus.OK);
         }
@@ -157,7 +153,6 @@ public class HomeController {
 
         model.addAttribute("userShipping", userShipping);
 
-        model.addAttribute("userPaymentList", user.getUserPaymentList());
         model.addAttribute("userShippingList", user.getUserShippingList());
         model.addAttribute("orderList", user.getOrderList());
 
@@ -255,7 +250,7 @@ public class HomeController {
             model.addAttribute("listOfShippingAddresses", true);
             model.addAttribute("classActiveShipping", true);
 
-            model.addAttribute("userPaymentList", user.getUserPaymentList());
+
             model.addAttribute("userShippingList", user.getUserShippingList());
             model.addAttribute("orderList", user.getOrderList());
 

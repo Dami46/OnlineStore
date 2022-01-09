@@ -83,6 +83,7 @@ public class OrderServiceImpl implements OrderService {
         order.setShippingMethod(shippingMethod);
         order.setOrderTotal(BigDecimal.valueOf(book.getOurPrice()));
         order.setOrderDate(Calendar.getInstance().getTime());
+        order.setBookId(book.getId());
 
         book.setInStockNumber(book.getInStockNumber() - 1);
         bookRepository.save(book);

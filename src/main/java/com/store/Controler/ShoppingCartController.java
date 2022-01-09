@@ -63,7 +63,6 @@ public class ShoppingCartController {
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private ShippingAddress shippingAddress = new ShippingAddress();
     private BillingAddress billingAddress = new BillingAddress();
-    private Payment payment = new Payment();
 
     @RequestMapping("/cart")
     public ResponseEntity<Model> shoppingCart(@PathParam("token") String token, Model model) {
@@ -88,7 +87,6 @@ public class ShoppingCartController {
         UpdateCartItemDto cartItemDto = objectMapper.readValue(requestBody, UpdateCartItemDto.class);
 
         String userName = jwtUtil.parseToken(cartItemDto.getToken());
-
         User user = userService.findByUsername(userName);
 
         if (Objects.isNull(user)) {
@@ -97,6 +95,7 @@ public class ShoppingCartController {
 
         CartItem cartItem = cartItemService.findById(cartItemDto.getCartItemId());
         int quantity = cartItem.getBook().getInStockNumber();
+
         if (quantity >= cartItemDto.getQty()) {
             cartItem.setQty(cartItemDto.getQty());
             cartItemService.updateCartItem(cartItem);
@@ -160,16 +159,7 @@ public class ShoppingCartController {
         }
 
         List<UserShipping> userShippingList = user.getUserShippingList();
-        List<UserPayment> userPaymentList = user.getUserPaymentList();
-
         model.addAttribute("userShippingList", userShippingList);
-        model.addAttribute("userPaymentList", userPaymentList);
-
-        if (userPaymentList.size() == 0) {
-            model.addAttribute("emptyPaymentList", true);
-        } else {
-            model.addAttribute("emptyPaymentList", false);
-        }
 
         if (userShippingList.size() == 0) {
             model.addAttribute("emptyShippingList", true);
@@ -185,15 +175,7 @@ public class ShoppingCartController {
             }
         }
 
-        for (UserPayment userPayment : userPaymentList) {
-            if (userPayment.isDefaultPayment()) {
-                paymentService.setByUserPayment(userPayment, payment);
-                billingAddressService.setByUserBilling(userPayment.getUserBilling(), billingAddress);
-            }
-        }
-
         model.addAttribute("shippingAddress", shippingAddress);
-        model.addAttribute("payment", payment);
         model.addAttribute("billingAddress", billingAddress);
         model.addAttribute("cartItemList", cartItemList);
         model.addAttribute("shoppingCart", shoppingCart);
@@ -211,7 +193,6 @@ public class ShoppingCartController {
     @RequestMapping(value = "/cartCheckout", method = RequestMethod.POST)
     public ResponseEntity<Model> checkoutPost(@ModelAttribute("shippingAddress") ShippingAddress shippingAddress,
                                               @ModelAttribute("billingAddress") BillingAddress billingAddress,
-                                              @ModelAttribute("payment") Payment payment,
                                               @ModelAttribute("billingSameAsShipping") String billingSameAsShipping,
                                               @ModelAttribute("shippingMethod") String shippingMethod, Principal principal, Model model) {
         ShoppingCart shoppingCart = userService.findByUsername(principal.getName()).getShoppingCart();
@@ -272,24 +253,13 @@ public class ShoppingCartController {
 
             model.addAttribute("shippingAddress", shippingAddress);
             model.addAttribute("billingAddress", billingAddress);
-            model.addAttribute("payment", payment);
             model.addAttribute("cartItemList", cartItemList);
             model.addAttribute("shoppingCart", user.getShoppingCart());
 
             List<UserShipping> userShippingList = user.getUserShippingList();
-            List<UserPayment> userPaymentList = user.getUserPaymentList();
-
             model.addAttribute("userShippingList", userShippingList);
-            model.addAttribute("userPaymentList", userPaymentList);
 
             model.addAttribute("classActiveShipping", true);
-
-            if (userPaymentList.size() == 0) {
-                model.addAttribute("emptyPaymentList", true);
-            } else {
-                model.addAttribute("emptyPaymentList", false);
-            }
-
             model.addAttribute("emptyShippingList", false);
 
             return new ResponseEntity<>(model, HttpStatus.OK);
