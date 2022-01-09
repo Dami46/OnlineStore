@@ -1,5 +1,7 @@
 package com.store.Domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import javax.persistence.*;
 import java.util.List;
 
@@ -20,6 +22,7 @@ public class DropItem {
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "dropItem")
     private Book book;
 
+    @JsonIgnoreProperties("dropItem")
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "dropItem")
     private List<UserToDrop> userToDropList;
 

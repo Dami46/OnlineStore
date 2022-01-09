@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.store.Domain.Book;
 import com.store.Domain.DropItem;
 import com.store.Domain.User;
-import com.store.Dto.BuyBookDto;
 import com.store.Dto.SignToDropDto;
 import com.store.Service.BookService;
 import com.store.Service.DropService;
@@ -15,7 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -23,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import javax.servlet.http.HttpServletRequest;
 import javax.websocket.server.PathParam;
 import java.io.IOException;
-import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -47,15 +45,26 @@ public class DropController {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @RequestMapping("/drop")
-    public ResponseEntity<Model> dropList(@RequestParam(value = "token", required=false) String token, Model model) {
+    public ResponseEntity<Model> dropList(@RequestParam(value = "token", required = false) String token, Model model) {
+
+        List<DropItem> itemToDropList = dropService.findAll();
 
         if (token != null) {
             String userName = jwtUtil.parseToken(token);
             User user = userService.findByUsername(userName);
             model.addAttribute("user", user);
-        }
 
-        List<DropItem> itemToDropList = dropService.findAll();
+            if (Objects.nonNull(user)) {
+                List<Long> listOfUsersDrops = new ArrayList<>();
+                for (DropItem dropItem : itemToDropList) {
+                    boolean userIsInDrop = dropService.checkIfUserIsInDrop(user, dropItem);
+                    if (userIsInDrop) {
+                        listOfUsersDrops.add(dropItem.getId());
+                    }
+                }
+                model.addAttribute("listOfUsersDrops", listOfUsersDrops);
+            }
+        }
 
         if (itemToDropList.isEmpty()) {
             model.addAttribute("emptyList", true);
