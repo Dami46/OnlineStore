@@ -25,11 +25,11 @@ public class Order {
 	private List<CartItem> cartItemList;
 
 	@JsonIgnoreProperties("order")
-	@OneToOne(cascade = CascadeType.MERGE)
+	@OneToOne(cascade = {CascadeType.ALL , CascadeType.MERGE})
 	private ShippingAddress shippingAddress;
 
 	@JsonIgnoreProperties("order")
-	@OneToOne(cascade = CascadeType.MERGE)
+	@OneToOne(cascade = {CascadeType.ALL , CascadeType.MERGE})
 	private BillingAddress billingAddress;
 
 	@ManyToOne

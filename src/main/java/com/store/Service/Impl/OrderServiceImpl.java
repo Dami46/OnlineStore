@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -53,6 +54,11 @@ public class OrderServiceImpl implements OrderService {
         order.setShippingAddress(shippingAddress);
         order.setShippingMethod(shippingMethod);
 
+        double shippingPrice = 5.00;
+        if(Objects.equals(shippingMethod, "premiumShipping")) {
+            shippingPrice = 10.00;
+        }
+
         List<CartItem> cartItemList = cartItemService.findByShoppingCart(shoppingCart);
 
         for (CartItem cartItem : cartItemList) {
@@ -63,7 +69,7 @@ public class OrderServiceImpl implements OrderService {
         }
         order.setCartItemList(cartItemList);
         order.setOrderDate(Calendar.getInstance().getTime());
-        order.setOrderTotal(shoppingCart.getTotalPrize());
+        order.setOrderTotal(shoppingCart.getTotalPrize().add(BigDecimal.valueOf(shippingPrice)));
         shippingAddress.setOrder(order);
         billingAddress.setOrder(order);
         order.setUser(user);
@@ -81,7 +87,13 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderStatus("DONE");
         order.setShippingAddress(shippingAddress);
         order.setShippingMethod(shippingMethod);
-        order.setOrderTotal(BigDecimal.valueOf(book.getOurPrice()));
+
+        double shippingPrice = 5.00;
+        if(Objects.equals(shippingMethod, "premiumShipping")) {
+            shippingPrice = 10.00;
+        }
+
+        order.setOrderTotal(BigDecimal.valueOf(book.getOurPrice() + shippingPrice));
         order.setOrderDate(Calendar.getInstance().getTime());
         order.setBookId(book.getId());
 

@@ -211,7 +211,7 @@ public class ShoppingCartController {
                 || billingAddress.getBillingAddressState().isEmpty()
                 || billingAddress.getBillingAddressName().isEmpty()
                 || billingAddress.getBillingAddressZipcode().isEmpty()) {
-            return new ResponseEntity<>(model, HttpStatus.FORBIDDEN); //"redirect:/checkout?id=" + shoppingCart.getId() + "&missingRequiredField=true"
+            return new ResponseEntity<>(model, HttpStatus.FORBIDDEN); //"redirect:/checkout?id=" + shoppingCart.getId()"
         }
 
         User user = userService.findByUsername(userName);
@@ -220,13 +220,19 @@ public class ShoppingCartController {
             return new ResponseEntity<>(model, HttpStatus.UNAUTHORIZED);
         }
 
+        double shippingPrice = 5.00;
+        if(Objects.equals(shoppingCartCheckoutDto.getShippingMethod(), "premiumShipping")) {
+            shippingPrice = 10.00;
+        }
+
         Order order = orderService.createOrder(shoppingCart, shippingAddress, billingAddress, shoppingCartCheckoutDto.getShippingMethod(), user);
-        user.setBalance(Math.round((user.getBalance() - order.getOrderTotal().doubleValue()) * 100.00) / 100.00);
+        user.setBalance(Math.round((user.getBalance() - order.getOrderTotal().doubleValue() - shippingPrice) * 100.00) / 100.00);
         userService.save(user);
 
-        mailSender.send(mailConstructor.constructOrderConfirmationEmail(user, order, Locale.ENGLISH));
-
         shoppingCartService.clearShoppingCart(shoppingCart);
+
+
+        mailSender.send(mailConstructor.constructOrderConfirmationEmail(user, order, Locale.ENGLISH));
 
         model.addAttribute("estimatedDeliveryDate", order.getShippingDate());
 

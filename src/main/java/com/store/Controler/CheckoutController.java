@@ -162,7 +162,12 @@ public class CheckoutController {
 
         mailSender.send(mailConstructor.constructOrderConfirmationEmail(user, order, Locale.ENGLISH));
 
-        user.setBalance(Math.round((user.getBalance() - book.getOurPrice()) * 100.0) / 100.0);
+        double shippingPrice = 5.00;
+        if(Objects.equals(checkoutDto.getShippingMethod(), "premiumShipping")) {
+            shippingPrice = 10.00;
+        }
+
+        user.setBalance(Math.round((user.getBalance() - book.getOurPrice() - shippingPrice) * 100.0) / 100.0);
         userService.save(user);
 
         return new ResponseEntity<>(model, HttpStatus.OK);

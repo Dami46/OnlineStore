@@ -26,7 +26,7 @@ public class CartItem {
     @JoinColumn(name = "shopping_cart_id")
     private ShoppingCart shoppingCart;
 
-    @ManyToOne
+    @ManyToOne(cascade=CascadeType.ALL)
     @JsonIgnore
     @JoinColumn(name = "order_id")
     private Order order;
