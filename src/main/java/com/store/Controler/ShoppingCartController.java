@@ -92,7 +92,7 @@ public class ShoppingCartController {
         User user = userService.findByUsername(userName);
 
         if (Objects.isNull(user)) {
-            return new ResponseEntity<>(model, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(model, HttpStatus.UNAUTHORIZED);
         }
 
         CartItem cartItem = cartItemService.findById(cartItemDto.getCartItemId());
@@ -118,7 +118,7 @@ public class ShoppingCartController {
         User user = userService.findByUsername(userName);
 
         if (Objects.isNull(user)) {
-            return new ResponseEntity<>(model, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(model, HttpStatus.UNAUTHORIZED);
         }
 
         cartItemService.removeCartItem(cartItemService.findById(cartItemDto.getCartItemId()));
@@ -135,7 +135,7 @@ public class ShoppingCartController {
         User user = userService.findByUsername(principal.getName());
 
         if (!Objects.equals(cartId, user.getShoppingCart().getId())) {
-            return new ResponseEntity<>(model, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(model, HttpStatus.UNAUTHORIZED);
         }
 
         List<CartItem> cartItemList = cartItemService.findByShoppingCart(user.getShoppingCart());
@@ -264,7 +264,7 @@ public class ShoppingCartController {
         UserShipping userShipping = userShippingService.findById(userShippingId);
 
         if (!userShipping.getUser().getId().equals(user.getId())) {
-            return new ResponseEntity<>(model, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(model, HttpStatus.UNAUTHORIZED);
         } else {
             shippingAddressService.setByUserShipping(userShipping, shippingAddress);
 
