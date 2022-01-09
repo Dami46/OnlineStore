@@ -70,7 +70,7 @@ class CartPage extends Component {
     }
 
     async handleDeleteClick(event){
-        await axios.delete('/api/shoppingCart/removeItem', {params: {
+        await axios.delete('/api/shoppingCart/removeItem', {data: {
             token: cookies.get('token'),
             cartItemId: event.target.id,
             qty: 0
@@ -121,7 +121,14 @@ class CartPage extends Component {
         })
     }
 
-    handleCheckoutClick(){
+    async handleCheckoutClick(){
+        await cookies.remove('cartCheckout', { path: '/' });
+        await cookies.set('cartCheckout', this.state.id, { path: '/' });
+        if(cookies.get('token') == null){
+            this.setState({
+                wantToBuyBook: true
+            })
+        }
         this.setState({
             checkOut: true,
         })
@@ -167,6 +174,10 @@ class CartPage extends Component {
 
         if(this.state.continueShopping == true){
             return <Navigate to={{pathname: "/home"}} />
+        }
+
+        if(this.state.checkOut == true){
+            return <Navigate to={{pathname: "/cartcheckout"}} />
         }
 
         return (

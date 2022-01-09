@@ -40,7 +40,7 @@ class App extends Component {
                     <Route exact path="/account" element={<AccountPage/>}/>
                     <Route exact path="/shopping" element={<CartPage/>}/>
                     <Route exact path="/checkout" element={<Checkout/>}/>
-                    <Route exact path="/cartCheckout" element={<CartCheckout/>}/>
+                    <Route exact path="/cartcheckout" element={<CartCheckout/>}/>
                     <Route exact path="/drops" element={<DropsPage/>}/>
                     <Route exact path="/drop" element={<DropDetails/>}/>
                     <Route exact path="/contact" element={<ContactPage/>}/>

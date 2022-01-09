@@ -32,7 +32,7 @@ class CartCheckout extends Component {
         this.goToPayment = this.goToPayment.bind(this);
         this.goToReview = this.goToReview.bind(this);
 
-        this.getBookDetails = this.getBookDetails.bind(this);
+        this.getCartDetails = this.getCartDetails.bind(this);
 
         this.shippingInfoNameInputChange = this.shippingInfoNameInputChange.bind(this);
         this.shippingInfoStreet1InputChange = this.shippingInfoStreet1InputChange.bind(this);
@@ -50,7 +50,7 @@ class CartCheckout extends Component {
         this.paymentInfoZipcodeInputChange = this.paymentInfoZipcodeInputChange.bind(this);
         this.samePaymentAndBilling = this.samePaymentAndBilling.bind(this);
         this.changeShipping = this.changeShipping.bind(this);
-        this.buyBook = this.buyBook.bind(this);
+        this.cartCheckout = this.cartCheckout.bind(this);
         this.checkShipping = this.checkShipping.bind(this);
         this.checkPayment = this.checkPayment.bind(this);
 
@@ -74,25 +74,42 @@ class CartCheckout extends Component {
             paymentInfoZipcode: '',
             shippingOption: 'groundShipping',
             samePaymentAndShipping: false,
-            product: [],
-            quantity: '',
-            price: '',
-            orderSuccess: false
+            products: [{
+                title: '',
+                price: '',
+                subtotal: '',
+                image: '',
+                quantity: '',
+                author: ''
+            }],
+            orderSuccess: false,
+            totalPrice: ''
         }
 
-        this.getBookDetails()
+        this.getCartDetails()
     }
 
-    async getBookDetails(){
-        await axios.get('/api/checkout?id=' + cookies.get('buyBook').bookId + '&token=' + cookies.get('token'))
+    async getCartDetails(){
+        await axios.get('/api/shoppingCart/cartCheckout?id=' + cookies.get('cartCheckout') + '&token=' + cookies.get('token'))
             .then(async resp =>{
-                return resp.data.book;
-            }).then(book => {
+                return resp.data;
+            }).then(cart => {
                 this.setState({
-                    product: book,
-                    quantity: 1,
-                    price: book.ourPrice
+                    totalPrice: cart.shoppingCart.totalPrize,
+                    products: [],
                 })
+                for(let i = 0; i < cart.cartItemList.length; i++){
+                    this.setState({
+                        products: this.state.products.concat({
+                            title: cart.cartItemList[i].book.title,
+                            price: cart.cartItemList[i].book.ourPrice,
+                            subtotal: cart.cartItemList[i].subtotal,
+                            image: cart.cartItemList[i].book.id,
+                            quantity: cart.cartItemList[i].qty,
+                            author: cart.cartItemList[i].book.author
+                        })
+                    })
+                }
             })
     }
 
@@ -217,7 +234,7 @@ class CartCheckout extends Component {
 
     paymentInfoStreet2InputChange(event){
         this.setState({
-            aymentInfoStreet2: event.target.value
+            paymentInfoStreet2: event.target.value
         })
         this.checkPayment();
     }
@@ -283,9 +300,9 @@ class CartCheckout extends Component {
         })
     }
 
-    async buyBook(){
+    async cartCheckout(){
         console.log(this.state)
-        await axios.post('/api/checkout', {
+        await axios.post('/api/shoppingCart/cartCheckout', {
             shippingAddress: {
                 shippingAddressName: this.state.shippingInfoName,
                 shippingAddressStreet1: this.state.shippingInfoStreet1,
@@ -305,7 +322,6 @@ class CartCheckout extends Component {
                 billingAddressZipcode: this.state.paymentInfoZipcode,
             },
             shippingMethod: this.state.shippingOption,
-            bookId: this.state.product.id,
             token: cookies.get('token')
         })
             .then(async resp => {
@@ -322,6 +338,24 @@ class CartCheckout extends Component {
         if(this.state.orderSuccess == true){
             return <Navigate to={{pathname: "/orderSubmitted"}} />
         }
+
+        const products = this.state.products.map((product) =>
+            <tr>
+                <td style={{textAlign: "center"}}>
+                    <img style={{width: "60px", height: '80px', display: 'inline-block'}} src={imageApi.getImageUrl(product.image)}/>
+                    <div style={{display: 'inline-block', marginLeft: '10px'}}>
+                        <p>
+                            {product.title}
+                            <br/>
+                            {product.author}
+                        </p>
+                    </div>
+                </td>
+                <td style={{textAlign: "center"}}>${product.price}</td>
+                <td style={{textAlign: "center"}}>{product.quantity}</td>
+                <td style={{textAlign: "center"}}>${product.subtotal}</td>
+            </tr>
+        )
 
         return(
             <div>
@@ -353,7 +387,7 @@ class CartCheckout extends Component {
                                         <div className="row">
                                             <div className="col-xs-7 text-left">Total</div>
                                             <div className="col-xs-5 text-right">
-                                                $<span>{this.state.quantity * this.state.price}</span>
+                                                $<span>{this.state.totalPrice}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -487,30 +521,37 @@ class CartCheckout extends Component {
                                                 </div>
 
                                                 <br/>
-
-                                                <div className="row">
-                                                    <div className="col-xs-8">
-                                                        <h4>Products</h4>
-                                                        <div>
-                                                            <img style={{width: "60px", height: '80px', display: 'inline-block'}} src={imageApi.getImageUrl(this.state.product.id)}/>
-                                                            <div style={{display: 'inline-block', marginLeft: '10px'}}>
-                                                                <p>
-                                                                    {this.state.product.title}
-                                                                    <br/>
-                                                                    {this.state.product.author}
-                                                                </p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div style={{marginTop: '10px'}} className="col-xs-2">
-                                                        <h4>Price</h4>
-                                                        <p style={{fontWeight: "normal"}}>${this.state.price}</p>
-                                                    </div>
-                                                    <div style={{marginTop: '10px'}} className="col-xs-2">
-                                                        <h4>Quantity</h4>
-                                                        <p style={{fontWeight: "normal"}}>{this.state.quantity}</p>
-                                                    </div>
-                                                </div>
+                                                <h4>Products</h4>
+                                                <table className="table table-condensed">
+                                                    <thead>
+                                                    <tr>
+                                                        <td><strong>Item</strong></td>
+                                                        <td className="text-center"><strong>Item Price</strong></td>
+                                                        <td className="text-center"><strong>Item Quantity</strong></td>
+                                                        <td className="text-right">
+                                                            <strong>Subtotal</strong></td>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    {products}
+                                                    <tr>
+                                                        <td className="emptyrow"></td>
+                                                        <td className="emptyrow"></td>
+                                                        <td className="emptyrow text-center">
+                                                            <strong>Tax</strong></td>
+                                                        <td className="emptyrow text-right">${Math.round(this.state.totalPrice * 0.08)}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td className="emptyrow"><i
+                                                            className="fa fa-barcode iconbig"></i>
+                                                        </td>
+                                                        <td className="emptyrow"></td>
+                                                        <td className="emptyrow text-center">
+                                                            <strong>Total</strong></td>
+                                                        <td className="emptyrow text-right">${this.state.totalPrice}</td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
 
                                                 <div className="row">
                                                     <div className="col-xs-6">
@@ -542,7 +583,7 @@ class CartCheckout extends Component {
 
                                                 <hr/>
 
-                                                <button type="submit" className="btn btn-primary btn-block" onClick={this.buyBook}>Place
+                                                <button type="submit" className="btn btn-primary btn-block" onClick={this.cartCheckout}>Place
                                                     your order
                                                 </button>
                                             </div>

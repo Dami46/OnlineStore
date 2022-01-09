@@ -89,26 +89,35 @@ class AccountPage extends Component {
             orderDetailsActive: false,
             activeOrdersTab: 'orders',
             orderDetails: {
-                userShippingCity: '',
-                userShippingCountry: '',
-                userShippingName: '',
-                userShippingState: '',
-                userShippingStreet1: '',
-                userShippingStreet2: '',
-                userShippingZipcode: '',
-                userPaymentCity: '',
-                userPaymentCountry: '',
-                userPaymentName: '',
-                userPaymentState: '',
-                userPaymentStreet1: '',
-                userPaymentStreet2: '',
-                userPaymentZipcode: '',
-                order: {
-                    id: ''
+                id: '',
+                billingDetails: {
+                    billingAddressCity: '',
+                    billingAddressCountry: '',
+                    billingAddressName: '',
+                    billingAddressState: '',
+                    billingAddressStreet1: '',
+                    billingAddressStreet2: '',
+                    billingAddressZipcode: '',
+                    id: '',
                 },
-                cartItemList: [],
-                total: '',
-                tax: ''
+                shippingAddress: {
+                    shippingAddressCity: '',
+                    shippingAddressCountry: '',
+                    shippingAddressName: '',
+                    shippingAddressState: '',
+                    shippingAddressStreet1: '',
+                    shippingAddressStreet2: '',
+                    shippingAddressZipcode: '',
+                    id: '',
+                },
+                items: [{
+                    name: 'Test',
+                    price: 10,
+                    quantity: 2,
+                    subtotal: 0
+                }],
+                total: 0,
+                tax: 0
             },
 
             userShippingDefault: '',
@@ -163,7 +172,6 @@ class AccountPage extends Component {
         .then(response => {
             return response.data;
         }).then(res => {
-            console.log(res)
             this.setState({
                 id: res.user.id,
                 username: res.user.username,
@@ -220,36 +228,126 @@ class AccountPage extends Component {
     }
 
     async getOrderDetails(orderChosen){
+        this.setState({
+            orderDetails: {
+                id: '',
+                billingDetails: {
+                    billingAddressCity: '',
+                    billingAddressCountry: '',
+                    billingAddressName: '',
+                    billingAddressState: '',
+                    billingAddressStreet1: '',
+                    billingAddressStreet2: '',
+                    billingAddressZipcode: '',
+                    id: '',
+                },
+                shippingAddress: {
+                    shippingAddressCity: '',
+                    shippingAddressCountry: '',
+                    shippingAddressName: '',
+                    shippingAddressState: '',
+                    shippingAddressStreet1: '',
+                    shippingAddressStreet2: '',
+                    shippingAddressZipcode: '',
+                    id: '',
+                },
+                items: [],
+                total: 0
+            },
+        })
         await axios.get(PATH + "/api/orderDetail", { params: {
             id: orderChosen,
             token: cookies.get('token')
         }}).then(resp => {
             return resp.data;
-        }).then(data => {
-            console.log(data)
-            this.setState({
-                orderDetails: data
+        }).then(async data => {
+            if(data.singleBook == true) {
+                await this.setState({
+                    orderDetails: {
+                        id: data.order.id,
+                        billingDetails: {
+                            billingAddressCity: data.order.billingAddress.billingAddressCity,
+                            billingAddressCountry: data.order.billingAddress.billingAddressCountry,
+                            billingAddressName: data.order.billingAddress.billingAddressName,
+                            billingAddressState: data.order.billingAddress.billingAddressState,
+                            billingAddressStreet1: data.order.billingAddress.billingAddressStreet1,
+                            billingAddressStreet2: data.order.billingAddress.billingAddressStreet2,
+                            billingAddressZipcode: data.order.billingAddress.billingAddressZipcode,
+                            id: data.order.billingAddress.id,
+                        },
+                        shippingAddress: {
+                            shippingAddressCity: data.order.shippingAddress.shippingAddressCity,
+                            shippingAddressCountry: data.order.shippingAddress.shippingAddressCountry,
+                            shippingAddressName: data.order.shippingAddress.shippingAddressName,
+                            shippingAddressState: data.order.shippingAddress.shippingAddressState,
+                            shippingAddressStreet1: data.order.shippingAddress.shippingAddressStreet1,
+                            shippingAddressStreet2: data.order.shippingAddress.shippingAddressStreet2,
+                            shippingAddressZipcode: data.order.shippingAddress.shippingAddressZipcode,
+                            id: data.order.shippingAddress.id,
+                        },
+                        items: this.state.orderDetails.items.concat({
+                            name: data.boughtBook.title,
+                            price: data.boughtBook.ourPrice,
+                            quantity: 1,
+                            subtotal: data.boughtBook.ourPrice,
+                        }),
+                        total: data.boughtBook.ourPrice * 0.08 + data.boughtBook.ourPrice,
+                        tax: data.boughtBook.ourPrice * 0.08
+                    }
+                })
+            }
+            else {
+                this.setState({
+                    orderDetails: {
+                        id: data.order.id,
+                        billingDetails: {
+                            billingAddressCity: data.order.billingAddress.billingAddressCity,
+                            billingAddressCountry: data.order.billingAddress.billingAddressCountry,
+                            billingAddressName: data.order.billingAddress.billingAddressName,
+                            billingAddressState: data.order.billingAddress.billingAddressState,
+                            billingAddressStreet1: data.order.billingAddress.billingAddressStreet1,
+                            billingAddressStreet2: data.order.billingAddress.billingAddressStreet2,
+                            billingAddressZipcode: data.order.billingAddress.billingAddressZipcode,
+                            id: data.order.billingAddress.id,
+                        },
+                        shippingAddress: {
+                            shippingAddressCity: data.order.shippingAddress.shippingAddressCity,
+                            shippingAddressCountry: data.order.shippingAddress.shippingAddressCountry,
+                            shippingAddressName: data.order.shippingAddress.shippingAddressName,
+                            shippingAddressState: data.order.shippingAddress.shippingAddressState,
+                            shippingAddressStreet1: data.order.shippingAddress.shippingAddressStreet1,
+                            shippingAddressStreet2: data.order.shippingAddress.shippingAddressStreet2,
+                            shippingAddressZipcode: data.order.shippingAddress.shippingAddressZipcode,
+                            id: data.order.shippingAddress.id,
+                        },
+                        items: this.state.orderDetails.items.concat({
+                            name: data.boughtBook.title,
+                            price: data.boughtBook.ourPrice,
+                            quantity: 1,
+                            subtotal: data.boughtBook.ourPrice,
+                        })
+                    }
+                })
+                // if(data.order.cartItemList.length > 0){
+                //     for(let i = 0; i < data.order.cartItemList.length; i++){
+                //         this.setState({
+                //             orderDetails: {
+                //                 items: this.state.orderDetails.items.concat({
+                //                     name: 'Test',
+                //                     price: 10,
+                //                     quantity: 2,
+                //                     subtotal: 0
+                //                 })
+                //             }
+                //         })
+                //     }
+                // }
+            }
+        }).then(async () =>{
+            await this.setState({
+                activeOrdersTab: 'orderDetails',
+                orderDetailsActive: true
             })
-            // userShippingCity: '',
-            //     userShippingCountry: '',
-            //     userShippingName: '',
-            //     userShippingState: '',
-            //     userShippingStreet1: '',
-            //     userShippingStreet2: '',
-            //     userShippingZipcode: '',
-            //     userPaymentCity: '',
-            //     userPaymentCountry: '',
-            //     userPaymentName: '',
-            //     userPaymentState: '',
-            //     userPaymentStreet1: '',
-            //     userPaymentStreet2: '',
-            //     userPaymentZipcode: '',
-            //     order: {
-            //     id: ''
-            // },
-            // cartItemList: [],
-            //     total: '',
-            //     tax: ''
         })
     }
 
@@ -317,7 +415,6 @@ class AccountPage extends Component {
         if(this.state.newPassword != this.state.newPasswordConfirm){
             newPasswordToSend = ''
         }
-        console.log(this.state)
         await axios.post(URLAddress + '/api/updateUserInfo', {
             id: this.state.id,
             username: this.state.username,
@@ -328,13 +425,11 @@ class AccountPage extends Component {
             phone: this.state.phone,
             newPassword: newPasswordToSend
         }).then(updateResp => {
-            console.log(updateResp)
             return updateResp.status;
         }).then(async stat => {
             await this.getUserDetails();
             return stat;
         }).then(status => {
-            console.log(status)
             if(status == 200){
                 this.setState({
                     updateSuccess: true,
@@ -342,7 +437,6 @@ class AccountPage extends Component {
                 })
             }
         }).catch(err => {
-            console.log(err)
             if(err.response.status == 406){
                 this.setState({
                     updateSuccess: false,
@@ -486,7 +580,6 @@ class AccountPage extends Component {
     }
 
     async confirmUpdateShipping(){
-        console.log(this.state)
         await axios.put(URLAddress + '/api/updateUserShipping', {
             id: this.state.updateShippingId,
             token: cookies.get('token'),
@@ -499,7 +592,6 @@ class AccountPage extends Component {
             userShippingZipcode: this.state.shippingZipcode,
             userShippingDefault: this.state.isDefault
         }).then(async resp => {
-            console.log(resp)
             if(resp.status == 200){
                 this.setState({
                     activeShippingTab: 'list'
@@ -533,7 +625,6 @@ class AccountPage extends Component {
             id: this.state.userShippingDefault,
             userShippingDefault: this.state.userShippingDefault == this.state.newUserShippingDefault
         }).then(async resp => {
-            console.log(resp)
             if(resp.status == 200){
                 this.getShippingDetails();
             }
@@ -547,12 +638,7 @@ class AccountPage extends Component {
     }
 
     async openOrderDetails(event){
-        console.log(event.target.id)
         await this.getOrderDetails(event.target.id);
-        await this.setState({
-            activeOrdersTab: 'orderDetails',
-            orderDetailsActive: true
-        })
     }
 
     changeActiveTabShipping(key){
@@ -599,6 +685,15 @@ class AccountPage extends Component {
                 <td>{order.id}</td>
                 <td>${order.orderTotal}</td>
                 <td>{order.orderStatus}</td>
+            </tr>
+        )
+
+        const items = this.state.orderDetails.items.map((item) =>
+            <tr>
+                <td style={{textAlign: "center"}}>{item.name}</td>
+                <td style={{textAlign: "center"}}>${item.price}</td>
+                <td style={{textAlign: "center"}}>{item.quantity}</td>
+                <td style={{textAlign: "center"}}>${item.quantity * item.price}</td>
             </tr>
         )
 
@@ -725,47 +820,51 @@ class AccountPage extends Component {
                                                             <div className="col-xs-12">
                                                                 <div className="text-center">
                                                                     <h2>
-                                                                        Order Detail for Purchase #<span>{this.state.orderDetails.order.id}</span>
+                                                                        Order Detail for Purchase #<span>{this.state.orderDetails.id}</span>
                                                                     </h2>
                                                                 </div>
                                                                 <hr/>
 
                                                                 <div className="row">
-                                                                    <div className="col-xs-4">
+                                                                    <div style={{display: 'inline-block'}}>
                                                                         <div className="panel panel-default height">
                                                                             <div className="panel-heading">
                                                                                 <strong>Billing Details</strong>
                                                                             </div>
                                                                             <div className="panel-body">
-                                                                                <span></span><br/>
-                                                                                <span></span><br/>
-                                                                                <span></span><br/>
-                                                                                <span></span><br/>
-                                                                                <span></span><br/>
+                                                                                <span>{this.state.orderDetails.billingDetails.billingAddressName}</span><br/>
+                                                                                <span>{this.state.orderDetails.billingDetails.billingAddressStreet1} {this.state.orderDetails.billingDetails.billingAddressStreet2}</span><br/>
+                                                                                <span>{this.state.orderDetails.billingDetails.billingAddressCity}</span><br/>
+                                                                                <span>{this.state.orderDetails.billingDetails.billingAddressState}</span><br/>
+                                                                                <span>{this.state.orderDetails.billingDetails.billingAddressZipcode}</span><br/>
                                                                             </div>
                                                                         </div>
                                                                     </div>
 
-                                                                    <div className="col-xs-4">
+                                                                    <hr/>
+
+                                                                    <div style={{display: 'inline-block'}}>
                                                                         <div className="panel panel-default height">
                                                                             <div className="panel-heading">
                                                                                 <strong>Shipping Details</strong>
                                                                             </div>
                                                                             <div className="panel-body">
-                                                                                <span></span><br/>
-                                                                                <span></span><br/>
-                                                                                <span></span><br/>
-                                                                                <span></span><br/>
-                                                                                <span></span><br/>
+                                                                                <span>{this.state.orderDetails.shippingAddress.shippingAddressName}</span><br/>
+                                                                                <span>{this.state.orderDetails.shippingAddress.shippingAddressStreet1} {this.state.orderDetails.shippingAddress.shippingAddressStreet2}</span><br/>
+                                                                                <span>{this.state.orderDetails.shippingAddress.shippingAddressCity}</span><br/>
+                                                                                <span>{this.state.orderDetails.shippingAddress.shippingAddressState}</span><br/>
+                                                                                <span>{this.state.orderDetails.shippingAddress.shippingAddressZipcode}</span><br/>
                                                                             </div>
                                                                         </div>
                                                                     </div>
+
+                                                                    <hr/>
                                                                 </div>
                                                             </div>
                                                         </div>
 
                                                         <div className="row">
-                                                            <div className="col-md-12">
+                                                            <div>
                                                                 <div className="panel-heading">
                                                                     <h3 className="text-center">
                                                                         <strong>Order Summary</strong>
@@ -780,30 +879,17 @@ class AccountPage extends Component {
                                                                                 <td className="text-center"><strong>Item Price</strong></td>
                                                                                 <td className="text-center"><strong>Item Quantity</strong></td>
                                                                                 <td className="text-right">
-                                                                                    <strong>Total</strong></td>
+                                                                                    <strong>Subtotal</strong></td>
                                                                             </tr>
                                                                             </thead>
                                                                             <tbody>
-                                                                            <tr>
-                                                                                <td></td>
-                                                                                <td className="text-center"></td>
-                                                                                <td className="text-center"></td>
-                                                                                <td className="text-center"></td>
-                                                                            </tr>
-                                                                            <tr>
-                                                                                <td className="highrow"></td>
-                                                                                <td className="highrow"></td>
-                                                                                <td className="highrow text-center">
-                                                                                    <strong>Subtotal</strong>
-                                                                                </td>
-                                                                                <td className="highrow text-right"></td>
-                                                                            </tr>
+                                                                            {items}
                                                                             <tr>
                                                                                 <td className="emptyrow"></td>
                                                                                 <td className="emptyrow"></td>
                                                                                 <td className="emptyrow text-center">
                                                                                     <strong>Tax</strong></td>
-                                                                                <td className="emptyrow text-right"></td>
+                                                                                <td className="emptyrow text-right">${Math.round(this.state.orderDetails.tax)}</td>
                                                                             </tr>
                                                                             <tr>
                                                                                 <td className="emptyrow"><i
@@ -812,7 +898,7 @@ class AccountPage extends Component {
                                                                                 <td className="emptyrow"></td>
                                                                                 <td className="emptyrow text-center">
                                                                                     <strong>Total</strong></td>
-                                                                                <td className="emptyrow text-right"></td>
+                                                                                <td className="emptyrow text-right">${this.state.orderDetails.total}</td>
                                                                             </tr>
                                                                             </tbody>
                                                                         </table>
