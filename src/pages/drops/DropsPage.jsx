@@ -65,7 +65,6 @@ class DropsPage extends Component {
                 currentPageId: window.location.href.split('#')[1],
                 pageCount: 0,
                 pages: [],
-                drops: [],
                 titles: [],
                 authors: [],
                 categorys: [],
@@ -236,7 +235,7 @@ class DropsPage extends Component {
         const drops = this.state.drops.map((drop) =>
             <Card style={{marginLeft: "4%", marginBottom: "40px", display: "inline-block"}} id={drop.id}>
                 <Card.Body>
-                    <Card.Img style={{cursor: "pointer"}} onClick={this.handleDropClick} width="200" height="300" variant="top" src={drop.bookDetails.bookImage} onError={({ currentTarget }) => {
+                    <Card.Img style={{cursor: "pointer"}} onClick={this.handleDropClick} id={drop.id} width="200" height="300" variant="top" src={drop.bookDetails.bookImage} onError={({ currentTarget }) => {
                         currentTarget.onerror = null;
                         currentTarget.src=imageApi.getImageUrl("0");
                     }}/>

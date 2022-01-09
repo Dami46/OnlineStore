@@ -2,6 +2,7 @@ import {Component} from 'react';
 import {NavbarTemplate} from "../navbar/NavbarTemplate";
 import axios from "axios";
 import Cookies from 'universal-cookie';
+import * as imageApi from "../../services/ImageApi";
 
 const cookies = new Cookies();
 
@@ -10,10 +11,11 @@ class OrderSubmittedPage extends Component {
         super(props);
 
         this.state = {
-            bookId: '',
-            bookImage: '',
-            bookTitle: '',
-            bookPrice: ''
+            bookId: cookies.get('checkout').bookId,
+            bookImage: imageApi.getImageUrl(cookies.get('checkout').bookId),
+            bookTitle: cookies.get('checkout').bookTitle,
+            bookAuthor: cookies.get('checkout').bookAuthor,
+            bookPrice: cookies.get('checkout').price
         }
     }
 
@@ -55,20 +57,26 @@ class OrderSubmittedPage extends Component {
                             <div></div>
                             <div>
 
-                                <a> <img
+                                <a> <img src={this.state.bookImage}
                                     className="img-responsive shelf-book"
                                     style={{width: "70px"}}/>
                                 </a>
                             </div>
                             <div>
                                 <div style={{marginLeft: "50px"}}>
-                                    <a><h4></h4></a>
+                                    <a>
+                                        <br/>
+                                        <h4>{this.state.bookTitle}</h4>
+                                        <br/>
+                                        <h4>{this.state.bookAuthor}</h4>
+                                        <br/>
+                                    </a>
                                 </div>
                             </div>
 
                             <div>
                                 <h5 style={{color: "#db3208", fontSize: "large"}}>
-                                    $<span></span>
+                                    $<span>{this.state.bookPrice}</span>
                                 </h5>
                             </div>
                         </div>

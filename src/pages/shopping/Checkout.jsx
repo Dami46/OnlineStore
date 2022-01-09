@@ -84,6 +84,7 @@ class Checkout extends Component {
     }
 
     async getBookDetails(){
+        cookies.remove('checkout', { path: '/' })
         await axios.get('/api/checkout?id=' + cookies.get('buyBook').bookId + '&token=' + cookies.get('token'))
         .then(async resp =>{
             return resp.data.book;
@@ -313,6 +314,12 @@ class Checkout extends Component {
                 this.setState({
                     orderSuccess: true
                 })
+                cookies.set('checkout', {
+                    "bookId": this.state.product.id,
+                    "bookAuthor": this.state.product.author,
+                    "bookTitle": this.state.product.title,
+                    "price": this.state.price + (this.state.shippingOption == "premiumShipping" ? 10 : 5)
+                }, { path: '/' })
             }
         })
 
