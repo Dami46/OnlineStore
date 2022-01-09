@@ -187,6 +187,7 @@ public class ShoppingCartController {
 
     @RequestMapping(value = "/cartCheckout", method = RequestMethod.POST)
     public ResponseEntity<Model> checkoutPost(HttpServletRequest request, Model model) throws IOException {
+
         String requestBody = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
         ShoppingCartCheckoutDto shoppingCartCheckoutDto = objectMapper.readValue(requestBody, ShoppingCartCheckoutDto.class);
 
@@ -199,16 +200,6 @@ public class ShoppingCartController {
 
         ShippingAddress shippingAddress = shoppingCartCheckoutDto.getShippingAddress();
         BillingAddress billingAddress = shoppingCartCheckoutDto.getBillingAddress();
-
-        if (shoppingCartCheckoutDto.getBillingSameAsShipping()) {
-            billingAddress.setBillingAddressName(shippingAddress.getShippingAddressName());
-            billingAddress.setBillingAddressStreet1(shippingAddress.getShippingAddressStreet1());
-            billingAddress.setBillingAddressStreet2(shippingAddress.getShippingAddressStreet2());
-            billingAddress.setBillingAddressCity(shippingAddress.getShippingAddressCity());
-            billingAddress.setBillingAddressState(shippingAddress.getShippingAddressState());
-            billingAddress.setBillingAddressCountry(shippingAddress.getShippingAddressCountry());
-            billingAddress.setBillingAddressZipcode(shippingAddress.getShippingAddressZipcode());
-        }
 
         if (shippingAddress.getShippingAddressStreet1().isEmpty()
                 || shippingAddress.getShippingAddressCity().isEmpty()
