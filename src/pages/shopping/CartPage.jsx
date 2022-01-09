@@ -70,7 +70,11 @@ class CartPage extends Component {
     }
 
     async handleDeleteClick(event){
-        await axios.delete('/api/shoppingCart/removeItem?id=' + event.target.id)
+        await axios.delete('/api/shoppingCart/removeItem', {params: {
+            token: cookies.get('token'),
+            cartItemId: event.target.id,
+            qty: 0
+        }})
         .then(resp => {
             return resp.status;
         }).then(status => {
@@ -89,6 +93,7 @@ class CartPage extends Component {
             }
         }
         await axios.put('/api/shoppingCart/updateCartItem', {
+            token: cookies.get('token'),
             cartItemId: event.target.id,
             qty: this.state.quantityToSend
         })

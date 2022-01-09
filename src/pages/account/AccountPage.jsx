@@ -594,7 +594,7 @@ class AccountPage extends Component {
         const orders = this.state.orderList.map((order) =>
             <tr>
                 <td>
-                <Button style={{fontWeight: "bold"}} variant="light" id={order.id} onClick={this.openOrderDetails}>{order.orderDate.substring(0, 10)} {order.orderDate.substring(12, 19)}</Button>
+                <Button style={{fontWeight: "bold", cursor: "pointer"}} variant="light" id={order.id} onClick={this.openOrderDetails}>{order.orderDate.substring(0, 10)} {order.orderDate.substring(12, 19)}</Button>
                 </td>
                 <td>{order.id}</td>
                 <td>${order.orderTotal}</td>
