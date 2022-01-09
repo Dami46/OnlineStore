@@ -47,7 +47,7 @@ public class DropController {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @RequestMapping("/drop")
-    public ResponseEntity<Model> dropList(@RequestParam("token") String token, Model model) {
+    public ResponseEntity<Model> dropList(@RequestParam(value = "token", required=false) String token, Model model) {
 
         if (token != null) {
             String userName = jwtUtil.parseToken(token);
