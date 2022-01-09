@@ -87,6 +87,14 @@ public class ShoppingCartController {
         String requestBody = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
         UpdateCartItemDto cartItemDto = objectMapper.readValue(requestBody, UpdateCartItemDto.class);
 
+        String userName = jwtUtil.parseToken(cartItemDto.getToken());
+
+        User user = userService.findByUsername(userName);
+
+        if (Objects.isNull(user)) {
+            return new ResponseEntity<>(model, HttpStatus.BAD_REQUEST);
+        }
+
         CartItem cartItem = cartItemService.findById(cartItemDto.getCartItemId());
         int quantity = cartItem.getBook().getInStockNumber();
         if (quantity >= cartItemDto.getQty()) {
@@ -101,9 +109,21 @@ public class ShoppingCartController {
     }
 
     @RequestMapping(value = "/removeItem", method = RequestMethod.DELETE)
-    public ResponseEntity<Model> removeItem(@RequestParam("id") Long id, Model model) {
-        cartItemService.removeCartItem(cartItemService.findById(id));
-        model.addAttribute("notEnoughStock", true);
+    public ResponseEntity<Model> removeItem(HttpServletRequest request, Model model) throws IOException {
+        String requestBody = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+        UpdateCartItemDto cartItemDto = objectMapper.readValue(requestBody, UpdateCartItemDto.class);
+
+        String userName = jwtUtil.parseToken(cartItemDto.getToken());
+
+        User user = userService.findByUsername(userName);
+
+        if (Objects.isNull(user)) {
+            return new ResponseEntity<>(model, HttpStatus.BAD_REQUEST);
+        }
+
+        cartItemService.removeCartItem(cartItemService.findById(cartItemDto.getCartItemId()));
+        model.addAttribute("deleteSuccessFull", true);
+        model.addAttribute("user", user);
 
         return new ResponseEntity<>(model, HttpStatus.OK); //"forward:/shoppingCart/cart"
     }
