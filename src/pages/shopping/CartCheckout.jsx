@@ -53,6 +53,7 @@ class CartCheckout extends Component {
         this.cartCheckout = this.cartCheckout.bind(this);
         this.checkShipping = this.checkShipping.bind(this);
         this.checkPayment = this.checkPayment.bind(this);
+        this.chooseBook = this.chooseBook.bind(this);
 
         this.state = {
             activeTab: 'shippingInfo',
@@ -74,6 +75,8 @@ class CartCheckout extends Component {
             paymentInfoZipcode: '',
             shippingOption: 'groundShipping',
             samePaymentAndShipping: false,
+            bookChosen: false,
+            bookChosenId: '',
             products: [{
                 title: '',
                 price: '',
@@ -101,6 +104,7 @@ class CartCheckout extends Component {
                 for(let i = 0; i < cart.cartItemList.length; i++){
                     this.setState({
                         products: this.state.products.concat({
+                            id: cart.cartItemList[i].book.id,
                             title: cart.cartItemList[i].book.title,
                             price: cart.cartItemList[i].book.ourPrice,
                             subtotal: cart.cartItemList[i].subtotal,
@@ -324,24 +328,35 @@ class CartCheckout extends Component {
             shippingMethod: this.state.shippingOption,
             token: cookies.get('token')
         })
-            .then(async resp => {
-                if(resp.status == 200){
-                    this.setState({
-                        orderSuccess: true
-                    })
-                }
-            })
+        .then(async resp => {
+            if(resp.status == 200){
+                this.setState({
+                    orderSuccess: true
+                })
+            }
+        })
+    }
 
+    chooseBook(event){
+        let id = event.currentTarget.id
+        this.setState({
+            bookChosenId: id,
+            bookChosen: true
+        })
     }
 
     render() {
         if(this.state.orderSuccess == true){
-            return <Navigate to={{pathname: "/orderSubmitted"}} />
+            return <Navigate to={{pathname: "/cartOrderSubmitted"}} />
+        }
+
+        if (this.state.bookChosen) {
+            return <Navigate to={{pathname: "/books#" + this.state.bookChosenId}} />
         }
 
         const products = this.state.products.map((product) =>
             <tr>
-                <td style={{textAlign: "center"}}>
+                <td style={{textAlign: "center", cursor: "pointer"}} id={product.id} onClick={this.chooseBook}>
                     <img style={{width: "60px", height: '80px', display: 'inline-block'}} src={imageApi.getImageUrl(product.image)}/>
                     <div style={{display: 'inline-block', marginLeft: '10px'}}>
                         <p>
@@ -511,12 +526,11 @@ class CartCheckout extends Component {
                                                 <h4>Choose your shipping method:</h4>
                                                 <div className="radio">
                                                     <label>
-                                                        <input type="radio" name="shippingMethod" value="groundShipping" checked={this.state.shippingOption == "groundShipping"} onChange={this.changeShipping}/> Ground
-                                                        Shipping
+                                                        <input type="radio" name="shippingMethod" value="groundShipping" checked={this.state.shippingOption == "groundShipping"} onChange={this.changeShipping}/> Ground Shipping ($5)
                                                     </label>
                                                     <br/>
                                                     <label>
-                                                        <input type="radio" name="shippingMethod" value="premiumShipping" checked={this.state.shippingOption == "premiumShipping"} onChange={this.changeShipping}/> Premium Shipping
+                                                        <input type="radio" name="shippingMethod" value="premiumShipping" checked={this.state.shippingOption == "premiumShipping"} onChange={this.changeShipping}/> Premium Shipping ($10)
                                                     </label>
                                                 </div>
 
@@ -538,8 +552,11 @@ class CartCheckout extends Component {
                                                         <td className="emptyrow"></td>
                                                         <td className="emptyrow"></td>
                                                         <td className="emptyrow text-center">
-                                                            <strong>Tax</strong></td>
-                                                        <td className="emptyrow text-right">${Math.round(this.state.totalPrice * 0.08)}</td>
+                                                            {/*<strong>Tax</strong>*/}
+                                                        </td>
+                                                        <td className="emptyrow text-right">
+                                                            {/*${Math.round(this.state.totalPrice * 0.08)}*/}
+                                                        </td>
                                                     </tr>
                                                     <tr>
                                                         <td className="emptyrow"><i
@@ -548,7 +565,7 @@ class CartCheckout extends Component {
                                                         <td className="emptyrow"></td>
                                                         <td className="emptyrow text-center">
                                                             <strong>Total</strong></td>
-                                                        <td className="emptyrow text-right">${this.state.totalPrice}</td>
+                                                        <td className="emptyrow text-right">${this.state.totalPrice + (this.state.shippingOption == "premiumShipping" ? 10 : 5)}</td>
                                                     </tr>
                                                     </tbody>
                                                 </table>

@@ -261,6 +261,7 @@ class AccountPage extends Component {
         }}).then(resp => {
             return resp.data;
         }).then(async data => {
+            console.log(data)
             if(data.singleBook == true) {
                 await this.setState({
                     orderDetails: {
@@ -291,13 +292,26 @@ class AccountPage extends Component {
                             quantity: 1,
                             subtotal: data.boughtBook.ourPrice,
                         }),
-                        total: data.boughtBook.ourPrice * 0.08 + data.boughtBook.ourPrice,
+                        // total: data.boughtBook.ourPrice * 0.08 + data.boughtBook.ourPrice,
+                        total: data.order.orderTotal,
                         tax: data.boughtBook.ourPrice * 0.08
                     }
                 })
             }
             else {
-                this.setState({
+                let items = [];
+                if(data.order.cartItemList.length > 0){
+                    for(let i = 0; i < data.order.cartItemList.length; i++){
+                        console.log(data.order.cartItemList[i])
+                        items = items.concat({
+                            name: data.order.cartItemList[i].book.title,
+                            price: data.order.cartItemList[i].book.ourPrice,
+                            quantity: data.order.cartItemList[i].qty,
+                            subtotal: parseFloat(data.order.cartItemList[i].subtotal)
+                        })
+                    }
+                }
+                await this.setState({
                     orderDetails: {
                         id: data.order.id,
                         billingDetails: {
@@ -320,28 +334,10 @@ class AccountPage extends Component {
                             shippingAddressZipcode: data.order.shippingAddress.shippingAddressZipcode,
                             id: data.order.shippingAddress.id,
                         },
-                        items: this.state.orderDetails.items.concat({
-                            name: data.boughtBook.title,
-                            price: data.boughtBook.ourPrice,
-                            quantity: 1,
-                            subtotal: data.boughtBook.ourPrice,
-                        })
+                        items: items,
+                        total: data.order.orderTotal
                     }
                 })
-                // if(data.order.cartItemList.length > 0){
-                //     for(let i = 0; i < data.order.cartItemList.length; i++){
-                //         this.setState({
-                //             orderDetails: {
-                //                 items: this.state.orderDetails.items.concat({
-                //                     name: 'Test',
-                //                     price: 10,
-                //                     quantity: 2,
-                //                     subtotal: 0
-                //                 })
-                //             }
-                //         })
-                //     }
-                // }
             }
         }).then(async () =>{
             await this.setState({
@@ -798,7 +794,7 @@ class AccountPage extends Component {
                                 <div className="panel-group">
                                     <div className="panel panel-default" style={{border: "none"}}>
                                         <div className="panel-body" style={{backgroundColor: "#ededed", marginTop: "20px"}}>
-                                            <Tabs activeKey={this.state.activeOrdersTab} style={tableHeaderStyle} defaultActiveKey="orders">
+                                            <Tabs activeKey={this.state.activeOrdersTab} style={tableHeaderStyle} defaultActiveKey="orders" onSelect={this.changeActiveTabOrders}>
                                                 <Tab style={tableBodyStyle} eventKey="orders" title="Orders">
                                                     <table className="table table-sm table-inverse">
                                                         <thead>
@@ -888,8 +884,11 @@ class AccountPage extends Component {
                                                                                 <td className="emptyrow"></td>
                                                                                 <td className="emptyrow"></td>
                                                                                 <td className="emptyrow text-center">
-                                                                                    <strong>Tax</strong></td>
-                                                                                <td className="emptyrow text-right">${Math.round(this.state.orderDetails.tax)}</td>
+                                                                                    {/*<strong>Tax</strong>*/}
+                                                                                </td>
+                                                                                <td className="emptyrow text-right">
+                                                                                    {/*${Math.round(this.state.orderDetails.tax)}*/}
+                                                                                </td>
                                                                             </tr>
                                                                             <tr>
                                                                                 <td className="emptyrow"><i

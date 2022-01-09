@@ -477,12 +477,11 @@ class Checkout extends Component {
                                                 <h4>Choose your shipping method:</h4>
                                                 <div className="radio">
                                                     <label>
-                                                        <input type="radio" name="shippingMethod" value="groundShipping" checked={this.state.shippingOption == "groundShipping"} onChange={this.changeShipping}/> Ground
-                                                        Shipping
+                                                        <input type="radio" name="shippingMethod" value="groundShipping" checked={this.state.shippingOption == "groundShipping"} onChange={this.changeShipping}/> Ground Shipping ($5)
                                                     </label>
                                                     <br/>
                                                     <label>
-                                                        <input type="radio" name="shippingMethod" value="premiumShipping" checked={this.state.shippingOption == "premiumShipping"} onChange={this.changeShipping}/> Premium Shipping
+                                                        <input type="radio" name="shippingMethod" value="premiumShipping" checked={this.state.shippingOption == "premiumShipping"} onChange={this.changeShipping}/> Premium Shipping ($10)
                                                     </label>
                                                 </div>
 
@@ -509,6 +508,10 @@ class Checkout extends Component {
                                                     <div style={{marginTop: '10px'}} className="col-xs-2">
                                                         <h4>Quantity</h4>
                                                         <p style={{fontWeight: "normal"}}>{this.state.quantity}</p>
+                                                    </div>
+                                                    <div style={{marginTop: '10px'}} className="col-xs-2">
+                                                        <h4>Total</h4>
+                                                        <p style={{fontWeight: "normal"}}>${this.state.price + (this.state.shippingOption == "premiumShipping" ? 10 : 5)}</p>
                                                     </div>
                                                 </div>
 

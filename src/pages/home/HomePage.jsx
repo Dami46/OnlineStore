@@ -301,12 +301,10 @@ class HomePage extends Component {
         let carouselBooks;
         if(this.state.books.length > 3){
             carouselBooks = this.state.carouselBooks.map((book) =>
-                <Carousel.Item>
+                <Carousel.Item style={{height: "300px"}}>
                     <img
                         className="d-block w-100"
                         src={book.bookImage}
-                        width="100"
-                        height="200"
                         alt="First book"
                     />
                     <Carousel.Caption>

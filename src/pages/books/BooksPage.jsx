@@ -28,10 +28,13 @@ class BooksPage extends Component {
             publicationDate: '',
             publisher: '',
             title: '',
+            checkCart: false,
             quantity: []
         }
 
         this.fetchBookDetails = this.fetchBookDetails.bind(this)
+        this.addToCart = this.addToCart.bind(this);
+        this.buyBook = this.buyBook.bind(this);
 
         this.fetchBookDetails()
     }
@@ -77,7 +80,7 @@ class BooksPage extends Component {
 
     async buyBook(event){
         await cookies.remove('buyBook', { path: '/' });
-        await cookies.set('buyBook', { "bookId": event.target.id, "quantity": 1 }, { path: '/' });
+        await cookies.set('buyBook', { "bookId": this.state.id, "quantity": 1 }, { path: '/' });
         if(cookies.get('token') == null){
             this.setState({
                 wantToBuyBook: true
@@ -93,8 +96,34 @@ class BooksPage extends Component {
                 }}).then(async resp =>{
                 if(resp.status == 200){
                     await this.setState({
-                        buyBookId: event.target.id,
+                        buyBookId: this.state.id,
                         buyBook: true
+                    })
+                }
+            })
+        }
+    }
+
+    async addToCart(event){
+        await cookies.remove('addToCart', { path: '/' });
+        await cookies.set('addToCart', { "bookId": this.state.id, "quantity": 1 }, { path: '/' });
+        if(cookies.get('token') == null){
+            this.setState({
+                wantToBuyBook: true
+            })
+        }
+        else{
+            await axios.post('/api/buyItem', {
+                id: cookies.get('addToCart').bookId,
+                quantity: cookies.get('addToCart').quantity,
+                token: cookies.get('token')
+            }, { params: {
+                    addToCart: 'addToCart'
+                }}).then(async resp =>{
+                if(resp.status == 200){
+                    await this.setState({
+                        addToCartId: this.state.id,
+                        checkCart: true
                     })
                 }
             })
@@ -108,6 +137,10 @@ class BooksPage extends Component {
 
         if (this.state.buyBook) {
             return <Navigate to={{pathname: "/checkout#id#" + cookies.get('buyBook').bookId + '#quantity#' + cookies.get('buyBook').quantity}} />
+        }
+
+        if (this.state.checkCart) {
+            return <Navigate to={{pathname: "/shopping#id#" + cookies.get('addToCart').bookId + '#quantity#' + cookies.get('addToCart').quantity}} />
         }
 
         return (
@@ -151,7 +184,7 @@ class BooksPage extends Component {
                                                     <div class="col-xs-6">
                                                         <h4> Price: <span style={{color: "#db3208"}}>$<span>{this.state.ourPrice}</span></span></h4>
                                                         <p>Before Price: <span style={{textDecoration: "line-through"}}>$<span>{this.state.listPrice}</span></span></p>
-                                                        <p>You save: $<span>{this.state.ourPrice - this.state.listPrice}</span>
+                                                        <p>You save: $<span>{this.state.listPrice - this.state.ourPrice}</span>
                                                         </p>
                                                         <span>Quantity: </span>
                                                         <select name="qty">
@@ -174,18 +207,18 @@ class BooksPage extends Component {
                         <h4 style={{color: "green"}} hidden> Only <span> in stock</span></h4>
                         <h4 style={{color: "darkred"}} hidden> Unavailable </h4>
 
-                        <input type="submit" className="btn btn-primary" name="addToCart" value="Add to cart"
-                               style={{
-                                   display: 'inline-block',
-                                   border: "1px solid",
-                                   padding: "10px 40px 10px 40px"
-                               }}/>
-                        <input type="submit" className="btn btn-primary" name="buyBook" value=" Buy book" style={{
+                        <button type="submit" className="btn btn-primary" name="addToCart"
+                           style={{
+                               display: 'inline-block',
+                               border: "1px solid",
+                               padding: "10px 40px 10px 40px"
+                           }} onClick={this.addToCart}>Add to cart</button>
+                        <button type="submit" className="btn btn-primary" name="buyBook" value=" Buy book" style={{
                             marginLeft: '20px',
                             display: 'inline-block',
                             border: "1px solid",
                             padding: "10px 40px 10px 40px"
-                        }}/>
+                        }} onClick={this.buyBook}>Buy book</button>
                     </div>
                 </div>
             </div>

@@ -84,7 +84,6 @@ class DropsPage extends Component {
                         axios.get(URLAddress + '/api/bookDetail', { params: { id: data[i].bookId } }).then(bookResp => {
                             return bookResp.data.book;
                         }).then((book) => {
-                            console.log(book)
                             this.setState({
                                 drops: this.state.drops.concat({
                                     bookDetails: {
