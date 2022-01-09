@@ -7,6 +7,10 @@ import {Link, Navigate} from "react-router-dom";
 import {Typeahead} from 'react-bootstrap-typeahead';
 import {Tab} from "bootstrap";
 import {Component, useState, useEffect} from 'react';
+import EllipsisText from "react-ellipsis-text";
+import Cookies from 'universal-cookie';
+
+const cookies = new Cookies();
 
 const URLAddress = PATH;
 
@@ -20,8 +24,11 @@ class DropsPage extends Component {
         this.handleSearchInputChange = this.handleSearchInputChange.bind(this);
         this.searchOptionClick = this.searchOptionClick.bind(this);
         this.updatePage = this.updatePage.bind(this);
+        this.signUpOff = this.signUpOff.bind(this);
+        this.checkIsInDrop = this.checkIsInDrop.bind(this);
 
         this.state = {
+            wantToJoinDrop: false,
             dropsLoaded: false,
             dropChosen: false,
             dropChosenId: '',
@@ -37,6 +44,7 @@ class DropsPage extends Component {
             filterOption: 'title',
             options: [],
             searchInput: '',
+            userInDropList: []
         }
 
         if(this.state.currentPageId == undefined){
@@ -66,12 +74,23 @@ class DropsPage extends Component {
                 filterOption: 'title',
                 options: [],
                 searchInput: '',
+                drops: [],
+                userInDropList: [],
             })
-            await axios.get(URLAddress + '/api/drop').then(dropsResp => {
-                return dropsResp.data.itemToDropList;
-            }).then(data => {
-                console.log(data)
-                if(this.state.drops.length == 0) {
+            let tok = '';
+            if(cookies.get('token') != null){
+                tok = cookies.get('token');
+            }
+            await axios.get(URLAddress + '/api/drop', (tok == '' ? {} : { params: {
+                    token: tok
+            }})).then(dropsResp => {
+                return dropsResp.data;
+            }).then(resp => {
+                let data = resp.itemToDropList;
+                this.setState({
+                    userInDropList: resp.listOfUsersDrops
+                })
+                if(this.state.drops.length == 0 && data != null) {
                     for(let j = 0; j < data.length; j++){
                         if(j % 20 == 0){
                             this.setState({
@@ -108,7 +127,7 @@ class DropsPage extends Component {
                                     signingDate: data[i].signingDate,
                                     userTodropList: data[i].userTodropList,
                                     wasRolled: data[i].wasRolled,
-                                    wasStarted: data[i].wasStarted
+                                    wasStarted: data[i].wasStarted,
                                 })
                             })
                         });
@@ -188,11 +207,36 @@ class DropsPage extends Component {
         })
     }
 
+    async signUpOff(event){
+        if(cookies.get('token') == null){
+            this.setState({
+                wantToJoinDrop: true
+            })
+        }
+        await axios.post('/api/signForDrop', {
+            dropItemId: event.target.id,
+            token: cookies.get('token')
+        }).then(resp => {
+            if(resp.status == 200){
+                this.fetchdrops();
+            }
+        })
+    }
+
+    checkIsInDrop(id){
+        for(let i = 0; i < this.state.userInDropList.length; i++){
+            if(id == this.state.userInDropList[i]){
+                return true;
+            }
+        }
+        return false;
+    }
+
     render() {
         const drops = this.state.drops.map((drop) =>
-            <Card style={{marginLeft: "4%", marginBottom: "40px", display: "inline-block", cursor: "pointer"}} id={drop.id} onClick={this.handleDropClick}>
+            <Card style={{marginLeft: "4%", marginBottom: "40px", display: "inline-block"}} id={drop.id}>
                 <Card.Body>
-                    <Card.Img width="200" height="300" variant="top" src={drop.bookDetails.bookImage} onError={({ currentTarget }) => {
+                    <Card.Img style={{cursor: "pointer"}} onClick={this.handleDropClick} width="200" height="300" variant="top" src={drop.bookDetails.bookImage} onError={({ currentTarget }) => {
                         currentTarget.onerror = null;
                         currentTarget.src=imageApi.getImageUrl("0");
                     }}/>
@@ -201,10 +245,22 @@ class DropsPage extends Component {
                     </Card.Title>
                     <Card.Subtitle>
                         {drop.bookDetails.author}
+                        <br/>
+                        {drop.bookDetails.publicationDate}
+                        <br/>
+                        {drop.bookDetails.pageCount}
                     </Card.Subtitle>
                     <Card.Text>
-                        {drop.bookDetails.description}
+                        <div>
+                            <strong style={{color: 'red', display: 'inline-block'}}>{drop.bookDetails.ourPrice}$</strong> <p style={{textDecoration: 'line-through', display: 'inline-block'}}>{drop.bookDetails.listPrice}$</p>
+                        </div>
+                        <EllipsisText text={drop.bookDetails.description} id={drop.bookDetails.id} onClick={this.handleDropClick} length={"130"} />
                     </Card.Text>
+                    <div>
+                        <Button style={{cursor: 'pointer'}} hidden={this.checkIsInDrop(drop.id)} id={drop.id} variant={"success"} className="btn" onClick={this.signUpOff}>&nbsp;Sign Up</Button>
+                        <br/>
+                        <Button style={{cursor: 'pointer'}} hidden={!this.checkIsInDrop(drop.id)} id={drop.id} variant={"danger"} className="btn" onClick={this.signUpOff}>&nbsp;Sign out</Button>
+                    </div>
                 </Card.Body>
             </Card>
         )
@@ -217,10 +273,18 @@ class DropsPage extends Component {
             return <Navigate to={{pathname: "/drop#" + this.state.dropChosenId}} />
         }
 
+        if(this.state.wantToBuyBook) {
+            return <Navigate to={{pathname: "/login"}} />
+        }
+
         return (
             <div>
                 <div>
                     <NavbarTemplate/>
+                    <br/>
+                    <br/>
+                    <br/>
+                    <br/>
                     <br/>
                 </div>
 

@@ -3,6 +3,9 @@ import {NavbarTemplate} from "../navbar/NavbarTemplate";
 import axios from "axios";
 import * as imageApi from "../../services/ImageApi";
 import {PATH} from "../../services/ConfigurationUrlAService";
+import Cookies from 'universal-cookie';
+
+const cookies = new Cookies();
 
 const URLAddress = PATH;
 
@@ -65,7 +68,14 @@ class DropDetails extends Component {
             wasStarted: ''
         })
         console.log(this.state.id)
-        await axios.get(URLAddress + '/api/dropDetail', { params: { id: this.state.id } }).then(dropResp => {
+        let tok = '';
+        if(cookies.get('token') != null){
+            tok = cookies.get('token');
+        }
+        await axios.get(URLAddress + '/api/dropDetail', (tok == '' ? { params: { id: this.state.id } } : { params: {
+            id: this.state.id,
+            token: tok
+        }})).then(dropResp => {
             return dropResp.data.dropItem;
         }).then(data => {
             console.log(data)
@@ -96,7 +106,6 @@ class DropDetails extends Component {
             })
         });
     }
-
 
     render() {
         return (
