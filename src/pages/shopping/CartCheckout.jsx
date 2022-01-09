@@ -97,6 +97,7 @@ class CartCheckout extends Component {
             .then(async resp =>{
                 return resp.data;
             }).then(cart => {
+                console.log(cart)
                 this.setState({
                     totalPrice: cart.shoppingCart.totalPrize,
                     products: [],
@@ -333,6 +334,10 @@ class CartCheckout extends Component {
                 this.setState({
                     orderSuccess: true
                 })
+                cookies.set('cartCheckoutSubmit', {
+                    "products": this.state.products,
+                    "price": this.state.totalPrice
+                }, { path: '/' })
             }
         })
     }

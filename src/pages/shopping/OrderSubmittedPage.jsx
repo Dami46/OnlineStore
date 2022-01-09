@@ -48,13 +48,15 @@ class OrderSubmittedPage extends Component {
                                 placed.
                             </h3>
 
+                            <h3 style={{color: "red"}}>
+                                Total: ${this.state.bookPrice}
+                            </h3>
                             <input hidden="hidden"/>
                         </div>
 
                         <h3>Item</h3>
                         <div className="row">
                             <hr/>
-                            <div></div>
                             <div>
 
                                 <a> <img src={this.state.bookImage}
@@ -63,12 +65,13 @@ class OrderSubmittedPage extends Component {
                                 </a>
                             </div>
                             <div>
-                                <div style={{marginLeft: "50px"}}>
+                                <div>
                                     <a>
                                         <br/>
-                                        <h4>{this.state.bookTitle}</h4>
-                                        <br/>
-                                        <h4>{this.state.bookAuthor}</h4>
+                                        <h4>Title: {this.state.bookTitle}</h4>
+                                        <h4>Author: {this.state.bookAuthor}</h4>
+                                        <h4>Quantity: 1</h4>
+                                        <h4>Price: ${this.state.bookPrice}</h4>
                                         <br/>
                                     </a>
                                 </div>
@@ -76,7 +79,7 @@ class OrderSubmittedPage extends Component {
 
                             <div>
                                 <h5 style={{color: "#db3208", fontSize: "large"}}>
-                                    $<span>{this.state.bookPrice}</span>
+                                    Price: $<span>{this.state.bookPrice}</span>
                                 </h5>
                             </div>
                         </div>
