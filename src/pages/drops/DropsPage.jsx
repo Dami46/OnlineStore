@@ -298,7 +298,7 @@ class DropsPage extends Component {
                         <div>
                             <strong style={{textDecoration: 'line-through', color: "#f2575b", display: 'inline-block'}}>${drop.bookDetails.listPrice}</strong> <p style={{display: 'inline-block'}}>${drop.bookDetails.ourPrice}</p>
                         </div>
-                        <EllipsisText style={{cursor: "pointer"}} text={drop.bookDetails.description} id={drop.bookDetails.id} onClick={this.handleDropClick} length={"130"} />
+                        <EllipsisText style={{cursor: "pointer"}} text={drop.bookDetails.description} id={drop.id} onClick={this.handleDropClick} length={"130"} />
                         <br/>
                         <strong style={{color: "#f2575b", width: "300px"}}>
                             {drop.wasRolled == true ? "Finished" : drop.wasStarted == true ? 'Started!' : timeLeft(drop.signingDate, this.state.currentTime)}
