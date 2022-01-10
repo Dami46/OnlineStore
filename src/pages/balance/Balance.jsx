@@ -68,7 +68,7 @@ class BalancePage extends Component {
 
     render() {
         return (
-            <div>
+            <div style={{backgroundColor: "#212121", color: "#1b5fc2", height: '100vh', minHeight: '100vh'}}>
                 <div>
                     <NavbarTemplate/>
                     <br/>
@@ -126,7 +126,7 @@ class BalancePage extends Component {
                                             <div>
                                                 <br/>
                                             </div>
-                                            <button type="submit" className="btn btn-success" onClick={this.askForMoney} disabled={!this.state.newRequestAvailable}>
+                                            <button style={{marginBottom: "10px"}} type="submit" className="btn btn-success" onClick={this.askForMoney} disabled={!this.state.newRequestAvailable}>
                                                 Add balance
                                             </button>
                                         </div>

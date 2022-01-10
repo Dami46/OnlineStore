@@ -6,7 +6,7 @@ class Unauthorised extends Component {
 
     render() {
         return (
-            <div>
+            <div style={{backgroundColor: "#212121", color: "#4cbde9", height: '100vh', minHeight: '100vh'}}>
                 <div>
                     <NavbarTemplate/>
                     <br/>

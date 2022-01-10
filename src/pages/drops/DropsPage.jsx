@@ -9,10 +9,36 @@ import {Tab} from "bootstrap";
 import {Component, useState, useEffect} from 'react';
 import EllipsisText from "react-ellipsis-text";
 import Cookies from 'universal-cookie';
+import {min} from "rxjs/operators";
 
 const cookies = new Cookies();
 
 const URLAddress = PATH;
+
+async function timer(that){
+    while(true){
+        let date = new Date();
+        let currentTime = Date.UTC(date.getUTCFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds());
+        await new Promise(r => setTimeout(r, 200));
+        that.setState({
+            currentTime: currentTime
+        })
+    }
+}
+
+function timeLeft(signingDate, currentTime){
+    let sign = new Date(signingDate)
+    let difference = new Date(sign - currentTime);
+    let days = difference.getDate() - 1;
+    if(days < 0){
+        days = 0;
+    }
+    let hours = difference.getHours();
+    let minutes = difference.getMinutes();
+    let seconds = difference.getSeconds();
+
+    return days.toString() + ' days ' + hours.toString() + ' hours ' + minutes.toString() + ' minutes ' + seconds.toString() + ' seconds'
+}
 
 class DropsPage extends Component {
     constructor(props) {
@@ -44,7 +70,8 @@ class DropsPage extends Component {
             filterOption: 'title',
             options: [],
             searchInput: '',
-            userInDropList: []
+            userTodropList: [],
+            currentTime: new Date()
         }
 
         if(this.state.currentPageId == undefined){
@@ -54,6 +81,7 @@ class DropsPage extends Component {
         }
 
         this.fetchdrops();
+        timer(this);
     }
 
     async fetchdrops(){
@@ -74,7 +102,7 @@ class DropsPage extends Component {
                 options: [],
                 searchInput: '',
                 drops: [],
-                userInDropList: [],
+                userTodropList: [],
             })
             let tok = '';
             if(cookies.get('token') != null){
@@ -84,10 +112,11 @@ class DropsPage extends Component {
                     token: tok
             }})).then(dropsResp => {
                 return dropsResp.data;
-            }).then(resp => {
+            }).then(async resp => {
+                console.log(resp)
                 let data = resp.itemToDropList;
                 this.setState({
-                    userInDropList: resp.listOfUsersDrops
+                    userTodropList: (resp.listOfUsersDrops != undefined) ? resp.listOfUsersDrops : []
                 })
                 if(this.state.drops.length == 0 && data != null) {
                     for(let j = 0; j < data.length; j++){
@@ -99,37 +128,49 @@ class DropsPage extends Component {
                         }
                     }
                     for (let i = 0; i < data.length; i++) {
-                        axios.get(URLAddress + '/api/bookDetail', { params: { id: data[i].bookId } }).then(bookResp => {
-                            return bookResp.data.book;
-                        }).then((book) => {
-                            this.setState({
-                                drops: this.state.drops.concat({
-                                    bookDetails: {
-                                        id: book.id,
-                                        author: book.author,
-                                        bookImage: imageApi.getImageUrl(book.id),
-                                        category: book.category,
-                                        description: book.description,
-                                        inStockNumber: book.inStockNumber,
-                                        language: book.language,
-                                        listPrice: book.listPrice,
-                                        numberOfPages: book.numberOfPages,
-                                        ourPrice: book.ourPrice,
-                                        publicationDate: book.publicationDate,
-                                        publisher: book.publisher,
-                                        title: book.title
-                                    },
-                                    bookId: data[i].bookId,
-                                    dropTitle: data[i].dropTitle,
-                                    id: data[i].id,
-                                    rollDate: data[i].rollDate,
-                                    signingDate: data[i].signingDate,
-                                    userTodropList: data[i].userTodropList,
-                                    wasRolled: data[i].wasRolled,
-                                    wasStarted: data[i].wasStarted,
-                                })
-                            })
-                        });
+                        let book = data[i].book;
+                        this.setState({
+                            drops: this.state.drops.concat({
+                                bookDetails: {
+                                    id: book.id,
+                                    author: book.author,
+                                    bookImage: imageApi.getImageUrl(book.id),
+                                    category: book.category,
+                                    description: book.description,
+                                    inStockNumber: book.inStockNumber,
+                                    language: book.language,
+                                    listPrice: book.listPrice,
+                                    numberOfPages: book.numberOfPages,
+                                    ourPrice: book.ourPrice,
+                                    publicationDate: book.publicationDate,
+                                    publisher: book.publisher,
+                                    title: book.title
+                                },
+                                bookId: data[i].bookId,
+                                dropTitle: data[i].dropTitle,
+                                id: data[i].id,
+                                rollDate: data[i].rollDate,
+                                signingDate: data[i].signingDate,
+                                userTodropList: data[i].userTodropList,
+                                wasRolled: data[i].wasRolled,
+                                wasStarted: data[i].wasStarted,
+                            }),
+                            authors: this.state.authors.concat({
+                                name: data[i].author,
+                            }),
+                            categorys: this.state.categorys.concat({
+                                name: data[i].category,
+                            }),
+                            languages: this.state.languages.concat({
+                                name: data[i].language,
+                            }),
+                            publishers: this.state.publishers.concat({
+                                name: data[i].publisher,
+                            }),
+                            titles: this.state.titles.concat({
+                                name: data[i].title,
+                            }),
+                        })
                     }
                 }
             }, () => {
@@ -189,7 +230,6 @@ class DropsPage extends Component {
     }
 
     updatePage(key){
-        console.log(key)
         this.fetchdrops().then(() => {
             let filtereddrops = [];
             let fin = key * 20;
@@ -223,42 +263,51 @@ class DropsPage extends Component {
     }
 
     checkIsInDrop(id){
-        for(let i = 0; i < this.state.userInDropList.length; i++){
-            if(id == this.state.userInDropList[i]){
-                return true;
+        try{
+            for(let i = 0; i < this.state.userToDropList.length; i++){
+                if(id == this.state.userToDropList[i]){
+                    return true;
+                }
             }
+            return false;
         }
-        return false;
+        catch(err){
+            return false;
+        }
     }
 
     render() {
         const drops = this.state.drops.map((drop) =>
-            <Card style={{marginLeft: "4%", marginBottom: "40px", display: "inline-block"}} id={drop.id}>
+            <Card style={{marginLeft: "4%", marginBottom: "40px", height: '600px', width: '20%', display: "inline-block", backgroundColor: "#4c4c4c"}} id={drop.id}>
                 <Card.Body>
                     <Card.Img style={{cursor: "pointer"}} onClick={this.handleDropClick} id={drop.id} width="200" height="300" variant="top" src={drop.bookDetails.bookImage} onError={({ currentTarget }) => {
                         currentTarget.onerror = null;
                         currentTarget.src=imageApi.getImageUrl("0");
                     }}/>
-                    <Card.Title>
-                        {drop.title}
+                    <Card.Title style={{color: "#4cbde9"}}>
+                        {drop.dropTitle}
                     </Card.Title>
-                    <Card.Subtitle>
+                    <Card.Subtitle style={{color: "#4cbde9"}}>
                         {drop.bookDetails.author}
                         <br/>
                         {drop.bookDetails.publicationDate}
                         <br/>
                         {drop.bookDetails.pageCount}
                     </Card.Subtitle>
-                    <Card.Text>
+                    <Card.Text style={{color: "#4cbde9"}}>
                         <div>
-                            <strong style={{color: 'red', display: 'inline-block'}}>{drop.bookDetails.ourPrice}$</strong> <p style={{textDecoration: 'line-through', display: 'inline-block'}}>{drop.bookDetails.listPrice}$</p>
+                            <strong style={{textDecoration: 'line-through', color: "#f2575b", display: 'inline-block'}}>${drop.bookDetails.listPrice}</strong> <p style={{display: 'inline-block'}}>${drop.bookDetails.ourPrice}</p>
                         </div>
-                        <EllipsisText text={drop.bookDetails.description} id={drop.bookDetails.id} onClick={this.handleDropClick} length={"130"} />
-                    </Card.Text>
-                    <div>
-                        <Button style={{cursor: 'pointer'}} hidden={this.checkIsInDrop(drop.id)} id={drop.id} variant={"success"} className="btn" onClick={this.signUpOff}>&nbsp;Sign Up</Button>
+                        <EllipsisText style={{cursor: "pointer"}} text={drop.bookDetails.description} id={drop.bookDetails.id} onClick={this.handleDropClick} length={"130"} />
                         <br/>
-                        <Button style={{cursor: 'pointer'}} hidden={!this.checkIsInDrop(drop.id)} id={drop.id} variant={"danger"} className="btn" onClick={this.signUpOff}>&nbsp;Sign out</Button>
+                        <strong style={{color: "#f2575b", width: "300px"}}>
+                            {drop.wasRolled == true ? "Finished" : drop.wasStarted == true ? 'Started!' : timeLeft(drop.signingDate, this.state.currentTime)}
+                        </strong>
+                    </Card.Text>
+                    <div style={{color: "#4cbde9"}}>
+                        <Button disabled={drop.wasStarted == true && drop.wasRolled == false ? false : true} style={{cursor: 'pointer'}} hidden={this.checkIsInDrop(drop.id)} id={drop.id} variant={"success"} className="btn" onClick={this.signUpOff}>&nbsp;Sign Up</Button>
+                        <br/>
+                        <Button disabled={drop.wasStarted == true && drop.wasRolled == false ? false : true} style={{cursor: 'pointer'}} hidden={!this.checkIsInDrop(drop.id)} id={drop.id} variant={"danger"} className="btn" onClick={this.signUpOff}>&nbsp;Sign out</Button>
                     </div>
                 </Card.Body>
             </Card>
@@ -277,7 +326,7 @@ class DropsPage extends Component {
         }
 
         return (
-            <div>
+            <div style={{backgroundColor: "#212121", height: '100%', minHeight: '100vh'}}>
                 <div>
                     <NavbarTemplate/>
                     <br/>
@@ -295,7 +344,7 @@ class DropsPage extends Component {
 
                     <div style={{marginLeft: "20%", width: "60%"}}>
                         <Form className="d-flex">
-                            <Form.Select style={{ width: "20%"}} onChange={this.handleFilterChange}>
+                            <Form.Select style={{ width: "20%", backgroundColor: "#4c4c4c", color: "#4cbde9"}} variant="info" onChange={this.handleFilterChange}>
                                 <option value="title">Title</option>
                                 <option value="author">Author</option>
                                 <option value="category">Category</option>
@@ -303,7 +352,7 @@ class DropsPage extends Component {
                                 <option value="publisher">Publisher</option>
                             </Form.Select>
                             <Typeahead
-                                style={{width: "70%"}}
+                                style={{width: "70%", marginLeft: "2%", backgroundColor: "#4c4c4c", color: "#4cbde9"}}
                                 id="basic-typeahead-single"
                                 labelKey="name"
                                 className="me-2"
@@ -311,7 +360,7 @@ class DropsPage extends Component {
                                 options={this.state.options}
                                 placeholder="Search"
                             />
-                            <Button variant="primary" onClick={this.filterDropsClick}>Search</Button>
+                            <Button style={{marginLeft: "1%", backgroundColor: "#4c4c4c", color: "#4cbde9"}} variant="light" onClick={this.filterDropsClick}>Search</Button>
                         </Form>
                         <br/>
                     </div>
@@ -320,10 +369,13 @@ class DropsPage extends Component {
                         {pages}
                     </Tabs>
 
-                    <div style={{height: "300px", marginTop: "50px"}}>
-                        <Row style={{textAlign: "center", alignItems: "center"}} xs={5}>
+                    <div style={{height: "300px", marginTop: "50px", backgroundColor: "#212121"}}>
+                        <Row style={{textAlign: "center", alignItems: "center", backgroundColor: "#212121"}} xs={5}>
                             {drops}
                         </Row>
+                        <div style={{backgroundColor: "#212121"}}>
+                            <div style={{textAlign: "center", color: "#e8e8e8"}}><a href="/contact">Privacy policy</a></div>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -694,7 +694,7 @@ class AccountPage extends Component {
         )
 
         return (
-            <div>
+            <div style={{backgroundColor: "#212121", color: "#1b5fc2", height: '100vh', minHeight: '100vh'}}>
                 <div>
                     <NavbarTemplate/>
                     <br/>
@@ -779,7 +779,7 @@ class AccountPage extends Component {
                                             </div>
 
                                             <div className="form-group" style={{marginTop: '10px'}}>
-                                                <button className="btn btn-danger btn-xs delete-user" type="submit" value="delete" onClick={this.deleteAccountClick} disabled={!this.state.changesAllowed}>
+                                                <button className="btn btn-danger btn-xs delete-user" style={{marginBottom: "10px"}} type="submit" value="delete" onClick={this.deleteAccountClick} disabled={!this.state.changesAllowed}>
                                                     <span className="fa fa-times"></span> Delete
                                                 </button>
                                             </div>
@@ -952,7 +952,7 @@ class AccountPage extends Component {
                                                         </form>
 
                                                         <div>
-                                                            <button className="btn btn-primary" type="submit" onClick={this.updateShippings}>
+                                                            <button style={{marginBottom: "10px"}} className="btn btn-primary" type="submit" onClick={this.updateShippings}>
                                                                 Save
                                                             </button>
                                                         </div>
@@ -1013,8 +1013,8 @@ class AccountPage extends Component {
                                                                 <hr/>
                                                             </form>
 
-                                                            <div className="form-group" style={{marginTop: '10px'}}>
-                                                                <button style={{textAlign: 'center'}} type="submit" className="btn btn-primary btn-lg" onClick={this.state.activeNewShipping ? this.saveShippingAddressClick : this.confirmUpdateShipping}>
+                                                            <div className="form-group" style={{marginTop: '10px', marginBottom: "10px"}}>
+                                                                <button style={{textAlign: 'center', marginBottom: "10px"}} type="submit" className="btn btn-primary btn-lg" onClick={this.state.activeNewShipping ? this.saveShippingAddressClick : this.confirmUpdateShipping}>
                                                                     Save All
                                                                 </button>
                                                             </div>

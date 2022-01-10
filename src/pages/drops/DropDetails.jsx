@@ -11,6 +11,31 @@ const cookies = new Cookies();
 
 const URLAddress = PATH;
 
+async function timer(that){
+    while(true){
+        let date = new Date();
+        let currentTime = Date.UTC(date.getUTCFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds());
+        await new Promise(r => setTimeout(r, 200));
+        that.setState({
+            currentTime: currentTime
+        })
+    }
+}
+
+function timeLeft(signingDate, currentTime){
+    let sign = new Date(signingDate)
+    let difference = new Date(sign - currentTime);
+    let days = difference.getDate() - 1;
+    if(days < 0){
+        days = 0;
+    }
+    let hours = difference.getHours();
+    let minutes = difference.getMinutes();
+    let seconds = difference.getSeconds();
+
+    return days.toString() + ' days ' + hours.toString() + ' hours ' + minutes.toString() + ' minutes ' + seconds.toString() + ' seconds'
+}
+
 class DropDetails extends Component {
     constructor(props) {
         super(props);
@@ -22,7 +47,7 @@ class DropDetails extends Component {
             bookDetails: {
                 id: '',
                 author: '',
-                bookImage: '',
+                bookImage: imageApi.getImageUrl("0"),
                 category: '',
                 description: '',
                 inStockNumber: '',
@@ -40,10 +65,12 @@ class DropDetails extends Component {
             signingDate: '',
             userTodropList: '',
             wasRolled: '',
-            wasStarted: ''
+            wasStarted: '',
+            currentTime: new Date()
         }
 
         this.fetchDropDetails()
+        timer(this);
     }
 
     async fetchDropDetails(){
@@ -51,7 +78,7 @@ class DropDetails extends Component {
             dropDetails: {
                 id: '',
                 author: '',
-                dropImage: '',
+                dropImage: imageApi.getImageUrl("0"),
                 category: '',
                 description: '',
                 inStockNumber: '',
@@ -139,7 +166,7 @@ class DropDetails extends Component {
         }
 
         return (
-            <div>
+            <div style={{backgroundColor: "#212121", color: "#4cbde9"}}>
                 <div>
                     <NavbarTemplate/>
                     <br/>
@@ -151,12 +178,32 @@ class DropDetails extends Component {
 
                 <div>
                     <form method="post" style={{marginLeft: "10%"}}>
-                        <input hidden="hidden"/>
                         <div className="row" style={{marginTop: "20px"}}>
                             <div style={{display: 'inline-block'}} className="col-xs-3">
                                 <img src={this.state.bookDetails.bookImage}
                                      style={{width: '270px', height: '350px', marginLeft: '35%'}}
                                      className="img-responsive shelf-book"/>
+                                     <div style={{display: "inline-block"}}>
+                                         <strong style={{color: "#f2575b", width: "300px", marginLeft: "20px", display: "block"}}>
+                                             {this.state.wasRolled == true ? "Status: Finished" : this.state.wasStarted == true ? 'Status: Started!' : 'Time left: ' + timeLeft(this.state.signingDate, this.state.currentTime)}
+                                         </strong>
+                                         <br/>
+                                         <Button disabled={this.state.wasStarted == true && this.state.wasRolled == false ? false : true} variant={"success"} className="btn" name="signUp" hidden={this.state.userInDrop} onClick={this.signUpOff}
+                                                 style={{
+                                                     marginLeft: "20px",
+                                                     border: "1px solid",
+                                                     padding: "10px 40px 10px 40px"
+                                                 }}
+                                         >Sign Up</Button>
+                                         <Button disabled={this.state.wasStarted == true && this.state.wasRolled == false ? false : true} variant={"danger"} className="btn" name="signOff" hidden={!this.state.userInDrop} onClick={this.signUpOff}
+                                                 style={{
+                                                     marginLeft: '20px',
+                                                     border: "1px solid",
+                                                     padding: "10px 40px 10px 40px"
+                                                 }}
+                                         >Sign Off</Button>
+                                     </div>
+
                             </div>
 
                             <div style={{display: 'inline-block'}} className="col-xs-9">
@@ -190,24 +237,6 @@ class DropDetails extends Component {
                         <h4 style={{color: "green"}} hidden> In stock</h4>
                         <h4 style={{color: "green"}} hidden> Only <span> in stock</span></h4>
                         <h4 style={{color: "darkred"}} hidden> Unavailable </h4>
-
-                        <Button variant={"success"} className="btn" name="signUp" hidden={this.state.userInDrop} onClick={this.signUpOff}
-                                // disabled={!this.state.dropWasStarted}
-                                style={{
-                                    display: 'inline-block',
-                                    border: "1px solid",
-                                    padding: "10px 40px 10px 40px"
-                                }}
-                        >Sign Up</Button>
-                        <Button variant={"danger"} className="btn" name="signOff" hidden={!this.state.userInDrop} onClick={this.signUpOff}
-                                // disabled={!this.state.dropWasStarted}
-                                style={{
-                                    marginLeft: '20px',
-                                    display: 'inline-block',
-                                    border: "1px solid",
-                                    padding: "10px 40px 10px 40px"
-                                }}
-                        >Sign Off</Button>
                     </div>
                 </div>
             </div>

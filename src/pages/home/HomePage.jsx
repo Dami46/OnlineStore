@@ -264,32 +264,32 @@ class HomePage extends Component {
 
     render() {
         const books = this.state.books.map((book) =>
-            <Card style={{marginLeft: "4%", marginBottom: "40px", height: '600px', width: '400px', display: "inline-block"}} id={book.id}>
+            <Card style={{marginLeft: "4%", marginBottom: "40px", height: '600px', width: '400px', display: "inline-block", color: "white", backgroundColor: "#4c4c4c"}} id={book.id}>
                 <Card.Body>
                     <Card.Img style={{width: "200px", height: "300px", cursor: "pointer"}} variant="top" src={book.bookImage} id={book.id} onClick={this.handleBookClick} onError={({ currentTarget }) => {
                         currentTarget.onerror = null;
                         currentTarget.src=imageApi.getImageUrl("0");
                     }}/>
-                    <Card.Title>
+                    <Card.Title style={{color: "#4cbde9"}}>
                         {book.title}
                     </Card.Title>
-                    <Card.Subtitle>
+                    <Card.Subtitle style={{color: "#4cbde9"}}>
                         {book.author}
                         <br/>
                         {book.publicationDate}
                         <br/>
                         {book.pageCount}
                     </Card.Subtitle>
-                    <Card.Text>
+                    <Card.Text style={{color: "#4cbde9"}}>
                         <div>
-                            <strong style={{color: 'red', display: 'inline-block'}}>{book.ourPrice}$</strong> <p style={{textDecoration: 'line-through', display: 'inline-block'}}>{book.listPrice}$</p>
+                            <strong style={{textDecoration: 'line-through', color: "#f2575b", display: 'inline-block'}}>${book.listPrice}</strong> <p style={{display: 'inline-block'}}>${book.ourPrice}</p>
                         </div>
-                        <EllipsisText text={book.description} id={book.id} onClick={this.handleBookClick} length={"130"} />
+                        <EllipsisText style={{cursor: "pointer"}} text={book.description} id={book.id} onClick={this.handleBookClick} length={"130"} />
                     </Card.Text>
                     <div hidden={book.inStockNumber > 0}>
-                        <strong style={{color: 'red', display: 'inline-block'}}>No books in stock!</strong>
+                        <strong style={{color: "#f2575b", display: 'inline-block'}}>No books in stock!</strong>
                     </div>
-                    <div  hidden={book.inStockNumber <= 0}>
+                    <div  hidden={book.inStockNumber <= 0} style={{color: "#4cbde9"}}>
                         <i style={{cursor: 'pointer'}} id={book.id} className="fa fa-shopping-cart" onClick={this.addToCart}>&nbsp;Add to cart</i>
                         <br/>
                         <i style={{cursor: 'pointer'}} id={book.id} className="fa" onClick={this.buyBook}>&nbsp;Buy now</i>
@@ -299,25 +299,29 @@ class HomePage extends Component {
         )
 
         let carouselBooks;
-        if(this.state.books.length > 3){
-            carouselBooks = this.state.carouselBooks.map((book) =>
-                <Carousel.Item style={{height: "300px"}}>
-                    <img
-                        className="d-block w-100"
-                        src={book.bookImage}
-                        alt="First book"
-                    />
-                    <Carousel.Caption>
-                        <h3>{book.title}</h3>
-                        <p>{book.description}</p>
-                    </Carousel.Caption>
-                </Carousel.Item>
-            )
+        if(this.state.books.length > 0){
+            try{
+                carouselBooks = this.state.carouselBooks.map((book) =>
+                    <Carousel.Item id={book.id} onClick={this.handleBookClick} style={{height: "300px", cursor: "pointer"}}>
+                        <img
+                            className="d-block w-100"
+                            src={book.bookImage}
+                            alt="First book"
+                            style={{display: "inline-block"}}
+                        />
+                        <Carousel.Caption>
+                            <h3>{book.title}</h3>
+                            <p>{book.description}</p>
+                        </Carousel.Caption>
+                    </Carousel.Item>
+                )
+            }
+            catch (err) {}
         }
 
 
         const pages = this.state.pages.map((page) =>
-            <Tab style={{color: this.state.currentPageId == page ? "red" : "blue", textDecoration: "none", textAlign: "center"}} to={{ pathname: "/home#" + page}} eventKey={page} title={page} onClick={this.updatePage}></Tab>
+            <Tab variant="dark" style={{backgroundColor: "#212121"}} to={{ pathname: "/home#" + page}} eventKey={page} title={page} onClick={this.updatePage}></Tab>
         )
 
         if (this.state.buyBook) {
@@ -337,15 +341,15 @@ class HomePage extends Component {
         }
 
         return (
-          <div>
+          <div style={{backgroundColor: "#212121", height: '100vh', minHeight: '100vh'}}>
               <div>
                   <NavbarTemplate/>
                   <br/>
               </div>
 
-              <div>
+              <div style={{backgroundColor: "#212121"}}>
                   <div>
-                      <Carousel>
+                      <Carousel style={{height: "300px"}}>
                           {carouselBooks}
                       </Carousel>
                   </div>
@@ -356,7 +360,7 @@ class HomePage extends Component {
 
                   <div style={{marginLeft: "20%", width: "60%"}}>
                       <Form className="d-flex">
-                          <Form.Select style={{ width: "20%"}} onChange={this.handleFilterChange}>
+                          <Form.Select style={{ width: "20%", backgroundColor: "#4c4c4c", color: "#4cbde9"}} variant="info" onChange={this.handleFilterChange}>
                               <option value="title">Title</option>
                               <option value="author">Author</option>
                               <option value="category">Category</option>
@@ -364,27 +368,28 @@ class HomePage extends Component {
                               <option value="publisher">Publisher</option>
                           </Form.Select>
                           <Typeahead
-                              style={{width: "70%"}}
+                              style={{width: "70%", marginLeft: "2%"}}
                               id="basic-typeahead-single"
-                              labelKey="name"
-                              className="me-2"
                               onChange={this.searchOptionClick}
                               options={this.state.options}
                               placeholder="Search"
                           />
-                          <Button variant="primary" onClick={this.filterBooksClick}>Search</Button>
+                          <Button style={{marginLeft: "1%", backgroundColor: "#4c4c4c", color: "#4cbde9"}} variant="light" onClick={this.filterBooksClick}>Search</Button>
                       </Form>
                       <br/>
                   </div>
 
-                  <Tabs style={{alignItems: "center", justifyContent: "center"}} defaultActiveKey="1" className="mb-3" onSelect={this.updatePage}>
+                  <Tabs style={{alignItems: "center", justifyContent: "center", backgroundColor: "#212121", color: "#4cbde9"}} defaultActiveKey="1" className="mb-3" onSelect={this.updatePage}>
                       {pages}
                   </Tabs>
 
-                  <div style={{height: "300px", marginTop: "50px"}}>
-                      <Row style={{textAlign: "center", alignItems: "center"}} xs={5}>
+                  <div style={{height: "300px", marginTop: "50px", backgroundColor: "#212121"}}>
+                      <Row style={{textAlign: "center", alignItems: "center", backgroundColor: "#212121"}} xs={5}>
                           {books}
                       </Row>
+                      <div style={{backgroundColor: "#212121"}}>
+                          <div style={{textAlign: "center", color: "#e8e8e8"}}><a href="/contact">Privacy policy</a></div>
+                      </div>
                   </div>
               </div>
           </div>

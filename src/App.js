@@ -8,7 +8,7 @@ import {AccountPage} from "./pages/account/AccountPage";
 import {CartPage} from "./pages/shopping/CartPage";
 import {NotFound} from "./pages/errors/NotFound";
 import {Unauthorised} from "./pages/errors/Unauthorised";
-import {ContactPage} from "./pages/contact/ContactPage";
+import {PrivacyPolicy} from "./pages/contact/PrivacyPolicy";
 import {DropsPage} from "./pages/drops/DropsPage";
 import {LoginPage} from "./pages/account/LoginPage";
 import {BalancePage} from "./pages/balance/Balance";
@@ -43,7 +43,7 @@ class App extends Component {
                     <Route exact path="/cartcheckout" element={<CartCheckout/>}/>
                     <Route exact path="/drops" element={<DropsPage/>}/>
                     <Route exact path="/drop" element={<DropDetails/>}/>
-                    <Route exact path="/contact" element={<ContactPage/>}/>
+                    <Route exact path="/contact" element={<PrivacyPolicy/>}/>
                     <Route exact path="/balance" element={<BalancePage/>}/>
                     <Route exact path="/orderSubmitted" element={<OrderSubmittedPage/>}/>
                     <Route exact path="/cartOrderSubmitted" element={<CartOrderSubmittedPage/>}/>

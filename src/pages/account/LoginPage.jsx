@@ -18,19 +18,24 @@ const tableHeaderStyle = {
     fontSize: "25px",
     fontWeight: "bold",
     alignItems: "center",
-    justifyContent: "center"
+    justifyContent: "center",
+    backgroundColor: "#212121"
 }
 
 const tableBodyStyle = {
     fontSize: "20px",
     fontWeight: "bold",
-    textAlign: "center"
+    textAlign: "center",
+    backgroundColor: "#212121"
 }
 
 const inputStyle = {
     width: "70%",
     marginLeft: "15%",
-    textAlign: "center"
+    textAlign: "center",
+    color: "#4cbde9",
+    backgroundColor: "#212121",
+    marginTop: "10px"
 }
 
 class LoginPage extends Component {
@@ -169,7 +174,7 @@ class LoginPage extends Component {
         }
 
         return (
-            <div>
+            <div style={{backgroundColor: "#212121", height: '100vh', minHeight: '100vh'}}>
                 <div>
                     <NavbarTemplate/>
                     <br/>
@@ -181,7 +186,7 @@ class LoginPage extends Component {
 
                 <Tabs style={tableHeaderStyle} defaultActiveKey="login" className="mb-3">
                     <Tab style={tableBodyStyle} eventKey="newaccount" title="New account">
-                        <div className="tab-pane" id="tab1">
+                        <div className="tab-pane" id="tab1" style={{backgroundColor: "#212121", color: "#4cbde9", marginTop: "10px"}}>
                             <div className="panel-group">
                                 <div className="panel panel-default" style={{border: "none"}}>
                                     <div className="panel-body" style={{backgroundColor: "#ededed", marginTop: "20px"}}>
@@ -189,20 +194,20 @@ class LoginPage extends Component {
                                             An email has been sent to the email address you just registered.
                                         </div>
 
-                                        <form method="post">
+                                        <form style={{backgroundColor: "#4c4c4c"}}>
                                             <div className="form-group">
                                                 <label htmlFor="newUsername">Username</label><br/>
-                                                <span style={{color: "red"}} hidden={!this.state.userNameAlreadyExist}>Username already exists!</span>
+                                                <span style={{color: "#f2575b"}} hidden={!this.state.userNameAlreadyExist}>Username already exists!</span>
                                                 <input style={inputStyle} required="required" type="text" className="form-control" id="newUsername" name="username" placeholder={"Enter your username"} onChange={this.changeUsername}/>
                                             </div>
 
-                                            <div className="form-group">
+                                            <div style={{marginTop: "10px"}} className="form-group">
                                                 <label htmlFor="email">Email Address: </label><br/>
-                                                <span style={{color: "red"}} hidden={!this.state.emailAlreadyExist}>Email already exists!</span>
+                                                <span style={{color: "#f2575b"}} hidden={!this.state.emailAlreadyExist}>Email already exists!</span>
                                                 <input style={inputStyle} required="required" type="text" className="form-control" id="email" name="email" placeholder={"Enter your email"} onChange={this.changeEmail}/>
                                             </div>
 
-                                            <button type="submit" className="btn btn-primary" onClick={this.submitRegister}>Create new account</button>
+                                            <button style={{backgroundColor: "#212121", color: "#4cbde9", marginTop: "10px", marginBottom: "10px"}} className="btn" onClick={this.submitRegister}>Create new account</button>
                                         </form>
                                     </div>
                                 </div>
@@ -211,25 +216,25 @@ class LoginPage extends Component {
                     </Tab>
 
                     <Tab style={tableBodyStyle} eventKey="login" title="Log in">
-                        <div className="tab-pane" id="tab2">
+                        <div className="tab-pane" id="tab2" style={{backgroundColor: "#212121", color: "#4cbde9", marginTop: "10px"}}>
                             <div className="panel-group">
                                 <div className="panel panel-default " style={{border: "none"}}>
                                     <div className="panel-body" style={{backgroundColor: "#ededed", marginTop: "20px"}}>
-                                        <div style={{color: "red"}} hidden={!this.state.invalidCredentials}>
+                                        <div style={{color: "#f2575b"}} hidden={!this.state.invalidCredentials}>
                                             Incorrect username or password
                                         </div>
-                                        <form method="post">
+                                        <form style={{backgroundColor: "#4c4c4c"}}>
                                             <div className="form-group">
                                                 <label htmlFor="username">Username</label>
                                                 <input style={inputStyle} required="required" type="text" className="form-control" id="username" name="username" placeholder={"Enter your username"} onChange={this.changeUsername}/>
                                             </div>
 
-                                            <div className="form-group">
+                                            <div style={{marginTop: "10px"}} className="form-group">
                                                 <label htmlFor="password">Password: </label>
                                                 <input style={inputStyle} required="required" type="password" className="form-control" id="password" name="password" placeholder={"Enter your password"} onChange={this.changePassword}/>
                                             </div>
 
-                                            <button type="submit" className="btn btn-primary" onClick={this.submitLogin}>Log in</button>
+                                            <button style={{backgroundColor: "#212121", color: "#4cbde9", marginTop: "10px", marginBottom: "10px"}} className="btn" onClick={this.submitLogin}>Log in</button>
                                         </form>
                                     </div>
 
@@ -239,7 +244,7 @@ class LoginPage extends Component {
                     </Tab>
 
                     <Tab style={tableBodyStyle} eventKey="forgotpassword" title="Forgot password">
-                        <div className="tab-pane" id="tab3">
+                        <div className="tab-pane" id="tab3" style={{backgroundColor: "#212121", color: "#4cbde9", marginTop: "10px"}}>
                             <div className="panel-group">
                                 <div className="panel panel-default" style={{border: "none"}}>
                                     <div className="panel-body" style={{backgroundColor: "#ededed", marginTop: "20px"}}>
@@ -249,13 +254,13 @@ class LoginPage extends Component {
                                         <div className="alert alert-success" hidden={!this.state.emailForgetPasswordSent}>
                                             Email sent
                                         </div>
-                                        <form method="post">
+                                        <form style={{backgroundColor: "#4c4c4c"}}>
                                             <div className="form-group">
                                                 <label htmlFor="recoverEmail">Your Email: </label>
                                                 <input style={inputStyle} required="required" type="text" className="form-control" id="recoverEmail" name="email" placeholder={"Enter your registered email address here"} onChange={this.changeEmail}/>
                                             </div>
 
-                                            <button type="submit" className="btn btn-primary" onClick={this.submitForgetPassword}>Submit</button>
+                                            <button style={{backgroundColor: "#212121", color: "#4cbde9", marginTop: "10px", marginBottom: "10px"}} className="btn" onClick={this.submitForgetPassword}>Submit</button>
                                         </form>
                                     </div>
                                 </div>

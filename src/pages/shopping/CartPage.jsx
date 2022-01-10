@@ -136,7 +136,7 @@ class CartPage extends Component {
 
     render() {
         const products = this.state.products.map((product) =>
-            <div className="row">
+            <div className="row" style={{backgroundColor: "#212121", color: "#4cbde9", height: '100vh', minHeight: '100vh'}}>
                 <div method="post">
                     <hr/>
                     <div style={{display: "flex", flexDirection: "row"}}>
@@ -181,7 +181,7 @@ class CartPage extends Component {
         }
 
         return (
-            <div>
+            <div style={{backgroundColor: "#212121", color: "#4cbde9", height: '100vh', minHeight: '100vh'}}>
                 <div>
                     <NavbarTemplate/>
                     <br/>

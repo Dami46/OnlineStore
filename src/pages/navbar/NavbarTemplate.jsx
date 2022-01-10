@@ -25,7 +25,7 @@ class NavbarTemplate extends Component {
 
     render() {
         return (
-            <Navbar fixed="top" bg="white" variant="light">
+            <Navbar fixed="top" bg="dark" variant="dark">
                 <Container>
                     <Navbar.Brand href="#home">
                         <img
@@ -45,7 +45,7 @@ class NavbarTemplate extends Component {
                         <Nav>
                             <Nav.Link style={{fontSize: "30px", fontWeight: "bold"}} href="/login" hidden={cookies.get('isLogged')}>Login</Nav.Link>
                             <Nav.Link style={{fontSize: "30px", fontWeight: "bold"}} href="/account" hidden={!cookies.get('isLogged')}>Account</Nav.Link>
-                            <Nav.Link style={{fontSize: "30px", fontWeight: "bold"}} href="/shopping">Shopping Cart</Nav.Link>
+                            <Nav.Link style={{fontSize: "30px", fontWeight: "bold"}} href="/shopping" hidden={!cookies.get('isLogged')}>Shopping Cart</Nav.Link>
                             <Nav.Link style={{fontSize: "30px", fontWeight: "bold"}} href="/balance" hidden={!cookies.get('isLogged')}>Balance</Nav.Link>
                             <Nav.Link style={{fontSize: "30px", fontWeight: "bold"}} href="/home" hidden={!cookies.get('isLogged')} onClick={this.logoutPressed}>Logout</Nav.Link>
                         </Nav>

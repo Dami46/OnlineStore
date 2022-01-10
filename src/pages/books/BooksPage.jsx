@@ -29,12 +29,17 @@ class BooksPage extends Component {
             publisher: '',
             title: '',
             checkCart: false,
-            quantity: []
+            quantity: [],
+            buyBookId: '',
+            buyBook: false,
+            addToCartId: '',
+            chosenQuantity: 1,
         }
 
         this.fetchBookDetails = this.fetchBookDetails.bind(this)
         this.addToCart = this.addToCart.bind(this);
         this.buyBook = this.buyBook.bind(this);
+        this.changeQuantity = this.changeQuantity.bind(this);
 
         this.fetchBookDetails()
     }
@@ -50,6 +55,7 @@ class BooksPage extends Component {
                 publishers: [],
                 quantity: [],
                 buyBook: false,
+                chosenQuantity: 1,
             })
             await axios.get(URLAddress + '/api/bookDetail', { params: { id: this.state.id } }).then(bookResp => {
                 return bookResp.data.book;
@@ -106,7 +112,7 @@ class BooksPage extends Component {
 
     async addToCart(event){
         await cookies.remove('addToCart', { path: '/' });
-        await cookies.set('addToCart', { "bookId": this.state.id, "quantity": 1 }, { path: '/' });
+        await cookies.set('addToCart', { "bookId": this.state.id, "quantity": this.state.chosenQuantity }, { path: '/' });
         if(cookies.get('token') == null){
             this.setState({
                 wantToBuyBook: true
@@ -130,6 +136,12 @@ class BooksPage extends Component {
         }
     }
 
+    changeQuantity(event){
+        this.setState({
+            chosenQuantity: event.target.value
+        })
+    }
+
     render() {
         const quantity = this.state.quantity.map((numb) =>
             <option value={numb}>{numb}</option>
@@ -140,11 +152,12 @@ class BooksPage extends Component {
         }
 
         if (this.state.checkCart) {
+            console.log(cookies.get('addToCart'))
             return <Navigate to={{pathname: "/shopping#id#" + cookies.get('addToCart').bookId + '#quantity#' + cookies.get('addToCart').quantity}} />
         }
 
         return (
-            <div>
+            <div style={{backgroundColor: "#212121", color: "#4cbde9"}}>
                 <div>
                     <NavbarTemplate/>
                     <br/>
@@ -155,11 +168,32 @@ class BooksPage extends Component {
                 </div>
 
                 <div>
-                    <form method="post" style={{marginLeft: "10%"}}>
-                        <input hidden="hidden"/>
+                    <form style={{marginLeft: "10%"}}>
                         <div class="row" style={{marginTop: "20px"}}>
                             <div style={{display: 'inline-block'}} class="col-xs-3">
-                                <img src={this.state.bookImage} style={{width: '270px', height: '350px', marginLeft: '35%'}} class="img-responsive shelf-book"/>
+                                <img src={this.state.bookImage} style={{width: '270px', height: '350px', marginLeft: '35%', display: "inline-block"}} class="img-responsive shelf-book"/>
+                                <div style={{display: "inline-block"}}>
+                                    <button className="btn btn-primary" name="addToCart"
+                                            style={{
+                                                backgroundColor: "#212121",
+                                                color: "#4cbde9",
+                                                marginLeft: '20px',
+                                                display: 'block',
+                                                border: "1px solid",
+                                                padding: "10px 40px 10px 40px"
+                                            }} onClick={this.addToCart}
+                                    >Add to cart</button>
+                                    <button className="btn btn-primary" name="buyBook" value=" Buy book" style={{
+                                        backgroundColor: "#212121",
+                                        color: "#4cbde9",
+                                        marginLeft: '20px',
+                                        marginTop: '20px',
+                                        display: 'block',
+                                        border: "1px solid",
+                                        padding: "10px 40px 10px 40px"
+                                    }} onClick={this.buyBook}
+                                    >Buy book</button>
+                                </div>
                             </div>
 
                             <div style={{display: 'inline-block'}} class="col-xs-9">
@@ -184,10 +218,10 @@ class BooksPage extends Component {
                                                     <div class="col-xs-6">
                                                         <h4> Price: <span style={{color: "#db3208"}}>$<span>{this.state.ourPrice}</span></span></h4>
                                                         <p>Before Price: <span style={{textDecoration: "line-through"}}>$<span>{this.state.listPrice}</span></span></p>
-                                                        <p>You save: $<span>{this.state.listPrice - this.state.ourPrice}</span>
+                                                        <p>You save: $<span>{Math.floor((this.state.listPrice - this.state.ourPrice) * 100) / 100}</span>
                                                         </p>
                                                         <span>Quantity: </span>
-                                                        <select name="qty">
+                                                        <select onChange={this.changeQuantity} name="qty">
                                                             {quantity}
                                                         </select>
                                                         <br/> <br/>
@@ -206,19 +240,6 @@ class BooksPage extends Component {
                         <h4 style={{color: "green"}} hidden> In stock</h4>
                         <h4 style={{color: "green"}} hidden> Only <span> in stock</span></h4>
                         <h4 style={{color: "darkred"}} hidden> Unavailable </h4>
-
-                        <button type="submit" className="btn btn-primary" name="addToCart"
-                           style={{
-                               display: 'inline-block',
-                               border: "1px solid",
-                               padding: "10px 40px 10px 40px"
-                           }} onClick={this.addToCart}>Add to cart</button>
-                        <button type="submit" className="btn btn-primary" name="buyBook" value=" Buy book" style={{
-                            marginLeft: '20px',
-                            display: 'inline-block',
-                            border: "1px solid",
-                            padding: "10px 40px 10px 40px"
-                        }} onClick={this.buyBook}>Buy book</button>
                     </div>
                 </div>
             </div>

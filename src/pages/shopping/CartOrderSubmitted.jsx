@@ -18,7 +18,7 @@ class CartOrderSubmittedPage extends Component {
 
     render() {
         const products = this.state.products.map((product) =>
-            <div className="row">
+            <div className="row" style={{backgroundColor: "#212121", color: "#4cbde9", height: '100vh', minHeight: '100vh'}}>
                 <hr/>
                 <div style={{display: "inline-block"}}>
                     <a> <img src={imageApi.getImageUrl(product.image)}

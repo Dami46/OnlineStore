@@ -378,7 +378,7 @@ class CartCheckout extends Component {
         )
 
         return(
-            <div>
+            <div style={{backgroundColor: "#212121", color: "#4cbde9", height: '100vh', minHeight: '100vh'}}>
                 <div>
                     <NavbarTemplate/>
                     <br/>
@@ -525,7 +525,7 @@ class CartCheckout extends Component {
                                         </div>
                                     </Tab>
 
-                                    <Tab style={tableBodyStyle} eventKey="reviewItems" title="Review Items" disabled={this.state.reviewDisabled}>
+                                    <Tab  style={{color: "white", fontSize: "20px", fontWeight: "bold", width: "70%", marginLeft: "15%", textAlign: "center"}} eventKey="reviewItems" title="Review Items" disabled={this.state.reviewDisabled}>
                                         <div id="reviewItems">
                                             <div className="panel-body">
                                                 <h4>Choose your shipping method:</h4>
@@ -541,7 +541,7 @@ class CartCheckout extends Component {
 
                                                 <br/>
                                                 <h4>Products</h4>
-                                                <table className="table table-condensed">
+                                                <table style={{color: "white"}} className="table table-condensed">
                                                     <thead>
                                                     <tr>
                                                         <td><strong>Item</strong></td>
