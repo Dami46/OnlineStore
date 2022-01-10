@@ -421,7 +421,7 @@ class CartCheckout extends Component {
                                 </div>
 
                                 <Tabs style={tableHeaderStyle} activeKey={this.state.activeTab} defaultActiveKey="shippingInfo" className="mb-3" onSelect={this.changeActiveTab}>
-                                    <Tab style={tableBodyStyle} eventKey="shippingInfo" title="Shipping Info">
+                                    <Tab style={{backgroundColor: "#212121", color: "white", fontSize: "20px", fontWeight: "bold", width: "70%", marginLeft: "15%", textAlign: "center"}} eventKey="shippingInfo" title="Shipping Info">
                                         <div id="shippingInfo">
                                             <div className="panel-body">
                                                 <div className="form-group">
@@ -471,7 +471,7 @@ class CartCheckout extends Component {
                                         </div>
                                     </Tab>
 
-                                    <Tab style={tableBodyStyle} eventKey="paymentInfo" title="Payment Info" disabled={this.state.paymentDisabled}>
+                                    <Tab style={{backgroundColor: "#212121", color: "white", fontSize: "20px", fontWeight: "bold", width: "70%", marginLeft: "15%", textAlign: "center"}} eventKey="paymentInfo" title="Payment Info" disabled={this.state.paymentDisabled}>
                                         <div id="paymentInfo">
                                             <div className="panel-body">
                                                 <div className="checkbox">
@@ -525,7 +525,7 @@ class CartCheckout extends Component {
                                         </div>
                                     </Tab>
 
-                                    <Tab  style={{color: "white", fontSize: "20px", fontWeight: "bold", width: "70%", marginLeft: "15%", textAlign: "center"}} eventKey="reviewItems" title="Review Items" disabled={this.state.reviewDisabled}>
+                                    <Tab style={{backgroundColor: "#212121", color: "white", fontSize: "20px", fontWeight: "bold", width: "70%", marginLeft: "15%", textAlign: "center"}} eventKey="reviewItems" title="Review Items" disabled={this.state.reviewDisabled}>
                                         <div id="reviewItems">
                                             <div className="panel-body">
                                                 <h4>Choose your shipping method:</h4>

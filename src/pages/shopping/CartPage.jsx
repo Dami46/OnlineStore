@@ -135,41 +135,37 @@ class CartPage extends Component {
     }
 
     render() {
+
         const products = this.state.products.map((product) =>
-            <div className="row" style={{backgroundColor: "#212121", color: "#4cbde9", height: '100vh', minHeight: '100vh'}}>
-                <div method="post">
-                    <hr/>
-                    <div style={{display: "flex", flexDirection: "row"}}>
-                        <div style={{display: "inline-block"}}>
-                            <a>
-                                <img src={imageApi.getImageUrl(product.book.id)} style={{width: "65px"}} className="img-responsive shelf-book center-block"/>
-                            </a>
-                        </div>
-                        <div style={{display: "inline-block"}}>
-                            <div style={{marginLeft: "50px"}}>
-                                <a><h4>{product.book.title}</h4></a>
-                                <p style={{color: "green"}}>In Stock: {product.book.inStockNumber}</p>
-                                <p style={{color: "green"}} hidden>
-                                    Only <span></span> In
-                                    Stock
-                                </p>
-                                <p style={{color: "darkred"}} hidden>Product Unavailable</p>
-                                <button className="btn btn-primary" id={product.id} onClick={this.handleDeleteClick}>Delete</button>
-                            </div>
-                        </div>
-
-                        <div style={{display: "inline-block", marginLeft: "3%"}}>
-                            <h5 style={{color: "#db3208", fontSize: "large", textAlign: "center"}}>$<span>{product.price}</span></h5>
-                        </div>
-
-                        <div style={{display: "inline-block", marginLeft: "30%"}}>
-                            <input className="form-control cartItemQty" style={{display: "inline-block"}} id={product.id} placeholder={product.quantity} onChange={this.handleQuantityChange}/>
-                            <button style={{marginTop: "10px"}} className={"btn btn-primary " + product.id} id={product.id} onClick={this.handleUpdateClick}> Update
-                            </button>
-                        </div>
+            <tr style={{backgroundColor: "#212121", color: "#4cbde9"}}>
+                <td style={{width: "20%"}} className="text-center">
+                    <a>
+                        <img src={imageApi.getImageUrl(product.book.id)} style={{width: "65px"}} className="img-responsive shelf-book center-block"/>
+                    </a>
+                </td>
+                <td style={{width: "20%"}} className="text-center">
+                    <div>
+                        <a><h4>{product.book.title}</h4></a>
+                        <p style={{color: "green"}}>In Stock: {product.book.inStockNumber}</p>
+                        <p style={{color: "green"}} hidden>
+                            Only <span></span> In
+                            Stock
+                        </p>
+                        <p style={{color: "darkred"}} hidden>Product Unavailable</p>
+                        <button className="btn btn-primary" id={product.id} onClick={this.handleDeleteClick}>Delete</button>
                     </div>
-                </div>
-            </div>
+                </td>
+
+                <td style={{width: "20%"}} className="text-center">
+                    <h5 style={{color: "#db3208", fontSize: "large", textAlign: "center"}}>$<span>{product.price}</span></h5>
+                </td>
+
+                <td style={{width: "10%"}} className="text-center">
+                    <input style={{textAlign: "center"}} className="form-control cartItemQty" id={product.id} placeholder={product.quantity} onChange={this.handleQuantityChange}/>
+                    <button style={{marginTop: "10px"}} className={"btn btn-primary " + product.id} id={product.id} onClick={this.handleUpdateClick}> Update
+                    </button>
+                </td>
+            </tr>
         )
 
         if(this.state.continueShopping == true){
@@ -211,16 +207,19 @@ class CartPage extends Component {
                         </div>
 
                         <br/><br/>
-
-                        <div>
-                            <div style={{display: "inline-block"}}><h4>Products</h4></div>
-                            <div style={{display: "inline-block", marginLeft: "30%"}}><h4>Price</h4></div>
-                            <div style={{display: "inline-block", marginLeft: "30%"}}><h4>Quantity</h4></div>
-                        </div>
-
-                        <div>
-                            {products}
-                        </div>
+                        <table style={{color: "white"}} className="table table-condensed">
+                            <thead>
+                                <tr>
+                                    <td></td>
+                                    <td className="text-center"><h4>Products</h4></td>
+                                    <td className="text-center"><h4>Price</h4></td>
+                                    <td className="text-center"><h4>Quantity</h4></td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {products}
+                            </tbody>
+                        </table>
 
                         <div style={{marginTop: '10px'}} className="row">
                             <hr/>
