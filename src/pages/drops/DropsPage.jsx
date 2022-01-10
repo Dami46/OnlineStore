@@ -156,19 +156,19 @@ class DropsPage extends Component {
                                 wasStarted: data[i].wasStarted,
                             }),
                             authors: this.state.authors.concat({
-                                name: data[i].author,
+                                name: book.author,
                             }),
                             categorys: this.state.categorys.concat({
-                                name: data[i].category,
+                                name: book.category,
                             }),
                             languages: this.state.languages.concat({
-                                name: data[i].language,
+                                name: book.language,
                             }),
                             publishers: this.state.publishers.concat({
-                                name: data[i].publisher,
+                                name: book.publisher,
                             }),
                             titles: this.state.titles.concat({
-                                name: data[i].title,
+                                name: book.title,
                             }),
                         })
                     }
@@ -192,7 +192,7 @@ class DropsPage extends Component {
     filterDropsClick(){
         this.fetchdrops().then(() => {
             let filtereddrops = [];
-            filtereddrops = this.state.drops.filter((drop) => drop[this.state.filterOption].toLowerCase().includes(this.state.searchInput.toLowerCase()))
+            filtereddrops = this.state.drops.filter((drop) => drop.bookDetails[this.state.filterOption].toLowerCase().includes(this.state.searchInput.toLowerCase()))
             this.setState({
                 drops: filtereddrops
             })

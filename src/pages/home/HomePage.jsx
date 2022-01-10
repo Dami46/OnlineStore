@@ -28,6 +28,10 @@ class HomePage extends Component {
         this.updatePage = this.updatePage.bind(this);
         this.buyBook = this.buyBook.bind(this);
         this.addToCart = this.addToCart.bind(this);
+        this.sortAsc = this.sortAsc.bind(this);
+        this.sortDsc = this.sortDsc.bind(this);
+        this.handleSortChange = this.handleSortChange.bind(this);
+        this.sortBooks = this.sortBooks.bind(this);
 
         this.state = {
             booksLoaded: false,
@@ -50,7 +54,8 @@ class HomePage extends Component {
             buyBook: false,
             checkCart: false,
             buyBookId: '',
-            wantToBuyBook: false
+            wantToBuyBook: false,
+            sortingOption: 'title'
         }
 
         if(this.state.currentPageId == undefined){
@@ -189,7 +194,9 @@ class HomePage extends Component {
                 console.log(this.state.searchInput)
             })
         }
-        catch(err) {}
+        catch(err) {
+
+        }
     }
 
     updatePage(key){
@@ -259,6 +266,51 @@ class HomePage extends Component {
                 })
             }
             })
+        }
+    }
+
+    sortAsc(){
+        let sortedBooks;
+        sortedBooks = this.state.books.sort((a,b)=>{
+            console.log(b[this.state.sortingOption])
+            console.log(a[this.state.sortingOption])
+            return a[this.state.sortingOption]  - b[this.state.sortingOption];
+        })
+        this.setState({
+            books: sortedBooks
+        })
+        console.log(this.state.books)
+    }
+
+
+    sortDsc(){
+        let sortedBooks;
+        console.log(this.state.sortingOption)
+        console.log(this.state)
+        console.log(this.state.books[this.state.sortingOption])
+        sortedBooks = this.state.books.sort((a,b)=>{
+            console.log(b[this.state.sortingOption])
+            console.log(a[this.state.sortingOption])
+            return b[this.state.sortingOption] - a[this.state.sortingOption];
+        })
+        this.setState({
+            books: sortedBooks
+        })
+        console.log(this.state.books)
+    }
+
+    handleSortChange(event){
+        this.setState({
+            sortingOption: event.target.value
+        })
+    }
+
+    sortBooks(event){
+        if(event.target.value == 'asc'){
+            this.sortAsc()
+        }
+        else{
+            this.sortDsc()
         }
     }
 
@@ -370,6 +422,7 @@ class HomePage extends Component {
                           <Typeahead
                               style={{width: "70%", marginLeft: "2%"}}
                               id="basic-typeahead-single"
+                              labelKey="name"
                               onChange={this.searchOptionClick}
                               options={this.state.options}
                               placeholder="Search"
@@ -378,6 +431,23 @@ class HomePage extends Component {
                       </Form>
                       <br/>
                   </div>
+
+                  {/*<div style={{marginLeft: "20%", width: "60%"}}>*/}
+                  {/*    <Form className="d-flex">*/}
+                  {/*        <Form.Select style={{ width: "20%", backgroundColor: "#4c4c4c", color: "#4cbde9"}} variant="info" onChange={this.handleSortChange}>*/}
+                  {/*            <option value="title">Title</option>*/}
+                  {/*            <option value="author">Author</option>*/}
+                  {/*            <option value="category">Category</option>*/}
+                  {/*            <option value="language">Language</option>*/}
+                  {/*            <option value="publisher">Publisher</option>*/}
+                  {/*        </Form.Select>*/}
+                  {/*        <Form.Select style={{ width: "20%", backgroundColor: "#4c4c4c", color: "#4cbde9"}} variant="info" onChange={this.sortBooks}>*/}
+                  {/*            <option value="asc">Ascending</option>*/}
+                  {/*            <option value="dsc">Descending</option>*/}
+                  {/*        </Form.Select>*/}
+                  {/*    </Form>*/}
+                  {/*    <br/>*/}
+                  {/*</div>*/}
 
                   <Tabs style={{alignItems: "center", justifyContent: "center", backgroundColor: "#212121", color: "#4cbde9"}} defaultActiveKey="1" className="mb-3" onSelect={this.updatePage}>
                       {pages}

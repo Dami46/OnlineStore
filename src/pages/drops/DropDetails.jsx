@@ -166,7 +166,7 @@ class DropDetails extends Component {
         }
 
         return (
-            <div style={{backgroundColor: "#212121", color: "#4cbde9"}}>
+            <div style={{backgroundColor: "#212121", color: "#4cbde9", height: '100vh', minHeight: '100vh'}}>
                 <div>
                     <NavbarTemplate/>
                     <br/>
@@ -176,37 +176,34 @@ class DropDetails extends Component {
                     <br/>
                 </div>
 
-                <div>
+                <div style={{backgroundColor: "#212121", color: "#4cbde9"}}>
                     <form method="post" style={{marginLeft: "10%"}}>
                         <div className="row" style={{marginTop: "20px"}}>
-                            <div style={{display: 'inline-block'}} className="col-xs-3">
-                                <img src={this.state.bookDetails.bookImage}
-                                     style={{width: '270px', height: '350px', marginLeft: '35%'}}
-                                     className="img-responsive shelf-book"/>
-                                     <div style={{display: "inline-block"}}>
-                                         <strong style={{color: "#f2575b", width: "300px", marginLeft: "20px", display: "block"}}>
-                                             {this.state.wasRolled == true ? "Status: Finished" : this.state.wasStarted == true ? 'Status: Started!' : 'Time left: ' + timeLeft(this.state.signingDate, this.state.currentTime)}
-                                         </strong>
-                                         <br/>
-                                         <Button disabled={this.state.wasStarted == true && this.state.wasRolled == false ? false : true} variant={"success"} className="btn" name="signUp" hidden={this.state.userInDrop} onClick={this.signUpOff}
-                                                 style={{
-                                                     marginLeft: "20px",
-                                                     border: "1px solid",
-                                                     padding: "10px 40px 10px 40px"
-                                                 }}
-                                         >Sign Up</Button>
-                                         <Button disabled={this.state.wasStarted == true && this.state.wasRolled == false ? false : true} variant={"danger"} className="btn" name="signOff" hidden={!this.state.userInDrop} onClick={this.signUpOff}
-                                                 style={{
-                                                     marginLeft: '20px',
-                                                     border: "1px solid",
-                                                     padding: "10px 40px 10px 40px"
-                                                 }}
-                                         >Sign Off</Button>
-                                     </div>
-
+                            <div>
+                                <img src={this.state.bookDetails.bookImage} style={{width: '270px', height: '350px'}} className="img-responsive shelf-book"/>
+                                 <br/><br/>
+                                <Button disabled={this.state.wasStarted == true && this.state.wasRolled == false ? false : true} variant={"success"} className="btn" name="signUp" hidden={this.state.userInDrop} onClick={this.signUpOff}
+                                        style={{
+                                            border: "1px solid",
+                                            padding: "10px 40px 10px 40px",
+                                            marginLeft: "60px"
+                                        }}
+                                >Sign Up</Button>
+                                <Button disabled={this.state.wasStarted == true && this.state.wasRolled == false ? false : true} variant={"danger"} className="btn" name="signOff" hidden={!this.state.userInDrop} onClick={this.signUpOff}
+                                        style={{
+                                            border: "1px solid",
+                                            padding: "10px 40px 10px 40px",
+                                            marginLeft: "60px"
+                                        }}
+                                >Sign Off</Button>
+                                <br/><br/>
+                                 <strong style={{color: "#f2575b", width: "400px", display: "block", textAlign: "center"}}>
+                                     {this.state.wasRolled == true ? "Status: Finished" : this.state.wasStarted == true ? 'Status: Started!' : 'Time left: ' + timeLeft(this.state.signingDate, this.state.currentTime)}
+                                 </strong>
+                                 <br/>
                             </div>
 
-                            <div style={{display: 'inline-block'}} className="col-xs-9">
+                            <div style={{display: 'inline-block', backgroundColor: "#212121", color: "#4cbde9"}}>
                                 <h3><span style={{color: "forestgreen"}} hidden><i className="fa fa-check"
                                                                                    aria-hidden="true"
                                                                                    style={{color: "forestgreen"}}></i>Added to cart.</span>
@@ -216,7 +213,7 @@ class DropDetails extends Component {
                                 </h3>
                                 <h3>{this.state.bookDetails.title}</h3>
                                 <div className="row">
-                                    <div className="col-xs-5">
+                                    <div>
                                         <h5><strong>Author: </strong> <span>{this.state.bookDetails.author}</span></h5>
                                         <p><strong>Publisher: </strong> <span>{this.state.bookDetails.publisher}</span></p>
                                         <p><strong>Publication Date: </strong> <span>{this.state.bookDetails.publicationDate}</span>
@@ -224,7 +221,7 @@ class DropDetails extends Component {
                                         <p><strong>Language: </strong> <span>{this.state.bookDetails.language}</span></p>
                                         <p><strong>Category: </strong> <span>{this.state.bookDetails.category}</span></p>
                                         <p><strong>Number of pages: </strong><span>{this.state.bookDetails.numberOfPages}</span></p>
-                                        <p style={{width: '60%'}}><strong>Description: </strong>{this.state.bookDetails.description}
+                                        <p style={{width: '80%'}}><strong>Description: </strong>{this.state.bookDetails.description}
                                         </p>
                                     </div>
                                 </div>

@@ -193,6 +193,13 @@ class BooksPage extends Component {
                                         padding: "10px 40px 10px 40px"
                                     }} onClick={this.buyBook}
                                     >Buy book</button>
+                                    <br/>
+                                    <div style={{marginLeft: '40px'}}>
+                                        <span>Quantity: </span>
+                                        <select onChange={this.changeQuantity} name="qty">
+                                            {quantity}
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
 
@@ -220,10 +227,6 @@ class BooksPage extends Component {
                                                         <p>Before Price: <span style={{textDecoration: "line-through"}}>$<span>{this.state.listPrice}</span></span></p>
                                                         <p>You save: $<span>{Math.floor((this.state.listPrice - this.state.ourPrice) * 100) / 100}</span>
                                                         </p>
-                                                        <span>Quantity: </span>
-                                                        <select onChange={this.changeQuantity} name="qty">
-                                                            {quantity}
-                                                        </select>
                                                         <br/> <br/>
                                                     </div>
                                                 </div>

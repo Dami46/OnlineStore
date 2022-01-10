@@ -15,7 +15,8 @@ class OrderSubmittedPage extends Component {
             bookImage: imageApi.getImageUrl(cookies.get('checkout').bookId),
             bookTitle: cookies.get('checkout').bookTitle,
             bookAuthor: cookies.get('checkout').bookAuthor,
-            bookPrice: cookies.get('checkout').price
+            bookPrice: cookies.get('checkout').price,
+            bookTotal: cookies.get('checkout').price + (cookies.get('checkout').shippingOption == "premiumShipping" ? 10 : 5)
         }
     }
 
@@ -49,7 +50,7 @@ class OrderSubmittedPage extends Component {
                             </h3>
 
                             <h3 style={{color: "red"}}>
-                                Total: ${this.state.bookPrice}
+                                Total: ${this.state.bookTotal}
                             </h3>
                             <input hidden="hidden"/>
                         </div>
@@ -79,7 +80,7 @@ class OrderSubmittedPage extends Component {
 
                             <div>
                                 <h5 style={{color: "#db3208", fontSize: "large"}}>
-                                    Price: $<span>{this.state.bookPrice}</span>
+                                    Price: $<span>{this.state.bookTotal}</span>
                                 </h5>
                             </div>
                         </div>
