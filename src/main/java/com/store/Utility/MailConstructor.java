@@ -51,7 +51,7 @@ public class MailConstructor {
                 email.setTo(user.getEmail());
                 email.setSubject("Order Confirmation - " + order.getId());
                 email.setText(text, true);
-                email.setFrom(new InternetAddress("dam1999.du@gmail.com"));
+                email.setFrom(Objects.requireNonNull(env.getProperty("support.email")));
             }
         };
         return messagePreparator;

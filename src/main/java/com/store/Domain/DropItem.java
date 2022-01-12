@@ -16,8 +16,8 @@ public class DropItem {
     private String rollDate;
     private String signingDate;
     private Long bookId;
-    private boolean wasStarted=false;
-    private boolean wasRolled=false;
+    private boolean wasStarted = false;
+    private boolean wasRolled = false;
 
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "dropItem")
     private Book book;
