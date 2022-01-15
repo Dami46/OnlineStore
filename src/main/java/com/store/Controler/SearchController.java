@@ -26,13 +26,7 @@ public class SearchController {
     private BookService bookService;
 
     @RequestMapping("/searchByCategory")
-    public ResponseEntity<Model> searchByCategory(@RequestParam("category") String category, Model model, Principal principal) {
-
-        if (principal != null) {
-            String username = principal.getName();
-            User user = userService.findByUsername(username);
-            model.addAttribute("user", user);
-        }
+    public ResponseEntity<Model> searchByCategory(@RequestParam("category") String category, Model model) {
 
         String classActiveCategory = "active" + category;
         classActiveCategory = classActiveCategory.replaceAll("\\s+", "");

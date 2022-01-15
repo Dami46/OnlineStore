@@ -320,9 +320,7 @@ public class HomeController {
 
         model.addAttribute("updateSuccess", true);
         model.addAttribute("user", currentUser);
-        model.addAttribute("classActiveEdit", true);
         model.addAttribute("orderList", currentUser.getOrderList());
-        model.addAttribute("listOfShippingAddresses", true);
 
         UserDetails userDetails = userSecurityService.loadUserByUsername(currentUser.getUsername());
 
@@ -342,35 +340,18 @@ public class HomeController {
 
 
     @RequestMapping("/bookshelf")
-    public ResponseEntity<Model> bookshelf(Model model, Principal principal) {
-        if (principal != null) {
-            String username = principal.getName();
-            User user = userService.findByUsername(username);
-            model.addAttribute("user", user);
-        }
-
+    public ResponseEntity<Model> bookshelf(Model model) {
         List<Book> bookList = bookService.findAll();
         model.addAttribute("bookList", bookList);
-        model.addAttribute("activeAll", true);
 
         return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
     @RequestMapping("/bookDetail")
-    public ResponseEntity<Model> bookDetail(@PathParam("id") Long id, Model model, Principal principal) {
+    public ResponseEntity<Model> bookDetail(@PathParam("id") Long id, Model model) {
 
-        if (principal != null) {
-            String username = principal.getName();
-            User user = userService.findByUsername(username);
-            model.addAttribute("user", user);
-
-        }
         Book book = bookService.findById(id).orElse(null);
         model.addAttribute("book", book);
-        List<Integer> qtyList = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
-
-        model.addAttribute("qtyList", qtyList);
-        model.addAttribute("qty", 1);
 
         return new ResponseEntity<>(model, HttpStatus.OK);
     }
@@ -385,7 +366,6 @@ public class HomeController {
 
         RegistrationDto registrationDto = objectMapper.readValue(requestBody, RegistrationDto.class);
 
-        model.addAttribute("classActiveNewAccount", true);
         model.addAttribute("email", registrationDto.getEmail());
         model.addAttribute("username", registrationDto.getUsername());
 
@@ -433,7 +413,7 @@ public class HomeController {
     }
 
     @RequestMapping("/newAccount")
-    public ResponseEntity<Model> newAccount(Locale locale, @RequestParam("token") String token, Model model) {
+    public ResponseEntity<Model> newAccount(@RequestParam("token") String token, Model model) {
         PasswordResetToken passToken = userService.getPasswordResetToken(token);
 
         if (passToken == null) {
