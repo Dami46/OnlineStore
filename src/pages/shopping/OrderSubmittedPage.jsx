@@ -3,6 +3,7 @@ import {NavbarTemplate} from "../navbar/NavbarTemplate";
 import axios from "axios";
 import Cookies from 'universal-cookie';
 import * as imageApi from "../../services/ImageApi";
+import {Footer} from "../contact/Footer";
 
 const cookies = new Cookies();
 
@@ -86,6 +87,7 @@ class OrderSubmittedPage extends Component {
                         </div>
                     </div>
                 </div>
+                <Footer/>
             </div>
         )
     }

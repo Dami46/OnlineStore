@@ -10,6 +10,7 @@ import {Component, useState, useEffect} from 'react';
 import EllipsisText from "react-ellipsis-text";
 import Cookies from 'universal-cookie';
 import {min} from "rxjs/operators";
+import {Footer} from "../contact/Footer";
 
 const cookies = new Cookies();
 
@@ -278,7 +279,7 @@ class DropsPage extends Component {
 
     render() {
         const drops = this.state.drops.map((drop) =>
-            <Card style={{marginLeft: "5%", marginBottom: "40px", height: '500px', width: '20%', display: "inline-block", backgroundColor: "#4c4c4c"}} id={drop.id}>
+            <Card style={{marginLeft: "5%", marginBottom: "40px", height: '10%', width: '20%', display: "inline-block", backgroundColor: "#4c4c4c"}} id={drop.id}>
                 <Card.Body>
                     <Card.Img style={{width: "60%", height: "300px", cursor: "pointer"}} onClick={this.handleDropClick} id={drop.id} variant="top" src={drop.bookDetails.bookImage} onError={({ currentTarget }) => {
                         currentTarget.onerror = null;
@@ -373,9 +374,7 @@ class DropsPage extends Component {
                         <Row style={{textAlign: "center", alignItems: "center", backgroundColor: "#212121"}} xs={5}>
                             {drops}
                         </Row>
-                        <div style={{backgroundColor: "#212121"}}>
-                            <div style={{textAlign: "center", color: "#e8e8e8"}}><a href="/contact">Privacy policy</a></div>
-                        </div>
+                        <Footer/>
                     </div>
                 </div>
             </div>

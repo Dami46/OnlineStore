@@ -6,6 +6,7 @@ import axios from "axios";
 import Cookies from 'universal-cookie';
 import * as imageApi from "../../services/ImageApi";
 import {Navigate} from "react-router-dom";
+import {Footer} from "../contact/Footer";
 
 const cookies = new Cookies();
 
@@ -566,9 +567,9 @@ class Checkout extends Component {
                                 </div>
                             </div>
                         </div>
-
                     </div>
                 </div>
+                <Footer/>
             </div>
         )
     }

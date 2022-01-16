@@ -4,6 +4,7 @@ import {getImageUrl} from "../../services/ImageApi";
 import * as imageApi from "../../services/ImageApi";
 import axios from "axios";
 import {Navigate} from "react-router-dom";
+import {Footer} from "../contact/Footer";
 
 const cookies = new Cookies();
 
@@ -228,9 +229,9 @@ class CartPage extends Component {
                                 </strong> <span style={{color: "#db3208", fontSize: "large"}}>$<span>{this.state.totalPrice}</span></span>
                             </h4>
                         </div>
-
                     </div>
                 </div>
+                <Footer/>
             </div>
         );
     }

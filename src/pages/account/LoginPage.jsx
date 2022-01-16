@@ -8,6 +8,7 @@ import {useNavigate, Navigate} from 'react-router-dom';
 import {PATH} from "../../services/ConfigurationUrlAService";
 import Globals from "../../Globals";
 import Cookies from 'universal-cookie';
+import {Footer} from "../contact/Footer";
 
 const cookies = new Cookies();
 
@@ -268,6 +269,7 @@ class LoginPage extends Component {
                         </div>
                     </Tab>
                 </Tabs>
+                <Footer/>
             </div>
         );
     }

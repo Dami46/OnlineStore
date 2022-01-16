@@ -2,6 +2,7 @@ import {Component} from 'react';
 import {NavbarTemplate} from "../navbar/NavbarTemplate";
 import axios from "axios";
 import Cookies from 'universal-cookie';
+import {Footer} from "../contact/Footer";
 
 const cookies = new Cookies();
 
@@ -136,6 +137,7 @@ class BalancePage extends Component {
                         </div>
                     </div>
                 </div>
+                <Footer/>
             </div>
         );
     }

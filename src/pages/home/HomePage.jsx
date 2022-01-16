@@ -317,7 +317,7 @@ class HomePage extends Component {
 
     render() {
         const books = this.state.books.map((book) =>
-            <Card style={{marginLeft: "5%", marginBottom: "40px", height: '500px', width: '20%', display: "inline-block", color: "white", backgroundColor: "#4c4c4c"}} id={book.id}>
+            <Card style={{marginLeft: "5%", marginBottom: "40px", height: '10%', width: '20%', display: "inline-block", color: "white", backgroundColor: "#4c4c4c"}} id={book.id}>
                 <Card.Body>
                     <Card.Img style={{width: "60%", height: "300px", cursor: "pointer"}} variant="top" src={book.bookImage} id={book.id} onClick={this.handleBookClick} onError={({ currentTarget }) => {
                         currentTarget.onerror = null;

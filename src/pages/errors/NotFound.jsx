@@ -1,6 +1,7 @@
 import {Component} from 'react';
 import {Link} from "react-router-dom";
 import {NavbarTemplate} from '../navbar/NavbarTemplate';
+import {Footer} from "../contact/Footer";
 
 class NotFound extends Component {
 
@@ -31,6 +32,7 @@ class NotFound extends Component {
                         </div>
                     </div>
                 </div>
+                <Footer/>
             </div>
         );
     }
