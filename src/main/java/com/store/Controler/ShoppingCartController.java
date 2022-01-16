@@ -232,7 +232,7 @@ public class ShoppingCartController {
         shoppingCartService.clearShoppingCart(shoppingCart);
 
 
-        mailSender.send(mailConstructor.constructOrderConfirmationEmail(user, order, Locale.ENGLISH));
+        mailSender.send(mailConstructor.constructOrderConfirmationEmail(user, order));
 
         model.addAttribute("estimatedDeliveryDate", order.getShippingDate());
 

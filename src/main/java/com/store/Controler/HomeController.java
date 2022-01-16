@@ -401,10 +401,9 @@ public class HomeController {
         String token = UUID.randomUUID().toString();
         userService.createPasswordResetTokenForUser(user, token);
 
-        String appUrl = "http://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
+        String appUrl = "https://dropki.azurewebsites.net/api";
 
-        SimpleMailMessage email = mailConstructor.constructResetTokenEmail(appUrl, request.getLocale(), token, user, password);
-        mailSender.send(email);
+        mailSender.send(mailConstructor.constructResetTokenEmail(appUrl, "New account created", token, user, password));
 
         model.addAttribute("emailSent", "true");
         model.addAttribute("orderList", user.getOrderList());
@@ -464,9 +463,8 @@ public class HomeController {
         String token = UUID.randomUUID().toString();
         userService.createPasswordResetTokenForUser(user, token);
 
-        String appUrl = "http://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
-        SimpleMailMessage newEmail = mailConstructor.constructResetTokenEmail(appUrl, request.getLocale(), token, user, password);
-        mailSender.send(newEmail);
+        String appUrl = "https://dropki.azurewebsites.net/api";
+        mailSender.send(mailConstructor.constructResetTokenEmail(appUrl, "New account created", token, user, password));
 
         model.addAttribute("forgetPasswordEmailSent", "true");
         return new ResponseEntity<>(model, HttpStatus.OK);

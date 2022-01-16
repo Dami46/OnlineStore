@@ -162,7 +162,7 @@ public class CheckoutController {
         Objects.requireNonNull(book).setInStockNumber(book.getInStockNumber() - 1);
         Order order = orderService.createOrder(book, shippingAddress, billingAddress, checkoutDto.getShippingMethod(), user);
 
-        mailSender.send(mailConstructor.constructOrderConfirmationEmail(user, order, Locale.ENGLISH));
+        mailSender.send(mailConstructor.constructOrderConfirmationEmail(user, order, book));
 
         double shippingPrice = 5.00;
         if (Objects.equals(checkoutDto.getShippingMethod(), "premiumShipping")) {
