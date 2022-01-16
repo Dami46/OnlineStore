@@ -76,7 +76,8 @@ class BooksPage extends Component {
                     publisher: data.publisher,
                     title: data.title
                 })
-                for(let i = 0; i <= data.inStockNumber; i++){
+                for(let i = 0; i <= (data.inStockNumber >= 9 ? 9 : data.inStockNumber); i++){
+
                     this.setState({
                         quantity: this.state.quantity.concat(i)
                     })

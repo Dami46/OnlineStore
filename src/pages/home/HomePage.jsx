@@ -11,6 +11,7 @@ import {Tab} from "bootstrap";
 import {Navigate} from 'react-router-dom';
 import Cookies from 'universal-cookie';
 import EllipsisText from "react-ellipsis-text";
+import {Footer} from "../contact/Footer";
 
 const cookies = new Cookies();
 
@@ -316,9 +317,9 @@ class HomePage extends Component {
 
     render() {
         const books = this.state.books.map((book) =>
-            <Card style={{marginLeft: "4%", marginBottom: "40px", height: '600px', width: '400px', display: "inline-block", color: "white", backgroundColor: "#4c4c4c"}} id={book.id}>
+            <Card style={{marginLeft: "5%", marginBottom: "40px", height: '500px', width: '20%', display: "inline-block", color: "white", backgroundColor: "#4c4c4c"}} id={book.id}>
                 <Card.Body>
-                    <Card.Img style={{width: "200px", height: "300px", cursor: "pointer"}} variant="top" src={book.bookImage} id={book.id} onClick={this.handleBookClick} onError={({ currentTarget }) => {
+                    <Card.Img style={{width: "60%", height: "300px", cursor: "pointer"}} variant="top" src={book.bookImage} id={book.id} onClick={this.handleBookClick} onError={({ currentTarget }) => {
                         currentTarget.onerror = null;
                         currentTarget.src=imageApi.getImageUrl("0");
                     }}/>
@@ -336,7 +337,7 @@ class HomePage extends Component {
                         <div>
                             <strong style={{textDecoration: 'line-through', color: "#f2575b", display: 'inline-block'}}>${book.listPrice}</strong> <p style={{display: 'inline-block'}}>${book.ourPrice}</p>
                         </div>
-                        <EllipsisText style={{cursor: "pointer"}} text={book.description} id={book.id} onClick={this.handleBookClick} length={"130"} />
+                        {/*<EllipsisText style={{cursor: "pointer"}} text={book.description} id={book.id} onClick={this.handleBookClick} length={"130"} />*/}
                     </Card.Text>
                     <div hidden={book.inStockNumber > 0}>
                         <strong style={{color: "#f2575b", display: 'inline-block'}}>No books in stock!</strong>
@@ -457,9 +458,7 @@ class HomePage extends Component {
                       <Row style={{textAlign: "center", alignItems: "center", backgroundColor: "#212121"}} xs={5}>
                           {books}
                       </Row>
-                      <div style={{backgroundColor: "#212121"}}>
-                          <div style={{textAlign: "center", color: "#e8e8e8"}}><a href="/contact">Privacy policy</a></div>
-                      </div>
+                      <Footer/>
                   </div>
               </div>
           </div>

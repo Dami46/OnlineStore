@@ -17,6 +17,12 @@ class NavbarTemplate extends Component {
         await cookies.remove('isLogged',  { path: '/' })
         .then(async () =>  {
             await cookies.remove('token',  { path: '/' });
+            await cookies.remove('buyBook', { path: '/' });
+            await cookies.remove('buyBook', { path: '/' });
+            await cookies.remove('addToCart', { path: '/' });
+            await cookies.remove('checkout', { path: '/' });
+            await cookies.remove('cartCheckout', { path: '/' });
+            await cookies.remove('cartCheckoutSubmit', { path: '/' });
         })
         .then(async () =>  {
             await cookies.set('isLogged', false, { path: '/' });

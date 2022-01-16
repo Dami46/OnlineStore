@@ -278,9 +278,9 @@ class DropsPage extends Component {
 
     render() {
         const drops = this.state.drops.map((drop) =>
-            <Card style={{marginLeft: "4%", marginBottom: "40px", height: '600px', width: '20%', display: "inline-block", backgroundColor: "#4c4c4c"}} id={drop.id}>
+            <Card style={{marginLeft: "5%", marginBottom: "40px", height: '500px', width: '20%', display: "inline-block", backgroundColor: "#4c4c4c"}} id={drop.id}>
                 <Card.Body>
-                    <Card.Img style={{cursor: "pointer"}} onClick={this.handleDropClick} id={drop.id} width="200" height="300" variant="top" src={drop.bookDetails.bookImage} onError={({ currentTarget }) => {
+                    <Card.Img style={{width: "60%", height: "300px", cursor: "pointer"}} onClick={this.handleDropClick} id={drop.id} variant="top" src={drop.bookDetails.bookImage} onError={({ currentTarget }) => {
                         currentTarget.onerror = null;
                         currentTarget.src=imageApi.getImageUrl("0");
                     }}/>
@@ -298,7 +298,7 @@ class DropsPage extends Component {
                         <div>
                             <strong style={{textDecoration: 'line-through', color: "#f2575b", display: 'inline-block'}}>${drop.bookDetails.listPrice}</strong> <p style={{display: 'inline-block'}}>${drop.bookDetails.ourPrice}</p>
                         </div>
-                        <EllipsisText style={{cursor: "pointer"}} text={drop.bookDetails.description} id={drop.id} onClick={this.handleDropClick} length={"130"} />
+                        {/*<EllipsisText style={{cursor: "pointer"}} text={drop.bookDetails.description} id={drop.id} onClick={this.handleDropClick} length={"130"} />*/}
                         <br/>
                         <strong style={{color: "#f2575b", width: "300px"}}>
                             {drop.wasRolled == true ? "Finished" : drop.wasStarted == true ? 'Started!' : timeLeft(drop.signingDate, this.state.currentTime)}
