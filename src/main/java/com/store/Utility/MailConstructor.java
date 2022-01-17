@@ -24,7 +24,7 @@ public class MailConstructor {
     @Autowired
     private TemplateEngine templateEngine;
 
-    public MimeMessagePreparator constructResetTokenEmail(String contextPath, String title, String token, User user, String password) {
+    public MimeMessagePreparator constructResetTokenEmail(String contextPath, boolean isNewAccount, String token, User user, String password) {
         String url = contextPath + "/newAccount?token=" + token;
 
         Context context = new Context();
@@ -32,6 +32,7 @@ public class MailConstructor {
         context.setVariable("password", password);
         context.setVariable("token", token);
         context.setVariable("url", url);
+        context.setVariable("isNewAccount", isNewAccount);
 
         String text = templateEngine.process("constructRequestTokenEmailTemplate", context);
 

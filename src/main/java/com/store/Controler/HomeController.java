@@ -403,7 +403,7 @@ public class HomeController {
 
         String appUrl = "https://dropki.azurewebsites.net/api";
 
-        mailSender.send(mailConstructor.constructResetTokenEmail(appUrl, "New account created", token, user, password));
+        mailSender.send(mailConstructor.constructResetTokenEmail(appUrl, true, token, user, password));
 
         model.addAttribute("emailSent", "true");
         model.addAttribute("orderList", user.getOrderList());
@@ -464,7 +464,7 @@ public class HomeController {
         userService.createPasswordResetTokenForUser(user, token);
 
         String appUrl = "https://dropki.azurewebsites.net/api";
-        mailSender.send(mailConstructor.constructResetTokenEmail(appUrl, "New account created", token, user, password));
+        mailSender.send(mailConstructor.constructResetTokenEmail(appUrl, false, token, user, password));
 
         model.addAttribute("forgetPasswordEmailSent", "true");
         return new ResponseEntity<>(model, HttpStatus.OK);

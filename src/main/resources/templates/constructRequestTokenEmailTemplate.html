@@ -1,5 +1,5 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional //EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns:th="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<html xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
   <!--[if gte mso 9]>
   <xml>
@@ -177,7 +177,12 @@
                     <td style="overflow-wrap:break-word;word-break:break-word;padding:0px 10px;font-family:'Montserrat',sans-serif;" align="left">
 
                       <h1 style="margin: 0px; color: #264653; line-height: 140%; text-align: center; word-wrap: break-word; font-weight: normal; font-family: arial,helvetica,sans-serif; font-size: 38px;">
-                        <strong>Warmly welcome!</strong>
+                        <div th:if="${isNewAccount}">
+                          <strong>Warmly welcome!</strong>
+                        </div>
+                        <div th:unless="${isNewAccount}">
+                          <strong>Your new password!</strong>
+                        </div>
                       </h1>
 
                     </td>
@@ -240,13 +245,19 @@
                     <td style="overflow-wrap:break-word;word-break:break-word;padding:10px 30px;font-family:'Montserrat',sans-serif;" align="left">
 
                       <div style="color: #264653; line-height: 160%; text-align: left; word-wrap: break-word;">
-                        <p style="font-size: 14px; line-height: 160%;"><span style="font-family: Lato, sans-serif; font-size: 14px; line-height: 22.4px; color: #264653;">We are happy to welcome you as our new user. Here is your temporary password  <strong><span th:text="${password}"></span> </strong></span></p>
+                        <div th:if="${isNewAccount}">
+                          <p style="font-size: 14px; line-height: 160%;"><span style="font-family: Lato, sans-serif; font-size: 14px; line-height: 22.4px; color: #264653;">We are happy to welcome you as our new user. Here is your temporary password  <strong><span th:text="${password}"></span> </strong></span></p>
+                        </div>
+                        <div th:unless="${isNewAccount}">
+                          <p style="font-size: 14px; line-height: 160%;"><span style="font-family: Lato, sans-serif; font-size: 14px; line-height: 22.4px; color: #264653;">You have successfully changed your account password. Here is your temporary password  <strong><span th:text="${password}"></span> </strong></span></p>
+                        </div>
                         </br>
                         <p style="font-size: 14px; line-height: 160%;"><span style="font-family: Lato, sans-serif; font-size: 14px; line-height: 22.4px; color: #264653;"> We recommend changing this password as far as you come to our side. Here you have link to do it.  </span></p>
                         </br>
                         <p style="font-size: 14px; line-height: 160%;"><span style="font-family: Lato, sans-serif; font-size: 14px; line-height: 22.4px; color: #264653;"><span th:text="${url}"></span> </span></p>
+                        </br>
+                        <p style="font-size: 14px; line-height: 160%;"><span style="font-family: Lato, sans-serif; font-size: 14px; line-height: 22.4px; color: #264653;"> If you do not wish to change your password or the request to change it was not sent by you, please ignore and delete this message..  </span></p>
                       </div>
-
                     </td>
                   </tr>
                   </tbody>
@@ -289,8 +300,6 @@
           </div>
         </div>
       </div>
-
-
 
       <div class="u-row-container" style="padding: 0px;background-color: transparent">
         <div class="u-row" style="Margin: 0 auto;min-width: 320px;max-width: 600px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: #264653;">
