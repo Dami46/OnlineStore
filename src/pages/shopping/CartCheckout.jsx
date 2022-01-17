@@ -364,7 +364,7 @@ class CartCheckout extends Component {
                 })
                 cookies.set('cartCheckoutSubmit', {
                     "products": this.state.products,
-                    "price": this.state.totalPrice
+                    "price": this.state.totalPrice + (this.state.shippingOption == "premiumShipping" ? 10 : 5)
                 }, { path: '/' })
             }
         })

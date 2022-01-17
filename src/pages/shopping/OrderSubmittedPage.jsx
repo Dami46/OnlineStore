@@ -60,7 +60,6 @@ class OrderSubmittedPage extends Component {
                         <div className="row">
                             <hr/>
                             <div>
-
                                 <a> <img src={this.state.bookImage}
                                     className="img-responsive shelf-book"
                                     style={{width: "70px"}}/>

@@ -19,37 +19,42 @@ class CartOrderSubmittedPage extends Component {
 
     render() {
         const products = this.state.products.map((product) =>
-            <div className="row" style={{backgroundColor: "#212121", color: "#4cbde9", height: '100%', minHeight: '100vh'}}>
-                <hr/>
-                <div style={{display: "inline-block"}}>
-                    <a> <img src={imageApi.getImageUrl(product.image)}
-                             className="img-responsive shelf-book"
-                             style={{width: "70px"}}/>
-                    </a>
-                </div>
-                <div style={{display: "inline-block"}}>
-                    <div>
-                        <a>
+            <tr>
+                <td style={{textAlign: "center", cursor: "pointer"}}>
+                    <img style={{width: "60px", height: '80px', display: 'inline-block', marginBottom: '5%'}} src={imageApi.getImageUrl(product.image)} id={product.id} onClick={this.chooseBook}/>
+                    <div style={{display: 'inline-block', marginLeft: '10px'}}>
+                        <p id={product.bookId} onClick={this.chooseBook}>
+                            {product.title}
                             <br/>
-                            <h4>Title: {product.title}</h4>
-                            <h4>Author: {product.author}</h4>
-                            <h4>Quantity: {product.quantity}</h4>
-                            <h4>Price: ${product.price}</h4>
-                            <br/>
-                        </a>
+                            {product.author}
+                        </p>
                     </div>
-                </div>
-
-                <div>
-                    <h5 style={{color: "#db3208", fontSize: "large"}}>
-                        Subtotal: $<span>{product.subtotal}</span>
-                    </h5>
-                </div>
-            </div>
+                </td>
+                <td style={{textAlign: "center"}}>${product.price}</td>
+                <td style={{textAlign: "center"}}>{product.quantity}</td>
+                <td style={{textAlign: "center"}}>${product.subtotal}</td>
+            </tr>
+            // <div className="row" style={{backgroundColor: "#212121", color: "#4cbde9"}}>
+            //     <div style={{display: "inline-block", marginTop: '50px'}}>
+            //         <img src={imageApi.getImageUrl(product.image)}
+            //                  className="img-responsive shelf-book"
+            //                  style={{width: "70px"}}/>
+            //         <p>Title: {product.title}</p>
+            //         <p>Author: {product.author}</p>
+            //         <p>Quantity: {product.quantity}</p>
+            //         <p>Price: ${product.price}</p>
+            //     </div>
+            //
+            //     <div>
+            //         <h5 style={{color: "#db3208", fontSize: "large"}}>
+            //             Subtotal: $<span>{product.subtotal}</span>
+            //         </h5>
+            //     </div>
+            // </div>
         )
 
         return(
-            <div>
+            <div style={{backgroundColor: "#212121", color: "#4cbde9", height: "100vh"}}>
                 <div>
                     <NavbarTemplate/>
                     <br/>
@@ -82,9 +87,20 @@ class CartOrderSubmittedPage extends Component {
 
                             <input hidden="hidden"/>
                         </div>
-
-                        <h3>Item</h3>
-                        {products}
+                        <table style={{color: "#4cbde9", marginLeft: "20%", width: "60%"}} className="table table-condensed">
+                            <thead>
+                            <tr>
+                                <td><strong>Item</strong></td>
+                                <td className="text-center"><strong>Item Price</strong></td>
+                                <td className="text-center"><strong>Item Quantity</strong></td>
+                                <td className="text-right">
+                                    <strong>Subtotal</strong></td>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                {products}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
                 <Footer/>
