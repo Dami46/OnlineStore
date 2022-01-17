@@ -122,6 +122,7 @@ public class ShoppingCartController {
         }
 
         cartItemService.removeCartItem(cartItemService.findById(cartItemDto.getCartItemId()));
+        shoppingCartService.updateShoppingCart(user.getShoppingCart());
         model.addAttribute("deleteSuccessFull", true);
         model.addAttribute("user", user);
 
