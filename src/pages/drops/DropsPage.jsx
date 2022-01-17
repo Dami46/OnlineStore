@@ -408,7 +408,7 @@ class DropsPage extends Component {
                         currentTarget.onerror = null;
                         currentTarget.src=imageApi.getImageUrl("0");
                     }}/>
-                    <Card.Title style={{color: "#4cbde9"}}>
+                    <Card.Title style={{color: "#4cbde9"}} id={drop.id} onClick={this.handleDropClick}>
                         {drop.dropTitle}
                     </Card.Title>
                     <Card.Subtitle style={{color: "#4cbde9"}}>

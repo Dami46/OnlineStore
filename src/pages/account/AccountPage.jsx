@@ -965,7 +965,7 @@ class AccountPage extends Component {
                                                         </div>
                                                     </Tab>
 
-                                                    <Tab style={tableBodyStyle} id="edit" eventKey="edit" title="Edit" onSelect={this.editSelected}>
+                                                    <Tab style={tableBodyStyle} id="edit" eventKey="edit" title="Edit/Add" onSelect={this.editSelected}>
                                                         <div>
                                                             <form method="post">
                                                                 <div className="bg-info" hidden>

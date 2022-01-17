@@ -5,14 +5,12 @@ import {NavbarTemplate} from "../navbar/NavbarTemplate";
 import * as imageApi from "../../services/ImageApi";
 import {Row, Card, Carousel, Form, FormControl, Button, FormSelect, Tabs} from "react-bootstrap";
 import {PATH} from "../../services/ConfigurationUrlAService";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {Typeahead} from 'react-bootstrap-typeahead';
 import {Tab} from "bootstrap";
 import {Navigate} from 'react-router-dom';
 import Cookies from 'universal-cookie';
 import EllipsisText from "react-ellipsis-text";
 import {Footer} from "../contact/Footer";
-import AdSense from 'react-adsense';
 
 const cookies = new Cookies();
 
@@ -403,7 +401,7 @@ class HomePage extends Component {
                         currentTarget.onerror = null;
                         currentTarget.src=imageApi.getImageUrl("0");
                     }}/>
-                    <Card.Title style={{color: "#4cbde9"}}>
+                    <Card.Title style={{color: "#4cbde9"}} id={book.id} onClick={this.handleBookClick}>
                         {book.title}
                     </Card.Title>
                     <Card.Subtitle style={{color: "#4cbde9"}}>
@@ -480,7 +478,7 @@ class HomePage extends Component {
         }
 
         return (
-          <div style={{backgroundColor: "#212121", height: '100%'}}>
+          <div style={{backgroundColor: "#212121"}}>
               <div>
                   <NavbarTemplate/>
                   <br/>
@@ -552,12 +550,12 @@ class HomePage extends Component {
                       <Row style={{textAlign: "center", alignItems: "center", backgroundColor: "#212121"}} xs={5}>
                           {books.length > 0 ? books : (<p style={{textAlign: "center", color: "#4cbde9"}}>No Books in Store</p>)}
                       </Row>
-                      <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3646578755215666" crossOrigin="anonymous"></script>
-                      <AdSense.Google
-                          client='ca-pub-3646578755215666'
-                          slot='7259870550'
-                          style={{ display: 'block', height: 300, width: 500 }}
-                      />
+                      {/*<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3646578755215666" crossOrigin="anonymous"></script>*/}
+                      {/*<AdSense.Google*/}
+                      {/*    client='ca-pub-3646578755215666'*/}
+                      {/*    slot='7259870550'*/}
+                      {/*    style={{ display: 'block', height: 300, width: 500, backgroundColor: "#212121" }}*/}
+                      {/*/>*/}
                       <Footer/>
                   </div>
               </div>
