@@ -701,7 +701,7 @@ class AccountPage extends Component {
         )
 
         return (
-            <div style={{backgroundColor: "#212121", color: "#1b5fc2", height: '100vh', minHeight: '100vh'}}>
+            <div style={{backgroundColor: "#212121", color: "#1b5fc2", height: '100%', minHeight: '100vh'}}>
                 <div>
                     <NavbarTemplate/>
                     <br/>
@@ -922,10 +922,10 @@ class AccountPage extends Component {
                         </Tab>
 
                         <Tab style={tableBodyStyle} eventKey="shipping" title="Shipping">
-                            <div style={{backgroundColor: "#212121"}} className="tab-pane" id="tab3">
-                                <div className="panel-group">
-                                    <div className="panel panel-default" style={{border: "none"}}>
-                                        <div className="panel-body" style={{backgroundColor: "#ededed", marginTop: "20px"}}>
+                            <div style={{backgroundColor: "#212121"}} id="tab3">
+                                <div  className="panel-group">
+                                    <div style={{border: "none"}}>
+                                        <div style={{backgroundColor: "#ededed", marginTop: "20px"}}>
 
                                             <ol className="breadcrumb">
                                                 <li className="breadcrumb-item active">

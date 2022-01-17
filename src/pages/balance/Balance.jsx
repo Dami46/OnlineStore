@@ -69,7 +69,7 @@ class BalancePage extends Component {
 
     render() {
         return (
-            <div style={{backgroundColor: "#212121", color: "#1b5fc2", height: '100vh', minHeight: '100vh'}}>
+            <div style={{backgroundColor: "#212121", color: "#1b5fc2", height: '100%', minHeight: '100vh'}}>
                 <div>
                     <NavbarTemplate/>
                     <br/>

@@ -167,7 +167,7 @@ class DropDetails extends Component {
         }
 
         return (
-            <div style={{backgroundColor: "#212121", color: "#4cbde9", height: '100vh', minHeight: '100vh'}}>
+            <div style={{backgroundColor: "#212121", color: "#4cbde9", height: '100%', minHeight: '100vh'}}>
                 <div>
                     <NavbarTemplate/>
                     <br/>

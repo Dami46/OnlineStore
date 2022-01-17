@@ -55,6 +55,7 @@ class CartCheckout extends Component {
         this.checkShipping = this.checkShipping.bind(this);
         this.checkPayment = this.checkPayment.bind(this);
         this.chooseBook = this.chooseBook.bind(this);
+        this.deleteProduct = this.deleteProduct.bind(this);
 
         this.state = {
             activeTab: 'shippingInfo',
@@ -106,7 +107,8 @@ class CartCheckout extends Component {
                 for(let i = 0; i < cart.cartItemList.length; i++){
                     this.setState({
                         products: this.state.products.concat({
-                            id: cart.cartItemList[i].book.id,
+                            id: cart.cartItemList[i].id,
+                            bookId: cart.cartItemList[i].book.id,
                             title: cart.cartItemList[i].book.title,
                             price: cart.cartItemList[i].book.ourPrice,
                             subtotal: cart.cartItemList[i].subtotal,
@@ -351,6 +353,22 @@ class CartCheckout extends Component {
         })
     }
 
+    async deleteProduct(event){
+        console.log(event.target.id)
+        await axios.delete('/api/shoppingCart/removeItem', {data: {
+                token: cookies.get('token'),
+                cartItemId: event.target.id,
+                qty: 0
+            }})
+            .then(resp => {
+                return resp.status;
+            }).then(status => {
+                if(status == 200){
+                    this.getCartDetails()
+                }
+            })
+    }
+
     render() {
         if(this.state.orderSuccess == true){
             return <Navigate to={{pathname: "/cartOrderSubmitted"}} />
@@ -362,14 +380,15 @@ class CartCheckout extends Component {
 
         const products = this.state.products.map((product) =>
             <tr>
-                <td style={{textAlign: "center", cursor: "pointer"}} id={product.id} onClick={this.chooseBook}>
-                    <img style={{width: "60px", height: '80px', display: 'inline-block'}} src={imageApi.getImageUrl(product.image)}/>
+                <td style={{textAlign: "center", cursor: "pointer"}}>
+                    <img style={{width: "60px", height: '80px', display: 'inline-block', marginBottom: '5%'}} src={imageApi.getImageUrl(product.image)} id={product.id} onClick={this.chooseBook}/>
                     <div style={{display: 'inline-block', marginLeft: '10px'}}>
-                        <p>
+                        <p id={product.bookId} onClick={this.chooseBook}>
                             {product.title}
                             <br/>
                             {product.author}
                         </p>
+                        <button style={{textAlign: "center"}} className="btn btn-primary" id={product.id} onClick={this.deleteProduct}>Delete</button>
                     </div>
                 </td>
                 <td style={{textAlign: "center"}}>${product.price}</td>
@@ -379,7 +398,7 @@ class CartCheckout extends Component {
         )
 
         return(
-            <div style={{backgroundColor: "#212121", color: "#4cbde9", height: '100vh', minHeight: '100vh'}}>
+            <div style={{backgroundColor: "#212121", color: "#4cbde9", height: '100%', minHeight: '100vh'}}>
                 <div>
                     <NavbarTemplate/>
                     <br/>

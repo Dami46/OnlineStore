@@ -12,6 +12,7 @@ import {Navigate} from 'react-router-dom';
 import Cookies from 'universal-cookie';
 import EllipsisText from "react-ellipsis-text";
 import {Footer} from "../contact/Footer";
+import AdSense from 'react-adsense';
 
 const cookies = new Cookies();
 
@@ -49,6 +50,8 @@ class HomePage extends Component {
             categorys: [],
             languages: [],
             publishers: [],
+            publicationDates: [],
+            prices: [],
             filterOption: 'titles',
             options: [],
             searchInput: '',
@@ -83,6 +86,8 @@ class HomePage extends Component {
                 categorys: [],
                 languages: [],
                 publishers: [],
+                publicationDates: [],
+                prices: [],
                 nextPageChosen: false,
                 nextPageId: 0,
                 currentPageId: 1,
@@ -91,11 +96,12 @@ class HomePage extends Component {
             })
             await axios.get(URLAddress + '/api/bookshelf').then(booksResp => {
                 return booksResp.data.bookList;
-            }).then(data => {
+            }).then(async data => {
+                console.log(data)
                 if(this.state.books.length == 0) {
                     for(let j = 0; j < data.length; j++){
                         if(j % 20 == 0){
-                            this.setState({
+                            await this.setState({
                                 pageCount: this.state.pageCount + 1,
                                 pages: this.state.pages.concat(this.state.pageCount + 1),
                             })
@@ -103,7 +109,7 @@ class HomePage extends Component {
                     }
                     for (let i = 0; i < data.length; i++) {
                         let imageUrl = imageApi.getImageUrl(data[i].id)
-                        this.setState({
+                        await this.setState({
                             books: this.state.books.concat({
                                 id: data[i].id,
                                 author: data[i].author,
@@ -119,25 +125,87 @@ class HomePage extends Component {
                                 publisher: data[i].publisher,
                                 title: data[i].title,
                             }),
-                            authors: this.state.authors.concat({
-                                name: data[i].author,
-                            }),
-                            categorys: this.state.categorys.concat({
-                                name: data[i].category,
-                            }),
-                            languages: this.state.languages.concat({
-                                name: data[i].language,
-                            }),
-                            publishers: this.state.publishers.concat({
-                                name: data[i].publisher,
-                            }),
-                            titles: this.state.titles.concat({
-                                name: data[i].title,
-                            }),
                         })
+                        if(!this.state.authors.includes(data[i].author.toLowerCase())){
+                            await this.setState({
+                                authors: this.state.authors.concat({
+                                    name: data[i].author,
+                                }),
+                            })
+                        }
+                        if(!this.state.categorys.includes(data[i].category.toLowerCase())){
+                            await this.setState({
+                                categorys: this.state.categorys.concat({
+                                    name: data[i].category,
+                                }),
+                            })
+                        }
+                        if(!this.state.languages.includes(data[i].language.toLowerCase())){
+                            await this.setState({
+                                languages: this.state.languages.concat({
+                                    name: data[i].language,
+                                }),
+                            })
+                        }
+                        if(!this.state.publishers.includes(data[i].publisher.toLowerCase())){
+                            await this.setState({
+                                publishers: this.state.publishers.concat({
+                                    name: data[i].publisher,
+                                }),
+                            })
+                        }
+                        if(!this.state.titles.includes(data[i].title.toLowerCase())){
+                            await this.setState({
+                                titles: this.state.titles.concat({
+                                    name: data[i].title,
+                                }),
+                            })
+                        }
+                        if(!this.state.titles.includes(data[i].title.toLowerCase())){
+                            await this.setState({
+                                titles: this.state.titles.concat({
+                                    name: data[i].title,
+                                }),
+                            })
+                        }
+                        if(!this.state.publicationDates.includes(data[i].publicationDate.toLowerCase())){
+                            await this.setState({
+                                publications: this.state.publicationDates.concat({
+                                    name: data[i].publicationDate,
+                                }),
+                            })
+                        }
+                        if(!this.state.prices.includes(data[i].ourPrice)){
+                            await this.setState({
+                                prices: this.state.prices.concat({
+                                    name: data[i].ourPrice,
+                                }),
+                            })
+                        }
                     }
-                    for(let k = this.state.books.length - 1; k > this.state.books.length - 4; k--){
-                        this.setState({
+                    await this.setState({
+                        authors: this.state.authors.filter((author, index) => index === this.state.authors.findIndex(element => element.name === author.name))
+                    })
+                    await this.setState({
+                        categorys: this.state.categorys.filter((category, index) => index === this.state.categorys.findIndex(element => element.name === category.name))
+                    })
+                    await this.setState({
+                        languages: this.state.languages.filter((language, index) => index === this.state.languages.findIndex(element => element.name === language.name))
+                    })
+                    await this.setState({
+                        publishers: this.state.publishers.filter((publisher, index) => index === this.state.publishers.findIndex(element => element.name === publisher.name))
+                    })
+                    await this.setState({
+                        titles: this.state.titles.filter((title, index) => index === this.state.titles.findIndex(element => element.name === title.name))
+                    })
+                    await this.setState({
+                        publicationDates: this.state.publicationDates.filter((publicationDate, index) => index === this.state.publicationDates.findIndex(element => element.name === publicationDate.name))
+                    })
+                    await this.setState({
+                        prices: this.state.prices.filter((price, index) => index === this.state.prices.findIndex(element => element.name === price.name))
+                    })
+                    for(let k = this.state.books.length - 1; k >= (this.state.books.length > 3 ? this.state.books.length - 3 : 0); k--){
+                        await this.setState({
                             carouselBooks: this.state.carouselBooks.concat(this.state.books[k])
                         })
                     }
@@ -161,10 +229,13 @@ class HomePage extends Component {
     filterBooksClick(){
         this.fetchBooks().then(() => {
             let filteredBooks = [];
-            filteredBooks = this.state.books.filter((book) => book[this.state.filterOption].toLowerCase().includes(this.state.searchInput.toLowerCase()))
-            this.setState({
-                books: filteredBooks
-            })
+            try{
+                filteredBooks = this.state.books.filter((book) => book[this.state.filterOption].toLowerCase().includes(this.state.searchInput.toLowerCase()))
+                this.setState({
+                    books: filteredBooks
+                })
+            }
+            catch (err) {}
         })
     }
 
@@ -270,34 +341,43 @@ class HomePage extends Component {
         }
     }
 
-    sortAsc(){
+    sortAsc(that){
         let sortedBooks;
-        sortedBooks = this.state.books.sort((a,b)=>{
-            console.log(b[this.state.sortingOption])
-            console.log(a[this.state.sortingOption])
-            return a[this.state.sortingOption]  - b[this.state.sortingOption];
-        })
-        this.setState({
-            books: sortedBooks
-        })
-        console.log(this.state.books)
+        let sortingOpt = that.state.sortingOption;
+        if(sortingOpt == 'price'){
+            sortingOpt = 'ourPrice';
+        }
+        try {
+            sortedBooks = that.state.books.sort((a, b) => {
+                if (a[sortingOpt] < b[sortingOpt]) return -1;
+                if (a[sortingOpt] > b[sortingOpt]) return 1;
+                return 0;
+            })
+            this.setState({
+                books: sortedBooks
+            })
+        }
+        catch(err) {}
     }
 
 
-    sortDsc(){
+    sortDsc(that){
         let sortedBooks;
-        console.log(this.state.sortingOption)
-        console.log(this.state)
-        console.log(this.state.books[this.state.sortingOption])
-        sortedBooks = this.state.books.sort((a,b)=>{
-            console.log(b[this.state.sortingOption])
-            console.log(a[this.state.sortingOption])
-            return b[this.state.sortingOption] - a[this.state.sortingOption];
-        })
-        this.setState({
-            books: sortedBooks
-        })
-        console.log(this.state.books)
+        let sortingOpt = that.state.sortingOption;
+        if(sortingOpt == 'price'){
+            sortingOpt = 'ourPrice';
+        }
+        try{
+            sortedBooks = that.state.books.sort((a,b)=>{
+                if(a[sortingOpt] > b[sortingOpt]) return -1;
+                if(a[sortingOpt] < b[sortingOpt]) return 1;
+                return 0;
+            })
+            this.setState({
+                books: sortedBooks
+            })
+        }
+        catch(err) {}
     }
 
     handleSortChange(event){
@@ -308,10 +388,10 @@ class HomePage extends Component {
 
     sortBooks(event){
         if(event.target.value == 'asc'){
-            this.sortAsc()
+            this.sortAsc(this)
         }
         else{
-            this.sortDsc()
+            this.sortDsc(this)
         }
     }
 
@@ -337,7 +417,7 @@ class HomePage extends Component {
                         <div>
                             <strong style={{textDecoration: 'line-through', color: "#f2575b", display: 'inline-block'}}>${book.listPrice}</strong> <p style={{display: 'inline-block'}}>${book.ourPrice}</p>
                         </div>
-                        {/*<EllipsisText style={{cursor: "pointer"}} text={book.description} id={book.id} onClick={this.handleBookClick} length={"130"} />*/}
+                        <EllipsisText style={{cursor: "pointer"}} text={book.description} id={book.id} onClick={this.handleBookClick} length={"130"} />
                     </Card.Text>
                     <div hidden={book.inStockNumber > 0}>
                         <strong style={{color: "#f2575b", display: 'inline-block'}}>No books in stock!</strong>
@@ -354,17 +434,23 @@ class HomePage extends Component {
         let carouselBooks;
         if(this.state.books.length > 0){
             try{
+                console.log(this.state.carouselBooks)
                 carouselBooks = this.state.carouselBooks.map((book) =>
                     <Carousel.Item id={book.id} onClick={this.handleBookClick} style={{height: "300px", cursor: "pointer"}}>
                         <img
+                            id={book.id}
                             className="d-block w-100"
                             src={book.bookImage}
                             alt="First book"
                             style={{display: "inline-block"}}
+                            // onError={({ currentTarget }) => {
+                            //     currentTarget.onerror = null;
+                            //     currentTarget.src=imageApi.getImageUrl("0");
+                            // }}
                         />
                         <Carousel.Caption>
                             <h3>{book.title}</h3>
-                            <p>{book.description}</p>
+                            <EllipsisText text={book.description} length={"750"}/>
                         </Carousel.Caption>
                     </Carousel.Item>
                 )
@@ -394,13 +480,13 @@ class HomePage extends Component {
         }
 
         return (
-          <div style={{backgroundColor: "#212121", height: '100vh', minHeight: '100vh'}}>
+          <div style={{backgroundColor: "#212121", height: '100%'}}>
               <div>
                   <NavbarTemplate/>
                   <br/>
               </div>
 
-              <div style={{backgroundColor: "#212121"}}>
+              <div style={{backgroundColor: "#212121", height: '100%'}}>
                   <div>
                       <Carousel style={{height: "300px"}}>
                           {carouselBooks}
@@ -413,7 +499,7 @@ class HomePage extends Component {
 
                   <div style={{marginLeft: "20%", width: "60%"}}>
                       <Form className="d-flex">
-                          <Form.Select style={{ width: "20%", backgroundColor: "#4c4c4c", color: "#4cbde9"}} variant="info" onChange={this.handleFilterChange}>
+                          <Form.Select style={{ width: "20%", backgroundColor: "#4c4c4c", color: "#4cbde9", fontWeight: "bold", cursor: "pointer"}} variant="info" onChange={this.handleFilterChange}>
                               <option value="title">Title</option>
                               <option value="author">Author</option>
                               <option value="category">Category</option>
@@ -421,34 +507,42 @@ class HomePage extends Component {
                               <option value="publisher">Publisher</option>
                           </Form.Select>
                           <Typeahead
-                              style={{width: "70%", marginLeft: "2%"}}
+                              style={{width: "70%", marginLeft: "2%", fontWeight: "bold"}}
                               id="basic-typeahead-single"
                               labelKey="name"
                               onChange={this.searchOptionClick}
                               options={this.state.options}
                               placeholder="Search"
                           />
-                          <Button style={{marginLeft: "1%", backgroundColor: "#4c4c4c", color: "#4cbde9"}} variant="light" onClick={this.filterBooksClick}>Search</Button>
+                          <Button style={{marginLeft: "1%", backgroundColor: "#4c4c4c", color: "#4cbde9", fontWeight: "bold"}} variant="light" onClick={this.filterBooksClick}>Search</Button>
                       </Form>
                       <br/>
                   </div>
 
-                  {/*<div style={{marginLeft: "20%", width: "60%"}}>*/}
-                  {/*    <Form className="d-flex">*/}
-                  {/*        <Form.Select style={{ width: "20%", backgroundColor: "#4c4c4c", color: "#4cbde9"}} variant="info" onChange={this.handleSortChange}>*/}
-                  {/*            <option value="title">Title</option>*/}
-                  {/*            <option value="author">Author</option>*/}
-                  {/*            <option value="category">Category</option>*/}
-                  {/*            <option value="language">Language</option>*/}
-                  {/*            <option value="publisher">Publisher</option>*/}
-                  {/*        </Form.Select>*/}
-                  {/*        <Form.Select style={{ width: "20%", backgroundColor: "#4c4c4c", color: "#4cbde9"}} variant="info" onChange={this.sortBooks}>*/}
-                  {/*            <option value="asc">Ascending</option>*/}
-                  {/*            <option value="dsc">Descending</option>*/}
-                  {/*        </Form.Select>*/}
-                  {/*    </Form>*/}
-                  {/*    <br/>*/}
-                  {/*</div>*/}
+                  <div style={{marginLeft: "50%", width: "60%"}}>
+                      <Form className="d-flex">
+                          <Form.Label style={{ width: "10%", color: "#4cbde9", textAlign: "right", marginTop: "1%", marginLeft: "15%", fontWeight: "bold"}}>
+                              Filter with:
+                          </Form.Label>
+                          <Form.Select style={{ width: "15%", backgroundColor: "#4c4c4c", color: "#4cbde9", marginLeft: "2%", fontWeight: "bold", cursor: "pointer"}} variant="info" onChange={this.handleSortChange}>
+                              <option value="title">Title</option>
+                              <option value="author">Author</option>
+                              <option value="category">Category</option>
+                              <option value="language">Language</option>
+                              <option value="publisher">Publisher</option>
+                              <option value="publicationDate">Publication Date</option>
+                              <option value="price">Price</option>
+                          </Form.Select>
+                          <Form.Label style={{ width: "10%", color: "#4cbde9", textAlign: "right", marginTop: "1%", fontWeight: "bold"}}>
+                              Order:
+                          </Form.Label>
+                          <Form.Select style={{ width: "15%", backgroundColor: "#4c4c4c", color: "#4cbde9", marginLeft: "2%", fontWeight: "bold", cursor: "pointer"}} variant="info" onChange={this.sortBooks}>
+                              <option value="asc">Ascending</option>
+                              <option value="dsc">Descending</option>
+                          </Form.Select>
+                      </Form>
+                      <br/>
+                  </div>
 
                   <Tabs style={{alignItems: "center", justifyContent: "center", backgroundColor: "#212121", color: "#4cbde9"}} defaultActiveKey="1" className="mb-3" onSelect={this.updatePage}>
                       {pages}
@@ -456,8 +550,14 @@ class HomePage extends Component {
 
                   <div style={{height: "300px", marginTop: "50px", backgroundColor: "#212121"}}>
                       <Row style={{textAlign: "center", alignItems: "center", backgroundColor: "#212121"}} xs={5}>
-                          {books}
+                          {books.length > 0 ? books : (<p style={{textAlign: "center", color: "#4cbde9"}}>No Books in Store</p>)}
                       </Row>
+                      <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3646578755215666" crossOrigin="anonymous"></script>
+                      <AdSense.Google
+                          client='ca-pub-3646578755215666'
+                          slot='7259870550'
+                          style={{ display: 'block', height: 300, width: 500 }}
+                      />
                       <Footer/>
                   </div>
               </div>

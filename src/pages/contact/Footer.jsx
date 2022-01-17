@@ -8,8 +8,8 @@ class Footer extends Component {
 
     render() {
         return (
-            <div style={{backgroundColor: "#212121"}}>
-                <div style={{textAlign: "center", color: "#e8e8e8"}}><a href="/contact">Privacy policy</a></div>
+            <div style={{backgroundColor: "#212121", marginTop: '50px'}}>
+                <div style={{textAlign: "center", color: "#4cbde9"}}><a href="/contact">Privacy policy</a></div>
             </div>
         );
     }

@@ -175,7 +175,7 @@ class LoginPage extends Component {
         }
 
         return (
-            <div style={{backgroundColor: "#212121", height: '100vh', minHeight: '100vh'}}>
+            <div style={{backgroundColor: "#212121", height: '100%', minHeight: '100vh'}}>
                 <div>
                     <NavbarTemplate/>
                     <br/>
