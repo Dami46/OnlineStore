@@ -23,7 +23,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.websocket.server.PathParam;
 import java.io.IOException;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -54,7 +53,11 @@ public class CheckoutController {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Autowired
+    private ShippingAddressService shippingAddressService;
+
     private static final ObjectMapper objectMapper = new ObjectMapper();
+    private ShippingAddress shippingAddress = new ShippingAddress();
 
     @RequestMapping(value = "/buyItem", params = "buyBook", method = RequestMethod.POST)
     public ResponseEntity<Model> buyItem(HttpServletRequest request, Model model) throws IOException {
@@ -126,7 +129,21 @@ public class CheckoutController {
             return new ResponseEntity<>(model, HttpStatus.NOT_ACCEPTABLE); //"forward:/bookshelf"
         }
 
-        model.addAttribute("classActiveShipping", true);
+        List<UserShipping> userShippingList = user.getUserShippingList();
+
+        if (userShippingList.size() == 0) {
+            model.addAttribute("emptyShippingList", true);
+        } else {
+            model.addAttribute("emptyShippingList", false);
+        }
+
+        for (UserShipping userShipping : userShippingList) {
+            if (userShipping.isUserShippingDefault()) {
+                shippingAddressService.setByUserShipping(userShipping, shippingAddress);
+            }
+        }
+
+        model.addAttribute("shippingAddress", shippingAddress);
 
         return new ResponseEntity<>(model, HttpStatus.OK);
 
