@@ -550,12 +550,6 @@ class HomePage extends Component {
                       <Row style={{textAlign: "center", alignItems: "center", backgroundColor: "#212121"}} xs={5}>
                           {books.length > 0 ? books : (<p style={{textAlign: "center", color: "#4cbde9"}}>No Books in Store</p>)}
                       </Row>
-                      {/*<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3646578755215666" crossOrigin="anonymous"></script>*/}
-                      {/*<AdSense.Google*/}
-                      {/*    client='ca-pub-3646578755215666'*/}
-                      {/*    slot='7259870550'*/}
-                      {/*    style={{ display: 'block', height: 300, width: 500, backgroundColor: "#212121" }}*/}
-                      {/*/>*/}
                       <Footer/>
                   </div>
               </div>
