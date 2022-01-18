@@ -3,6 +3,7 @@ import {NavbarTemplate} from "../navbar/NavbarTemplate";
 import axios from "axios";
 import Cookies from 'universal-cookie';
 import * as imageApi from "../../services/ImageApi";
+import {Footer} from "../contact/Footer";
 
 const cookies = new Cookies();
 
@@ -22,7 +23,7 @@ class OrderSubmittedPage extends Component {
 
     render() {
         return(
-            <div style={{backgroundColor: "#212121", color: "#4cbde9", height: '100vh', minHeight: '100vh'}}>
+            <div style={{backgroundColor: "#212121", color: "#4cbde9", height: '100%', minHeight: '100vh'}}>
                 <div>
                     <NavbarTemplate/>
                     <br/>
@@ -59,7 +60,6 @@ class OrderSubmittedPage extends Component {
                         <div className="row">
                             <hr/>
                             <div>
-
                                 <a> <img src={this.state.bookImage}
                                     className="img-responsive shelf-book"
                                     style={{width: "70px"}}/>
@@ -86,6 +86,7 @@ class OrderSubmittedPage extends Component {
                         </div>
                     </div>
                 </div>
+                <Footer/>
             </div>
         )
     }

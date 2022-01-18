@@ -6,6 +6,7 @@ import axios from "axios";
 import Cookies from 'universal-cookie';
 import * as imageApi from "../../services/ImageApi";
 import {Navigate} from "react-router-dom";
+import {Footer} from "../contact/Footer";
 
 const cookies = new Cookies();
 
@@ -53,6 +54,7 @@ class Checkout extends Component {
         this.buyBook = this.buyBook.bind(this);
         this.checkShipping = this.checkShipping.bind(this);
         this.checkPayment = this.checkPayment.bind(this);
+        this.defaultShipment = this.defaultShipment.bind(this);
 
         this.state = {
             activeTab: 'shippingInfo',
@@ -77,7 +79,17 @@ class Checkout extends Component {
             product: [],
             quantity: '',
             price: '',
-            orderSuccess: false
+            orderSuccess: false,
+            defaultShipping: false,
+            defaultShipment:{
+                shippingInfoName: '',
+                shippingInfoStreet1: '',
+                shippingInfoStreet2: '',
+                shippingInfoCity: '',
+                shippingInfoState: '',
+                shippingInfoCountry: '',
+                shippingInfoZipcode: '',
+            }
         }
 
         this.getBookDetails()
@@ -87,13 +99,28 @@ class Checkout extends Component {
         cookies.remove('checkout', { path: '/' })
         await axios.get('/api/checkout?id=' + cookies.get('buyBook').bookId + '&token=' + cookies.get('token'))
         .then(async resp =>{
-            return resp.data.book;
-        }).then(book => {
-            this.setState({
+            return resp.data;
+        }).then(async data => {
+            let book = data.book;
+            await this.setState({
                 product: book,
                 quantity: 1,
                 price: book.ourPrice
             })
+            console.log(data)
+            if(data.shippingAddress != undefined){
+                await this.setState({
+                    defaultShipment:{
+                        shippingInfoName: data.shippingAddress.shippingAddressName,
+                        shippingInfoStreet1: data.shippingAddress.shippingAddressStreet1,
+                        shippingInfoStreet2: data.shippingAddress.shippingAddressStreet2,
+                        shippingInfoCity: data.shippingAddress.shippingAddressCity,
+                        shippingInfoState: data.shippingAddress.shippingAddressState,
+                        shippingInfoCountry: data.shippingAddress.shippingAddressCountry,
+                        shippingInfoZipcode: data.shippingAddress.shippingAddressZipcode,
+                    }
+                })
+            }
         })
     }
 
@@ -262,6 +289,7 @@ class Checkout extends Component {
                 paymentInfoState: this.state.shippingInfoState,
                 paymentInfoCountry: this.state.shippingInfoCountry,
                 paymentInfoZipcode: this.state.shippingInfoZipcode,
+                reviewDisabled: false
             })
         }
         else{
@@ -274,6 +302,7 @@ class Checkout extends Component {
                 paymentInfoState: '',
                 paymentInfoCountry: '',
                 paymentInfoZipcode: '',
+                reviewDisabled: true
             })
         }
     }
@@ -322,7 +351,35 @@ class Checkout extends Component {
                 }, { path: '/' })
             }
         })
+    }
 
+    async defaultShipment(){
+        if(!this.state.defaultShipping == true){
+            await this.setState({
+                defaultShipping: true,
+                shippingInfoName: this.state.defaultShipment.shippingInfoName,
+                shippingInfoStreet1: this.state.defaultShipment.shippingInfoStreet1,
+                shippingInfoStreet2: this.state.defaultShipment.shippingInfoStreet2,
+                shippingInfoCity: this.state.defaultShipment.shippingInfoCity,
+                shippingInfoState: this.state.defaultShipment.shippingInfoState,
+                shippingInfoCountry: this.state.defaultShipment.shippingInfoCountry,
+                shippingInfoZipcode: this.state.defaultShipment.shippingInfoZipcode,
+                paymentDisabled: false
+            })
+        }
+        else{
+            await this.setState({
+                defaultShipping: false,
+                shippingInfoName: '',
+                shippingInfoStreet1: '',
+                shippingInfoStreet2: '',
+                shippingInfoCity: '',
+                shippingInfoState: '',
+                shippingInfoCountry: '',
+                shippingInfoZipcode: '',
+                paymentDisabled: true
+            })
+        }
     }
 
     render() {
@@ -331,7 +388,7 @@ class Checkout extends Component {
         }
 
         return(
-            <div style={{backgroundColor: "#212121", color: "#4cbde9", height: '100vh', minHeight: '100vh'}}>
+            <div style={{backgroundColor: "#212121", color: "#4cbde9", height: '100%', minHeight: '100vh'}}>
                 <div>
                     <NavbarTemplate/>
                     <br/>
@@ -377,42 +434,49 @@ class Checkout extends Component {
                                     <Tab style={tableBodyStyle} eventKey="shippingInfo" title="Shipping Info">
                                         <div id="shippingInfo">
                                             <div className="panel-body">
+                                                <div className="checkbox">
+                                                    <label>
+                                                        <input style={{textAlign: 'center'}} id="defaultShippingAddress" type="checkbox" name="defaultShipping" value="true" onChange={this.defaultShipment}/>
+                                                        Default shipping address
+                                                    </label>
+                                                </div>
+
                                                 <div className="form-group">
                                                     <label htmlFor="shippingName">* Name</label>
-                                                    <input style={{textAlign: 'center'}} type="text" className="form-control" id="shippingName" required="required" placeholder="Receiver Name" name="shippingAddressName" onChange={this.shippingInfoNameInputChange}/>
+                                                    <input style={{textAlign: 'center'}} type="text" className="form-control" id="shippingName" required="required" placeholder="Receiver Name" name="shippingAddressName" value={this.state.shippingInfoName} onChange={this.shippingInfoNameInputChange}/>
                                                 </div>
 
                                                 <div className="form-group">
                                                     <label htmlFor="shippingStreet">* Street Address</label>
-                                                    <input style={{textAlign: 'center'}} type="text" className="form-control" id="shippingStreet" required="required" placeholder="Street Address 1" name="shippingAddressStreet1" onChange={this.shippingInfoStreet1InputChange}/>
+                                                    <input style={{textAlign: 'center'}} type="text" className="form-control" id="shippingStreet" required="required" placeholder="Street Address 1" name="shippingAddressStreet1" value={this.state.shippingInfoStreet1} onChange={this.shippingInfoStreet1InputChange}/>
                                                 </div>
                                                 <div className="form-group">
-                                                    <input style={{textAlign: 'center'}} type="text" className="form-control" placeholder="Street Address 2" name="shippingAddressStreet2" onChange={this.shippingInfoStreet2InputChange}/>
+                                                    <input style={{textAlign: 'center'}} type="text" className="form-control" placeholder="Street Address 2" name="shippingAddressStreet2" value={this.state.shippingInfoStreet2} onChange={this.shippingInfoStreet2InputChange}/>
                                                 </div>
 
                                                 <div className="row">
                                                     <div className="col-xs-4">
                                                         <div className="form-group">
                                                             <label htmlFor="shippingCity">* City</label>
-                                                            <input style={{textAlign: 'center'}} type="text" className="form-control" id="shippingCity" placeholder="Shipping City" required="required" onChange={this.shippingInfoCityInputChange}/>
+                                                            <input style={{textAlign: 'center'}} type="text" className="form-control" id="shippingCity" placeholder="Shipping City" required="required" value={this.state.shippingInfoCity} onChange={this.shippingInfoCityInputChange}/>
                                                         </div>
                                                     </div>
                                                     <div className="col-xs-4">
                                                         <div className="form-group">
                                                             <label htmlFor="shippingState">* State</label>
-                                                            <input style={{textAlign: 'center'}} type="text" className="form-control" id="shippingState" placeholder="Shipping State" required="required" onChange={this.shippingInfoStateInputChange}/>
+                                                            <input style={{textAlign: 'center'}} type="text" className="form-control" id="shippingState" placeholder="Shipping State" required="required" value={this.state.shippingInfoState} onChange={this.shippingInfoStateInputChange}/>
                                                         </div>
                                                     </div>
                                                     <div className="col-xs-4">
                                                         <div className="form-group">
                                                             <label htmlFor="shippingCountry">* City</label>
-                                                            <input style={{textAlign: 'center'}} type="text" className="form-control" id="shippingCountry" placeholder="Shipping Country" required="required" onChange={this.shippingInfoCountryInputChange}/>
+                                                            <input style={{textAlign: 'center'}} type="text" className="form-control" id="shippingCountry" placeholder="Shipping Country" required="required" value={this.state.shippingInfoCountry} onChange={this.shippingInfoCountryInputChange}/>
                                                         </div>
                                                     </div>
                                                     <div className="col-xs-4">
                                                         <div className="form-group">
                                                             <label htmlFor="shippingZipcode">* Zipcode</label>
-                                                            <input style={{textAlign: 'center'}} type="text" className="form-control" id="shippingZipcode" placeholder="Shipping Zipcode" required="required" onChange={this.shippingInfoZipcodeInputChange}/>
+                                                            <input style={{textAlign: 'center'}} type="text" className="form-control" id="shippingZipcode" placeholder="Shipping Zipcode" required="required" value={this.state.shippingInfoZipcode} onChange={this.shippingInfoZipcodeInputChange}/>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -566,9 +630,9 @@ class Checkout extends Component {
                                 </div>
                             </div>
                         </div>
-
                     </div>
                 </div>
+                <Footer/>
             </div>
         )
     }

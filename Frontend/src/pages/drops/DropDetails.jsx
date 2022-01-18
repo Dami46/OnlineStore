@@ -6,6 +6,7 @@ import {PATH} from "../../services/ConfigurationUrlAService";
 import Cookies from 'universal-cookie';
 import {Navigate} from "react-router-dom";
 import {Button} from "react-bootstrap";
+import {Footer} from "../contact/Footer";
 
 const cookies = new Cookies();
 
@@ -166,7 +167,7 @@ class DropDetails extends Component {
         }
 
         return (
-            <div style={{backgroundColor: "#212121", color: "#4cbde9", height: '100vh', minHeight: '100vh'}}>
+            <div style={{backgroundColor: "#212121", color: "#4cbde9", height: '100%', minHeight: '100vh'}}>
                 <div>
                     <NavbarTemplate/>
                     <br/>
@@ -236,6 +237,7 @@ class DropDetails extends Component {
                         <h4 style={{color: "darkred"}} hidden> Unavailable </h4>
                     </div>
                 </div>
+                <Footer/>
             </div>
         );
     }

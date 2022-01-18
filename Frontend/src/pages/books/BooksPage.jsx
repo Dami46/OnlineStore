@@ -5,6 +5,7 @@ import * as imageApi from "../../services/ImageApi";
 import {PATH} from "../../services/ConfigurationUrlAService";
 import Cookies from 'universal-cookie';
 import {Navigate} from "react-router-dom";
+import {Footer} from "../contact/Footer";
 
 const cookies = new Cookies();
 
@@ -76,7 +77,7 @@ class BooksPage extends Component {
                     publisher: data.publisher,
                     title: data.title
                 })
-                for(let i = 0; i <= data.inStockNumber; i++){
+                for(let i = 1; i <= (data.inStockNumber >= 9 ? 9 : data.inStockNumber); i++){
                     this.setState({
                         quantity: this.state.quantity.concat(i)
                     })
@@ -215,6 +216,7 @@ class BooksPage extends Component {
                                         <p><strong>Language: </strong> <span>{this.state.language}</span></p>
                                         <p><strong>Category: </strong> <span>{this.state.category}</span></p>
                                         <p><strong>Number of pages: </strong><span>{this.state.numberOfPages}</span> </p>
+                                        {/*<div dangerouslySetInnerHTML={{ __html: this.state.description }} style={{width: '60%', backgroundColor: "#212121", color: "#4cbde9",}}></div>*/}
                                         <p style={{width: '60%'}}><strong>Description: </strong>{this.state.description}</p>
                                     </div>
 
@@ -245,6 +247,7 @@ class BooksPage extends Component {
                         <h4 style={{color: "darkred"}} hidden> Unavailable </h4>
                     </div>
                 </div>
+                <Footer/>
             </div>
         );
     }

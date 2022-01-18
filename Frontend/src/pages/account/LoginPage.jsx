@@ -8,6 +8,7 @@ import {useNavigate, Navigate} from 'react-router-dom';
 import {PATH} from "../../services/ConfigurationUrlAService";
 import Globals from "../../Globals";
 import Cookies from 'universal-cookie';
+import {Footer} from "../contact/Footer";
 
 const cookies = new Cookies();
 
@@ -174,7 +175,7 @@ class LoginPage extends Component {
         }
 
         return (
-            <div style={{backgroundColor: "#212121", height: '100vh', minHeight: '100vh'}}>
+            <div style={{backgroundColor: "#212121", height: '100%', minHeight: '100vh'}}>
                 <div>
                     <NavbarTemplate/>
                     <br/>
@@ -268,6 +269,7 @@ class LoginPage extends Component {
                         </div>
                     </Tab>
                 </Tabs>
+                <Footer/>
             </div>
         );
     }

@@ -4,6 +4,7 @@ import {getImageUrl} from "../../services/ImageApi";
 import * as imageApi from "../../services/ImageApi";
 import axios from "axios";
 import {Navigate} from "react-router-dom";
+import {Footer} from "../contact/Footer";
 
 const cookies = new Cookies();
 
@@ -146,12 +147,14 @@ class CartPage extends Component {
                 <td style={{width: "20%"}} className="text-center">
                     <div>
                         <a><h4>{product.book.title}</h4></a>
-                        <p style={{color: "green"}}>In Stock: {product.book.inStockNumber}</p>
-                        <p style={{color: "green"}} hidden>
-                            Only <span></span> In
-                            Stock
-                        </p>
-                        <p style={{color: "darkred"}} hidden>Product Unavailable</p>
+                        {product.book.inStockNumber > 10 ?
+                            (<p style={{color: "green"}}>In Stock: {product.book.inStockNumber}</p>) :
+                            product.book.inStockNumber > 0 ?
+                                (<p style={{color: "yellow"}}>
+                                    Only <span>{product.book.inStockNumber}</span> In Stock
+                                </p>) :
+                                (<p style={{color: "darkred"}}>Product Unavailable</p>)
+                        }
                         <button className="btn btn-primary" id={product.id} onClick={this.handleDeleteClick}>Delete</button>
                     </div>
                 </td>
@@ -177,7 +180,7 @@ class CartPage extends Component {
         }
 
         return (
-            <div style={{backgroundColor: "#212121", color: "#4cbde9", height: '100vh', minHeight: '100vh'}}>
+            <div style={{backgroundColor: "#212121", color: "#4cbde9", height: '100%', minHeight: '100vh'}}>
                 <div>
                     <NavbarTemplate/>
                     <br/>
@@ -228,9 +231,9 @@ class CartPage extends Component {
                                 </strong> <span style={{color: "#db3208", fontSize: "large"}}>$<span>{this.state.totalPrice}</span></span>
                             </h4>
                         </div>
-
                     </div>
                 </div>
+                <Footer/>
             </div>
         );
     }

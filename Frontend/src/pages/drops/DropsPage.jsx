@@ -10,6 +10,7 @@ import {Component, useState, useEffect} from 'react';
 import EllipsisText from "react-ellipsis-text";
 import Cookies from 'universal-cookie';
 import {min} from "rxjs/operators";
+import {Footer} from "../contact/Footer";
 
 const cookies = new Cookies();
 
@@ -52,6 +53,10 @@ class DropsPage extends Component {
         this.updatePage = this.updatePage.bind(this);
         this.signUpOff = this.signUpOff.bind(this);
         this.checkIsInDrop = this.checkIsInDrop.bind(this);
+        this.sortAsc = this.sortAsc.bind(this);
+        this.sortDsc = this.sortDsc.bind(this);
+        this.handleSortChange = this.handleSortChange.bind(this);
+        this.sortBooks = this.sortBooks.bind(this);
 
         this.state = {
             wantToJoinDrop: false,
@@ -67,6 +72,9 @@ class DropsPage extends Component {
             categorys: [],
             languages: [],
             publishers: [],
+            prices: [],
+            publicationDates: [],
+            sortingOption: 'title',
             filterOption: 'title',
             options: [],
             searchInput: '',
@@ -115,13 +123,13 @@ class DropsPage extends Component {
             }).then(async resp => {
                 console.log(resp)
                 let data = resp.itemToDropList;
-                this.setState({
+                await this.setState({
                     userTodropList: (resp.listOfUsersDrops != undefined) ? resp.listOfUsersDrops : []
                 })
                 if(this.state.drops.length == 0 && data != null) {
                     for(let j = 0; j < data.length; j++){
                         if(j % 20 == 0){
-                            this.setState({
+                            await this.setState({
                                 pageCount: this.state.pageCount + 1,
                                 pages: this.state.pages.concat(this.state.pageCount + 1),
                             })
@@ -129,7 +137,7 @@ class DropsPage extends Component {
                     }
                     for (let i = 0; i < data.length; i++) {
                         let book = data[i].book;
-                        this.setState({
+                        await this.setState({
                             drops: this.state.drops.concat({
                                 bookDetails: {
                                     id: book.id,
@@ -155,24 +163,86 @@ class DropsPage extends Component {
                                 wasRolled: data[i].wasRolled,
                                 wasStarted: data[i].wasStarted,
                             }),
-                            authors: this.state.authors.concat({
-                                name: book.author,
-                            }),
-                            categorys: this.state.categorys.concat({
-                                name: book.category,
-                            }),
-                            languages: this.state.languages.concat({
-                                name: book.language,
-                            }),
-                            publishers: this.state.publishers.concat({
-                                name: book.publisher,
-                            }),
-                            titles: this.state.titles.concat({
-                                name: book.title,
-                            }),
                         })
+                        if(!this.state.authors.includes(book.author.toLowerCase())){
+                            await this.setState({
+                                authors: this.state.authors.concat({
+                                    name: book.author,
+                                }),
+                            })
+                        }
+                        if(!this.state.categorys.includes(book.category.toLowerCase())){
+                            await this.setState({
+                                categorys: this.state.categorys.concat({
+                                    name: book.category,
+                                }),
+                            })
+                        }
+                        if(!this.state.languages.includes(book.language.toLowerCase())){
+                            await this.setState({
+                                languages: this.state.languages.concat({
+                                    name: book.language,
+                                }),
+                            })
+                        }
+                        if(!this.state.publishers.includes(book.publisher.toLowerCase())){
+                            await this.setState({
+                                publishers: this.state.publishers.concat({
+                                    name: book.publisher,
+                                }),
+                            })
+                        }
+                        if(!this.state.titles.includes(book.title.toLowerCase())){
+                            await this.setState({
+                                titles: this.state.titles.concat({
+                                    name: book.title,
+                                }),
+                            })
+                        }
+                        if(!this.state.titles.includes(book.title.toLowerCase())){
+                            await this.setState({
+                                titles: this.state.titles.concat({
+                                    name: book.title,
+                                }),
+                            })
+                        }
+                        if(!this.state.publicationDates.includes(book.publicationDate.toLowerCase())){
+                            await this.setState({
+                                publications: this.state.publicationDates.concat({
+                                    name: book.publicationDate,
+                                }),
+                            })
+                        }
+                        if(!this.state.prices.includes(book.ourPrice)){
+                            await this.setState({
+                                prices: this.state.prices.concat({
+                                    name: book.ourPrice,
+                                }),
+                            })
+                        }
                     }
                 }
+                await this.setState({
+                    authors: this.state.authors.filter((author, index) => index === this.state.authors.findIndex(element => element.name === author.name))
+                })
+                await this.setState({
+                    categorys: this.state.categorys.filter((category, index) => index === this.state.categorys.findIndex(element => element.name === category.name))
+                })
+                await this.setState({
+                    languages: this.state.languages.filter((language, index) => index === this.state.languages.findIndex(element => element.name === language.name))
+                })
+                await this.setState({
+                    publishers: this.state.publishers.filter((publisher, index) => index === this.state.publishers.findIndex(element => element.name === publisher.name))
+                })
+                await this.setState({
+                    titles: this.state.titles.filter((title, index) => index === this.state.titles.findIndex(element => element.name === title.name))
+                })
+                await this.setState({
+                    publicationDates: this.state.publicationDates.filter((publicationDate, index) => index === this.state.publicationDates.findIndex(element => element.name === publicationDate.name))
+                })
+                await this.setState({
+                    prices: this.state.prices.filter((price, index) => index === this.state.prices.findIndex(element => element.name === price.name))
+                })
             }, () => {
                 console.log(this.state.pages)
             })
@@ -276,15 +346,69 @@ class DropsPage extends Component {
         }
     }
 
+    sortAsc(that){
+        let sortedBooks;
+        let sortingOpt = that.state.sortingOption;
+        if(sortingOpt == 'price'){
+            sortingOpt = 'ourPrice';
+        }
+        try{
+            sortedBooks = that.state.books.sort((a,b)=>{
+                if(a["bookDetails"][sortingOpt] < b["bookDetails"][sortingOpt]) return -1;
+                if(a["bookDetails"][sortingOpt] > b["bookDetails"][sortingOpt]) return 1;
+                return 0;
+            })
+            that.setState({
+                drops: sortedBooks
+            })
+
+        }
+        catch (err) {}
+    }
+
+    sortDsc(that){
+        let sortedBooks;
+        let sortingOpt = that.state.sortingOption;
+        if(sortingOpt == 'price'){
+            sortingOpt = 'ourPrice';
+        }
+        try{
+            sortedBooks = that.state.drops.sort((a,b)=>{
+                if(a["bookDetails"][sortingOpt] > b["bookDetails"][sortingOpt]) return -1;
+                if(a["bookDetails"][sortingOpt] < b["bookDetails"][sortingOpt]) return 1;
+                return 0;
+            })
+            that.setState({
+                drops: sortedBooks
+            })
+        }
+        catch (err) {}
+    }
+
+    handleSortChange(event){
+        this.setState({
+            sortingOption: event.target.value
+        })
+    }
+
+    sortBooks(event){
+        if(event.target.value == 'asc'){
+            this.sortAsc(this)
+        }
+        else{
+            this.sortDsc(this)
+        }
+    }
+
     render() {
         const drops = this.state.drops.map((drop) =>
-            <Card style={{marginLeft: "4%", marginBottom: "40px", height: '600px', width: '20%', display: "inline-block", backgroundColor: "#4c4c4c"}} id={drop.id}>
+            <Card style={{marginLeft: "5%", marginBottom: "40px", height: '10%', width: '20%', display: "inline-block", backgroundColor: "#4c4c4c"}} id={drop.id}>
                 <Card.Body>
-                    <Card.Img style={{cursor: "pointer"}} onClick={this.handleDropClick} id={drop.id} width="200" height="300" variant="top" src={drop.bookDetails.bookImage} onError={({ currentTarget }) => {
+                    <Card.Img style={{width: "60%", height: "300px", cursor: "pointer"}} onClick={this.handleDropClick} id={drop.id} variant="top" src={drop.bookDetails.bookImage} onError={({ currentTarget }) => {
                         currentTarget.onerror = null;
                         currentTarget.src=imageApi.getImageUrl("0");
                     }}/>
-                    <Card.Title style={{color: "#4cbde9"}}>
+                    <Card.Title style={{color: "#4cbde9"}} id={drop.id} onClick={this.handleDropClick}>
                         {drop.dropTitle}
                     </Card.Title>
                     <Card.Subtitle style={{color: "#4cbde9"}}>
@@ -344,7 +468,7 @@ class DropsPage extends Component {
 
                     <div style={{marginLeft: "20%", width: "60%"}}>
                         <Form className="d-flex">
-                            <Form.Select style={{ width: "20%", backgroundColor: "#4c4c4c", color: "#4cbde9"}} variant="info" onChange={this.handleFilterChange}>
+                            <Form.Select style={{ width: "20%", backgroundColor: "#4c4c4c", color: "#4cbde9", cursor: "pointer"}} variant="info" onChange={this.handleFilterChange}>
                                 <option value="title">Title</option>
                                 <option value="author">Author</option>
                                 <option value="category">Category</option>
@@ -360,7 +484,32 @@ class DropsPage extends Component {
                                 options={this.state.options}
                                 placeholder="Search"
                             />
-                            <Button style={{marginLeft: "1%", backgroundColor: "#4c4c4c", color: "#4cbde9"}} variant="light" onClick={this.filterDropsClick}>Search</Button>
+                            <Button style={{marginLeft: "1%", backgroundColor: "#4c4c4c", color: "#4cbde9", cursor: "pointer"}} variant="light" onClick={this.filterDropsClick}>Search</Button>
+                        </Form>
+                        <br/>
+                    </div>
+
+                    <div style={{marginLeft: "50%", width: "60%"}}>
+                        <Form className="d-flex">
+                            <Form.Label style={{ width: "10%", color: "#4cbde9", textAlign: "right", marginTop: "1%", marginLeft: "15%", fontWeight: "bold"}}>
+                                Filter with:
+                            </Form.Label>
+                            <Form.Select style={{ width: "15%", backgroundColor: "#4c4c4c", color: "#4cbde9", marginLeft: "2%", fontWeight: "bold", cursor: "pointer"}} variant="info" onChange={this.handleSortChange}>
+                                <option value="title">Title</option>
+                                <option value="author">Author</option>
+                                <option value="category">Category</option>
+                                <option value="language">Language</option>
+                                <option value="publisher">Publisher</option>
+                                <option value="publicationDate">Publication Date</option>
+                                <option value="price">Price</option>
+                            </Form.Select>
+                            <Form.Label style={{ width: "10%", color: "#4cbde9", textAlign: "right", marginTop: "1%", fontWeight: "bold"}}>
+                                Order:
+                            </Form.Label>
+                            <Form.Select style={{ width: "15%", backgroundColor: "#4c4c4c", color: "#4cbde9", marginLeft: "2%", fontWeight: "bold", cursor: "pointer"}} variant="info" onChange={this.sortBooks}>
+                                <option value="asc">Ascending</option>
+                                <option value="dsc">Descending</option>
+                            </Form.Select>
                         </Form>
                         <br/>
                     </div>
@@ -370,12 +519,10 @@ class DropsPage extends Component {
                     </Tabs>
 
                     <div style={{height: "300px", marginTop: "50px", backgroundColor: "#212121"}}>
-                        <Row style={{textAlign: "center", alignItems: "center", backgroundColor: "#212121"}} xs={5}>
-                            {drops}
+                        <Row style={{textAlign: "center", alignItems: "center", backgroundColor: "#212121", color: "#4cbde9"}} xs={5}>
+                            {drops.length > 0 ? drops :  (<p style={{textAlign: "center", color: "#4cbde9"}}>No Drops in Store</p>)}
                         </Row>
-                        <div style={{backgroundColor: "#212121"}}>
-                            <div style={{textAlign: "center", color: "#e8e8e8"}}><a href="/contact">Privacy policy</a></div>
-                        </div>
+                        <Footer/>
                     </div>
                 </div>
             </div>

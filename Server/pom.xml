@@ -11,6 +11,7 @@
     <groupId>com.store</groupId>
     <artifactId>store</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
     <name>Online Store</name>
     <description>Demo project for store</description>
     <properties>
@@ -111,6 +112,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
         </plugins>
+        <finalName>app</finalName>
     </build>
 
 </project>

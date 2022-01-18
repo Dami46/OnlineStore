@@ -7,6 +7,7 @@ import {PATH} from "../../services/ConfigurationUrlAService";
 import Cookies from 'universal-cookie';
 import axios from "axios";
 import {Navigate} from "react-router-dom";
+import {Footer} from "../contact/Footer";
 
 const cookies = new Cookies();
 
@@ -24,7 +25,7 @@ const tableBodyStyle = {
     fontWeight: "bold",
     width: "70%",
     marginLeft: "15%",
-    textAlign: "center"
+    textAlign: "center",
 }
 
 const inputStyle = {
@@ -461,6 +462,12 @@ class AccountPage extends Component {
    async deleteAccount(){
         await cookies.remove('isLogged',  { path: '/' })
         await cookies.remove('token',  { path: '/' });
+        await cookies.remove('buyBook', { path: '/' });
+        await cookies.remove('buyBook', { path: '/' });
+        await cookies.remove('addToCart', { path: '/' });
+        await cookies.remove('checkout', { path: '/' });
+        await cookies.remove('cartCheckout', { path: '/' });
+        await cookies.remove('cartCheckoutSubmit', { path: '/' });
         await this.setState({
             logged: false
         })
@@ -694,7 +701,7 @@ class AccountPage extends Component {
         )
 
         return (
-            <div style={{backgroundColor: "#212121", color: "#1b5fc2", height: '100vh', minHeight: '100vh'}}>
+            <div style={{backgroundColor: "#212121", color: "#1b5fc2", height: '100%', minHeight: '100vh'}}>
                 <div>
                     <NavbarTemplate/>
                     <br/>
@@ -915,10 +922,10 @@ class AccountPage extends Component {
                         </Tab>
 
                         <Tab style={tableBodyStyle} eventKey="shipping" title="Shipping">
-                            <div className="tab-pane" id="tab3">
-                                <div className="panel-group">
-                                    <div className="panel panel-default" style={{border: "none"}}>
-                                        <div className="panel-body" style={{backgroundColor: "#ededed", marginTop: "20px"}}>
+                            <div style={{backgroundColor: "#212121"}} id="tab3">
+                                <div  className="panel-group">
+                                    <div style={{border: "none"}}>
+                                        <div style={{backgroundColor: "#ededed", marginTop: "20px"}}>
 
                                             <ol className="breadcrumb">
                                                 <li className="breadcrumb-item active">
@@ -958,7 +965,7 @@ class AccountPage extends Component {
                                                         </div>
                                                     </Tab>
 
-                                                    <Tab style={tableBodyStyle} id="edit" eventKey="edit" title="Edit" onSelect={this.editSelected}>
+                                                    <Tab style={tableBodyStyle} id="edit" eventKey="edit" title="Edit/Add" onSelect={this.editSelected}>
                                                         <div>
                                                             <form method="post">
                                                                 <div className="bg-info" hidden>
@@ -1029,6 +1036,7 @@ class AccountPage extends Component {
                         </Tab>
                     </Tabs>
                 </div>
+                <Footer/>
             </div>
         );
     }

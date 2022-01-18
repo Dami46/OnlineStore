@@ -6,6 +6,7 @@ import axios from "axios";
 import Cookies from 'universal-cookie';
 import * as imageApi from "../../services/ImageApi";
 import {Navigate} from "react-router-dom";
+import {Footer} from "../contact/Footer";
 
 const cookies = new Cookies();
 
@@ -54,6 +55,8 @@ class CartCheckout extends Component {
         this.checkShipping = this.checkShipping.bind(this);
         this.checkPayment = this.checkPayment.bind(this);
         this.chooseBook = this.chooseBook.bind(this);
+        this.deleteProduct = this.deleteProduct.bind(this);
+        this.defaultShipment = this.defaultShipment.bind(this);
 
         this.state = {
             activeTab: 'shippingInfo',
@@ -86,7 +89,17 @@ class CartCheckout extends Component {
                 author: ''
             }],
             orderSuccess: false,
-            totalPrice: ''
+            totalPrice: '',
+            defaultShipping: false,
+            defaultShipment:{
+                shippingInfoName: '',
+                shippingInfoStreet1: '',
+                shippingInfoStreet2: '',
+                shippingInfoCity: '',
+                shippingInfoState: '',
+                shippingInfoCountry: '',
+                shippingInfoZipcode: '',
+            }
         }
 
         this.getCartDetails()
@@ -96,23 +109,36 @@ class CartCheckout extends Component {
         await axios.get('/api/shoppingCart/cartCheckout?id=' + cookies.get('cartCheckout') + '&token=' + cookies.get('token'))
             .then(async resp =>{
                 return resp.data;
-            }).then(cart => {
-                console.log(cart)
-                this.setState({
+            }).then(async cart => {
+                await this.setState({
                     totalPrice: cart.shoppingCart.totalPrize,
                     products: [],
                 })
                 for(let i = 0; i < cart.cartItemList.length; i++){
-                    this.setState({
+                    await this.setState({
                         products: this.state.products.concat({
-                            id: cart.cartItemList[i].book.id,
+                            id: cart.cartItemList[i].id,
+                            bookId: cart.cartItemList[i].book.id,
                             title: cart.cartItemList[i].book.title,
                             price: cart.cartItemList[i].book.ourPrice,
                             subtotal: cart.cartItemList[i].subtotal,
                             image: cart.cartItemList[i].book.id,
                             quantity: cart.cartItemList[i].qty,
-                            author: cart.cartItemList[i].book.author
+                            author: cart.cartItemList[i].book.author,
                         })
+                    })
+                }
+                if(cart.shippingAddress != undefined){
+                    await this.setState({
+                        defaultShipment:{
+                            shippingInfoName: cart.shippingAddress.shippingAddressName,
+                            shippingInfoStreet1: cart.shippingAddress.shippingAddressStreet1,
+                            shippingInfoStreet2: cart.shippingAddress.shippingAddressStreet2,
+                            shippingInfoCity: cart.shippingAddress.shippingAddressCity,
+                            shippingInfoState: cart.shippingAddress.shippingAddressState,
+                            shippingInfoCountry: cart.shippingAddress.shippingAddressCountry,
+                            shippingInfoZipcode: cart.shippingAddress.shippingAddressZipcode,
+                        }
                     })
                 }
             })
@@ -283,6 +309,7 @@ class CartCheckout extends Component {
                 paymentInfoState: this.state.shippingInfoState,
                 paymentInfoCountry: this.state.shippingInfoCountry,
                 paymentInfoZipcode: this.state.shippingInfoZipcode,
+                reviewDisabled: false
             })
         }
         else{
@@ -295,6 +322,7 @@ class CartCheckout extends Component {
                 paymentInfoState: '',
                 paymentInfoCountry: '',
                 paymentInfoZipcode: '',
+                reviewDisabled: true
             })
         }
     }
@@ -336,7 +364,7 @@ class CartCheckout extends Component {
                 })
                 cookies.set('cartCheckoutSubmit', {
                     "products": this.state.products,
-                    "price": this.state.totalPrice
+                    "price": this.state.totalPrice + (this.state.shippingOption == "premiumShipping" ? 10 : 5)
                 }, { path: '/' })
             }
         })
@@ -350,6 +378,54 @@ class CartCheckout extends Component {
         })
     }
 
+    async deleteProduct(event){
+        console.log(event.target.id)
+        await axios.delete('/api/shoppingCart/removeItem', {data: {
+                token: cookies.get('token'),
+                cartItemId: event.target.id,
+                qty: 0
+            }})
+            .then(resp => {
+                return resp.status;
+            }).then(status => {
+                if(status == 200){
+                    this.getCartDetails()
+                }
+            })
+    }
+
+    async defaultShipment(){
+        console.log(this.state.defaultShipment)
+        console.log(this.state.defaultShipment.shippingInfoName)
+        console.log(this.state.shippingInfoName)
+        if(!this.state.defaultShipping == true){
+            await this.setState({
+                defaultShipping: true,
+                shippingInfoName: this.state.defaultShipment.shippingInfoName,
+                shippingInfoStreet1: this.state.defaultShipment.shippingInfoStreet1,
+                shippingInfoStreet2: this.state.defaultShipment.shippingInfoStreet2,
+                shippingInfoCity: this.state.defaultShipment.shippingInfoCity,
+                shippingInfoState: this.state.defaultShipment.shippingInfoState,
+                shippingInfoCountry: this.state.defaultShipment.shippingInfoCountry,
+                shippingInfoZipcode: this.state.defaultShipment.shippingInfoZipcode,
+                paymentDisabled: false
+            })
+        }
+        else{
+            await this.setState({
+                defaultShipping: false,
+                shippingInfoName: '',
+                shippingInfoStreet1: '',
+                shippingInfoStreet2: '',
+                shippingInfoCity: '',
+                shippingInfoState: '',
+                shippingInfoCountry: '',
+                shippingInfoZipcode: '',
+                paymentDisabled: true
+            })
+        }
+    }
+
     render() {
         if(this.state.orderSuccess == true){
             return <Navigate to={{pathname: "/cartOrderSubmitted"}} />
@@ -361,14 +437,15 @@ class CartCheckout extends Component {
 
         const products = this.state.products.map((product) =>
             <tr>
-                <td style={{textAlign: "center", cursor: "pointer"}} id={product.id} onClick={this.chooseBook}>
-                    <img style={{width: "60px", height: '80px', display: 'inline-block'}} src={imageApi.getImageUrl(product.image)}/>
+                <td style={{textAlign: "center", cursor: "pointer"}}>
+                    <img style={{width: "60px", height: '80px', display: 'inline-block', marginBottom: '5%'}} src={imageApi.getImageUrl(product.image)} id={product.id} onClick={this.chooseBook}/>
                     <div style={{display: 'inline-block', marginLeft: '10px'}}>
-                        <p>
+                        <p id={product.bookId} onClick={this.chooseBook}>
                             {product.title}
                             <br/>
                             {product.author}
                         </p>
+                        <button style={{textAlign: "center"}} className="btn btn-primary" id={product.id} onClick={this.deleteProduct}>Delete</button>
                     </div>
                 </td>
                 <td style={{textAlign: "center"}}>${product.price}</td>
@@ -378,7 +455,7 @@ class CartCheckout extends Component {
         )
 
         return(
-            <div style={{backgroundColor: "#212121", color: "#4cbde9", height: '100vh', minHeight: '100vh'}}>
+            <div style={{backgroundColor: "#212121", color: "#4cbde9", height: '100%', minHeight: '100vh'}}>
                 <div>
                     <NavbarTemplate/>
                     <br/>
@@ -424,42 +501,49 @@ class CartCheckout extends Component {
                                     <Tab style={{backgroundColor: "#212121", color: "white", fontSize: "20px", fontWeight: "bold", width: "70%", marginLeft: "15%", textAlign: "center"}} eventKey="shippingInfo" title="Shipping Info">
                                         <div id="shippingInfo">
                                             <div className="panel-body">
+                                                <div className="checkbox">
+                                                    <label>
+                                                        <input style={{textAlign: 'center'}} id="defaultShippingAddress" type="checkbox" name="defaultShipping" value="true" onChange={this.defaultShipment}/>
+                                                        Default shipping address
+                                                    </label>
+                                                </div>
+
                                                 <div className="form-group">
                                                     <label htmlFor="shippingName">* Name</label>
-                                                    <input style={{textAlign: 'center'}} type="text" className="form-control" id="shippingName" required="required" placeholder="Receiver Name" name="shippingAddressName" onChange={this.shippingInfoNameInputChange}/>
+                                                    <input style={{textAlign: 'center'}} type="text" className="form-control" id="shippingName" required="required" placeholder="Receiver Name" name="shippingAddressName" value={this.state.shippingInfoName} onChange={this.shippingInfoNameInputChange}/>
                                                 </div>
 
                                                 <div className="form-group">
                                                     <label htmlFor="shippingStreet">* Street Address</label>
-                                                    <input style={{textAlign: 'center'}} type="text" className="form-control" id="shippingStreet" required="required" placeholder="Street Address 1" name="shippingAddressStreet1" onChange={this.shippingInfoStreet1InputChange}/>
+                                                    <input style={{textAlign: 'center'}} type="text" className="form-control" id="shippingStreet" required="required" placeholder="Street Address 1" name="shippingAddressStreet1" value={this.state.shippingInfoStreet1} onChange={this.shippingInfoStreet1InputChange}/>
                                                 </div>
                                                 <div className="form-group">
-                                                    <input style={{textAlign: 'center'}} type="text" className="form-control" placeholder="Street Address 2" name="shippingAddressStreet2" onChange={this.shippingInfoStreet2InputChange}/>
+                                                    <input style={{textAlign: 'center'}} type="text" className="form-control" placeholder="Street Address 2" name="shippingAddressStreet2" value={this.state.shippingInfoStreet2} onChange={this.shippingInfoStreet2InputChange}/>
                                                 </div>
 
                                                 <div className="row">
                                                     <div className="col-xs-4">
                                                         <div className="form-group">
                                                             <label htmlFor="shippingCity">* City</label>
-                                                            <input style={{textAlign: 'center'}} type="text" className="form-control" id="shippingCity" placeholder="Shipping City" required="required" onChange={this.shippingInfoCityInputChange}/>
+                                                            <input style={{textAlign: 'center'}} type="text" className="form-control" id="shippingCity" placeholder="Shipping City" required="required" value={this.state.shippingInfoCity} onChange={this.shippingInfoCityInputChange}/>
                                                         </div>
                                                     </div>
                                                     <div className="col-xs-4">
                                                         <div className="form-group">
                                                             <label htmlFor="shippingState">* State</label>
-                                                            <input style={{textAlign: 'center'}} type="text" className="form-control" id="shippingState" placeholder="Shipping State" required="required" onChange={this.shippingInfoStateInputChange}/>
+                                                            <input style={{textAlign: 'center'}} type="text" className="form-control" id="shippingState" placeholder="Shipping State" required="required" value={this.state.shippingInfoState} onChange={this.shippingInfoStateInputChange}/>
                                                         </div>
                                                     </div>
                                                     <div className="col-xs-4">
                                                         <div className="form-group">
                                                             <label htmlFor="shippingCountry">* City</label>
-                                                            <input style={{textAlign: 'center'}} type="text" className="form-control" id="shippingCountry" placeholder="Shipping Country" required="required" onChange={this.shippingInfoCountryInputChange}/>
+                                                            <input style={{textAlign: 'center'}} type="text" className="form-control" id="shippingCountry" placeholder="Shipping Country" required="required" value={this.state.shippingInfoCountry} onChange={this.shippingInfoCountryInputChange}/>
                                                         </div>
                                                     </div>
                                                     <div className="col-xs-4">
                                                         <div className="form-group">
                                                             <label htmlFor="shippingZipcode">* Zipcode</label>
-                                                            <input style={{textAlign: 'center'}} type="text" className="form-control" id="shippingZipcode" placeholder="Shipping Zipcode" required="required" onChange={this.shippingInfoZipcodeInputChange}/>
+                                                            <input style={{textAlign: 'center'}} type="text" className="form-control" id="shippingZipcode" placeholder="Shipping Zipcode" required="required" value={this.state.shippingInfoZipcode} onChange={this.shippingInfoZipcodeInputChange}/>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -619,9 +703,9 @@ class CartCheckout extends Component {
                                 </div>
                             </div>
                         </div>
-
                     </div>
                 </div>
+                <Footer/>
             </div>
         )
     }
