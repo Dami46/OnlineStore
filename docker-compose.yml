@@ -1,0 +1,22 @@
+version: '3.7'
+
+services:
+  server:
+    image: server:latest
+    container_name: server
+    build:
+      context: Server
+      dockerfile: Dockerfile
+    ports:
+      - 8080:8080
+
+  front:
+    image: front:latest
+    container_name: front
+    build:
+      context: Frontend
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+    depends_on:
+      - server

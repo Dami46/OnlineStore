@@ -1,0 +1,2 @@
+const PATH = "";
+export {PATH};
