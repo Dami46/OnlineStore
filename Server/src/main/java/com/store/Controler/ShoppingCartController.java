@@ -2,7 +2,6 @@ package com.store.Controler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.store.Domain.*;
-import com.store.Dto.BuyBookDto;
 import com.store.Dto.ShoppingCartCheckoutDto;
 import com.store.Dto.UpdateCartItemDto;
 import com.store.Service.*;
@@ -13,14 +12,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.websocket.server.PathParam;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -105,7 +106,7 @@ public class ShoppingCartController {
             return new ResponseEntity<>(model, HttpStatus.NOT_ACCEPTABLE);
         }
 
-        return new ResponseEntity<>(model, HttpStatus.OK); //"forward:/shoppingCart/cart"
+        return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/removeItem", method = RequestMethod.DELETE)
@@ -126,40 +127,52 @@ public class ShoppingCartController {
         model.addAttribute("deleteSuccessFull", true);
         model.addAttribute("user", user);
 
-        return new ResponseEntity<>(model, HttpStatus.OK); //"forward:/shoppingCart/cart"
+        return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
-    @RequestMapping("/cartCheckout")
-    public ResponseEntity<Model> checkout(@RequestParam("id") Long cartId,
-                                          @RequestParam(value = "token") String token, Model model) {
-        String userName = jwtUtil.parseToken(token);
+    @RequestMapping(value = "/buyItems", method = RequestMethod.POST)
+    public ResponseEntity<Model> buyItem(@RequestParam("id") Long cartId,
+                                         @RequestParam(value = "token") String token, Model model) {
 
+        String userName = jwtUtil.parseToken(token);
         User user = userService.findByUsername(userName);
+
+        List<CartItem> cartItemList = cartItemService.findByShoppingCart(user.getShoppingCart());
 
         if (!Objects.equals(cartId, user.getShoppingCart().getId())) {
             return new ResponseEntity<>(model, HttpStatus.UNAUTHORIZED);
         }
 
-        List<CartItem> cartItemList = cartItemService.findByShoppingCart(user.getShoppingCart());
-
         if (cartItemList.size() == 0) {
             model.addAttribute("emptyCart", true);
-            return new ResponseEntity<>(model, HttpStatus.FORBIDDEN); //"forward:/shoppingCart/cart"
+            return new ResponseEntity<>(model, HttpStatus.FORBIDDEN);
+        }
+
+        if (user.getBalance() < user.getShoppingCart().getTotalPrize().doubleValue()) {
+            model.addAttribute("insufficientUserBalance", true);
+            return new ResponseEntity<>(model, HttpStatus.FORBIDDEN);
         }
 
         for (CartItem cartItem : cartItemList) {
             if (cartItem.getBook().getInStockNumber() < cartItem.getQty()) {
                 model.addAttribute("notEnoughStock", true);
-                return new ResponseEntity<>(model, HttpStatus.FORBIDDEN); //"forward:/shoppingCart/cart"
+                return new ResponseEntity<>(model, HttpStatus.FORBIDDEN);
             }
         }
 
-        if (user.getBalance() < user.getShoppingCart().getTotalPrize().doubleValue()) {
-            model.addAttribute("insufficientUserBalance", true);
-            return new ResponseEntity<>(model, HttpStatus.FORBIDDEN); //"forward:/shoppingCart/cart"
-        } else {
-            model.addAttribute("insufficientUserBalance", false);
-        }
+        model.addAttribute("user", user);
+        model.addAttribute("cartCheckoutSuccess", true);
+
+        return new ResponseEntity<>(model, HttpStatus.OK);
+    }
+
+    @RequestMapping("/cartCheckout")
+    public ResponseEntity<Model> checkout(@RequestParam(value = "token") String token, Model model) {
+
+        String userName = jwtUtil.parseToken(token);
+        User user = userService.findByUsername(userName);
+
+        List<CartItem> cartItemList = cartItemService.findByShoppingCart(user.getShoppingCart());
 
         List<UserShipping> userShippingList = user.getUserShippingList();
         model.addAttribute("userShippingList", userShippingList);
@@ -212,7 +225,7 @@ public class ShoppingCartController {
                 || billingAddress.getBillingAddressState().isEmpty()
                 || billingAddress.getBillingAddressName().isEmpty()
                 || billingAddress.getBillingAddressZipcode().isEmpty()) {
-            return new ResponseEntity<>(model, HttpStatus.FORBIDDEN); //"redirect:/checkout?id=" + shoppingCart.getId()"
+            return new ResponseEntity<>(model, HttpStatus.FORBIDDEN);
         }
 
         User user = userService.findByUsername(userName);
@@ -222,7 +235,7 @@ public class ShoppingCartController {
         }
 
         double shippingPrice = 5.00;
-        if(Objects.equals(shoppingCartCheckoutDto.getShippingMethod(), "premiumShipping")) {
+        if (Objects.equals(shoppingCartCheckoutDto.getShippingMethod(), "premiumShipping")) {
             shippingPrice = 10.00;
         }
 
