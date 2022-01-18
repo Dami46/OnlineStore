@@ -446,7 +446,7 @@ class HomePage extends Component {
                             //     currentTarget.src=imageApi.getImageUrl("0");
                             // }}
                         />
-                        <Carousel.Caption>
+                        <Carousel.Caption style={{textShadow: "-2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000"}}>
                             <h3>{book.title}</h3>
                             <EllipsisText text={book.description} length={"750"}/>
                         </Carousel.Caption>
