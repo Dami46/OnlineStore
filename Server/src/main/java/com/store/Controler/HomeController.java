@@ -401,7 +401,7 @@ public class HomeController {
         String token = UUID.randomUUID().toString();
         userService.createPasswordResetTokenForUser(user, token);
 
-        String appUrl = "https://dropki.azurewebsites.net/api";
+        String appUrl = "https://dropki.azurewebsites.net";
 
         mailSender.send(mailConstructor.constructResetTokenEmail(appUrl, true, token, user, password));
 
@@ -463,7 +463,7 @@ public class HomeController {
         String token = UUID.randomUUID().toString();
         userService.createPasswordResetTokenForUser(user, token);
 
-        String appUrl = "https://dropki.azurewebsites.net/api";
+        String appUrl = "https://dropki.azurewebsites.net";
         mailSender.send(mailConstructor.constructResetTokenEmail(appUrl, false, token, user, password));
 
         model.addAttribute("forgetPasswordEmailSent", "true");
