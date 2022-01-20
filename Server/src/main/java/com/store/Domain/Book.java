@@ -38,6 +38,16 @@ public class Book {
     private DropItem dropItem;
     private boolean bookToDrop = false;
 
+
+    public Book() {
+    }
+
+    public Book(Long id, String title, String category) {
+        this.setId(id);
+        this.setTitle(title);
+        this.setCategory(category);
+    }
+
     public Long getId() {
         return id;
     }

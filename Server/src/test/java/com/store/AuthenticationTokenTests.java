@@ -5,25 +5,28 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.store.Domain.User;
 import com.store.Service.UserService;
 import com.store.Utility.JwtUtil;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+import io.jsonwebtoken.JwtException;
+import org.junit.jupiter.api.*;
+import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Date;
 
 @SpringBootTest
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class AuthenticationTokenTests {
 
-    @Autowired
+    @Mock
     private UserService userService;
 
-    @Autowired
+    @Mock
     private JwtUtil jwtUtil;
 
-    private static User user = new User();
+    private static final User user = new User();
     private static String token;
+
+    private static final String TOKEN_PREFIX = "Dropki ";
+
 
     @BeforeAll
     static void createUser() {
@@ -37,11 +40,13 @@ public class AuthenticationTokenTests {
     }
 
     @Test
+    @Order(1)
     void saveUser() {
         userService.save(user);
     }
 
     @Test
+    @Order(2)
     void generateToken() {
         token = JWT.create()
                 .withSubject(user.getUsername())
@@ -50,16 +55,31 @@ public class AuthenticationTokenTests {
     }
 
     @Test
+    @Order(3)
     void checkAuthToken() {
-        String userName = jwtUtil.parseToken(token);
-        user = userService.findByUsername(userName);
+        String userName = parseToken(token);
+        userService.findByUsername(userName);
 
         Assertions.assertEquals(user.getUsername(), userName);
     }
 
     @Test
+    @Order(4)
     void deleteUser() {
         userService.removeOne(user.getId());
     }
 
+
+    private String parseToken(String token) {
+        try {
+            String getToken = "secretForEncodingSignature";
+            return JWT.require(Algorithm.HMAC256(getToken))
+                    .build()
+                    .verify(token.replace(TOKEN_PREFIX, ""))
+                    .getSubject();
+
+        } catch (JwtException | ClassCastException e) {
+            return null;
+        }
+    }
 }
