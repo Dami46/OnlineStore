@@ -33,7 +33,7 @@ class NavbarTemplate extends Component {
         return (
             <Navbar fixed="top" bg="dark" variant="dark">
                 <Container>
-                    <Navbar.Brand href="#home">
+                    <Navbar.Brand href="/">
                         <img
                             src={Logo}
                             width="140"
@@ -44,7 +44,7 @@ class NavbarTemplate extends Component {
                     </Navbar.Brand>
                     <Navbar.Collapse id="basic-navbar-nav">
                         <Nav className="me-auto">
-                            <Nav.Link style={{fontSize: "30px", fontWeight: "bold"}} href="/">Home</Nav.Link>
+                            {/*<Nav.Link style={{fontSize: "30px", fontWeight: "bold"}} href="/">Home</Nav.Link>*/}
                             <Nav.Link style={{fontSize: "30px", fontWeight: "bold"}} href="/">Books</Nav.Link>
                             <Nav.Link style={{fontSize: "30px", fontWeight: "bold"}} href="/drops">Drops</Nav.Link>
                         </Nav>

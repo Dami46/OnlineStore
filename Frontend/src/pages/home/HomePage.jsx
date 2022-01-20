@@ -124,84 +124,129 @@ class HomePage extends Component {
                                 title: data[i].title,
                             }),
                         })
-                        if(!this.state.authors.includes(data[i].author.toLowerCase())){
-                            await this.setState({
-                                authors: this.state.authors.concat({
-                                    name: data[i].author,
-                                }),
-                            })
+                        try{
+                            if(!this.state.authors.includes(data[i].author.toLowerCase())){
+                                await this.setState({
+                                    authors: this.state.authors.concat({
+                                        name: data[i].author,
+                                    }),
+                                })
+                            }
                         }
-                        if(!this.state.categorys.includes(data[i].category.toLowerCase())){
-                            await this.setState({
-                                categorys: this.state.categorys.concat({
-                                    name: data[i].category,
-                                }),
-                            })
+                        catch(err) {}
+                        try{
+                            if(!this.state.categorys.includes(data[i].category.toLowerCase())){
+                                await this.setState({
+                                    categorys: this.state.categorys.concat({
+                                        name: data[i].category,
+                                    }),
+                                })
+                            }
                         }
-                        if(!this.state.languages.includes(data[i].language.toLowerCase())){
-                            await this.setState({
-                                languages: this.state.languages.concat({
-                                    name: data[i].language,
-                                }),
-                            })
+                        catch(err) {}
+                        try{
+                            if(!this.state.languages.includes(data[i].language.toLowerCase())){
+                                await this.setState({
+                                    languages: this.state.languages.concat({
+                                        name: data[i].language,
+                                    }),
+                                })
+                            }
                         }
-                        if(!this.state.publishers.includes(data[i].publisher.toLowerCase())){
-                            await this.setState({
-                                publishers: this.state.publishers.concat({
-                                    name: data[i].publisher,
-                                }),
-                            })
+                        catch(err) {}
+                        try{
+                            if(!this.state.publishers.includes(data[i].publisher.toLowerCase())){
+                                await this.setState({
+                                    publishers: this.state.publishers.concat({
+                                        name: data[i].publisher,
+                                    }),
+                                })
+                            }
                         }
-                        if(!this.state.titles.includes(data[i].title.toLowerCase())){
-                            await this.setState({
-                                titles: this.state.titles.concat({
-                                    name: data[i].title,
-                                }),
-                            })
+                        catch(err) {}
+                        try{
+                            if(!this.state.titles.includes(data[i].title.toLowerCase())){
+                                await this.setState({
+                                    titles: this.state.titles.concat({
+                                        name: data[i].title,
+                                    }),
+                                })
+                            }
                         }
-                        if(!this.state.titles.includes(data[i].title.toLowerCase())){
-                            await this.setState({
-                                titles: this.state.titles.concat({
-                                    name: data[i].title,
-                                }),
-                            })
+                        catch(err) {}
+                        try{
+                            if(!this.state.titles.includes(data[i].title.toLowerCase())){
+                                await this.setState({
+                                    titles: this.state.titles.concat({
+                                        name: data[i].title,
+                                    }),
+                                })
+                            }
                         }
-                        if(!this.state.publicationDates.includes(data[i].publicationDate.toLowerCase())){
-                            await this.setState({
-                                publications: this.state.publicationDates.concat({
-                                    name: data[i].publicationDate,
-                                }),
-                            })
+                        catch(err) {}
+                        try{
+                            if(!this.state.publicationDates.includes(data[i].publicationDate.toLowerCase())){
+                                await this.setState({
+                                    publications: this.state.publicationDates.concat({
+                                        name: data[i].publicationDate,
+                                    }),
+                                })
+                            }
                         }
-                        if(!this.state.prices.includes(data[i].ourPrice)){
-                            await this.setState({
-                                prices: this.state.prices.concat({
-                                    name: data[i].ourPrice,
-                                }),
-                            })
+                        catch(err) {}
+                        try{
+                            if(!this.state.prices.includes(data[i].ourPrice)){
+                                await this.setState({
+                                    prices: this.state.prices.concat({
+                                        name: data[i].ourPrice,
+                                    }),
+                                })
+                            }
                         }
+                        catch(err) {}
                     }
-                    await this.setState({
-                        authors: this.state.authors.filter((author, index) => index === this.state.authors.findIndex(element => element.name === author.name))
-                    })
-                    await this.setState({
-                        categorys: this.state.categorys.filter((category, index) => index === this.state.categorys.findIndex(element => element.name === category.name))
-                    })
-                    await this.setState({
-                        languages: this.state.languages.filter((language, index) => index === this.state.languages.findIndex(element => element.name === language.name))
-                    })
-                    await this.setState({
-                        publishers: this.state.publishers.filter((publisher, index) => index === this.state.publishers.findIndex(element => element.name === publisher.name))
-                    })
-                    await this.setState({
-                        titles: this.state.titles.filter((title, index) => index === this.state.titles.findIndex(element => element.name === title.name))
-                    })
-                    await this.setState({
-                        publicationDates: this.state.publicationDates.filter((publicationDate, index) => index === this.state.publicationDates.findIndex(element => element.name === publicationDate.name))
-                    })
-                    await this.setState({
-                        prices: this.state.prices.filter((price, index) => index === this.state.prices.findIndex(element => element.name === price.name))
-                    })
+                    try{
+                        await this.setState({
+                            authors: this.state.authors.filter((author, index) => index === this.state.authors.findIndex(element => element.name === author.name))
+                        })
+                    }
+                    catch(err) {}
+                    try{
+                        await this.setState({
+                            categorys: this.state.categorys.filter((category, index) => index === this.state.categorys.findIndex(element => element.name === category.name))
+                        })
+                    }
+                    catch(err) {}
+                    try{
+                        await this.setState({
+                            languages: this.state.languages.filter((language, index) => index === this.state.languages.findIndex(element => element.name === language.name))
+                        })
+                    }
+                    catch(err) {}
+                    try{
+                        await this.setState({
+                            publishers: this.state.publishers.filter((publisher, index) => index === this.state.publishers.findIndex(element => element.name === publisher.name))
+                        })
+                    }
+                    catch(err) {}
+                    try{
+                        await this.setState({
+                            titles: this.state.titles.filter((title, index) => index === this.state.titles.findIndex(element => element.name === title.name))
+                        })
+                    }
+                    catch(err) {}
+                    try{
+                        await this.setState({
+                            publicationDates: this.state.publicationDates.filter((publicationDate, index) => index === this.state.publicationDates.findIndex(element => element.name === publicationDate.name))
+                        })
+                    }
+                    catch(err) {}
+                    try{
+                        await this.setState({
+                            prices: this.state.prices.filter((price, index) => index === this.state.prices.findIndex(element => element.name === price.name))
+                        })
+                    }
+                    catch(err) {}
                     for(let k = this.state.books.length - 1; k >= (this.state.books.length > 3 ? this.state.books.length - 3 : 0); k--){
                         await this.setState({
                             carouselBooks: this.state.carouselBooks.concat(this.state.books[k])
@@ -437,16 +482,16 @@ class HomePage extends Component {
                     <Carousel.Item id={book.id} onClick={this.handleBookClick} style={{height: "300px", cursor: "pointer"}}>
                         <img
                             id={book.id}
-                            className="d-block w-100"
+                            className="d-block w-100 shelf-book"
                             src={book.bookImage}
                             alt="First book"
                             style={{display: "inline-block"}}
-                            // onError={({ currentTarget }) => {
-                            //     currentTarget.onerror = null;
-                            //     currentTarget.src=imageApi.getImageUrl("0");
-                            // }}
+                            onError={({ currentTarget }) => {
+                                currentTarget.onerror = null;
+                                currentTarget.src=imageApi.getImageUrl("0");
+                            }}
                         />
-                        <Carousel.Caption style={{textShadow: "-2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000"}}>
+                        <Carousel.Caption style={{textShadow: "-1px -1px 10px #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000"}}>
                             <h3>{book.title}</h3>
                             <EllipsisText text={book.description} length={"750"}/>
                         </Carousel.Caption>
@@ -478,13 +523,13 @@ class HomePage extends Component {
         }
 
         return (
-          <div style={{backgroundColor: "#212121"}}>
+          <div style={{backgroundColor: "#212121", height: '100%', width: '100%'}}>
               <div>
                   <NavbarTemplate/>
                   <br/>
               </div>
 
-              <div style={{backgroundColor: "#212121", height: '100%'}}>
+              <div style={{backgroundColor: "#212121"}}>
                   <div>
                       <Carousel style={{height: "300px"}}>
                           {carouselBooks}
@@ -546,7 +591,7 @@ class HomePage extends Component {
                       {pages}
                   </Tabs>
 
-                  <div style={{height: "300px", marginTop: "50px", backgroundColor: "#212121"}}>
+                  <div style={{height: "20%", marginTop: "50px", backgroundColor: "#212121"}}>
                       <Row style={{textAlign: "center", alignItems: "center", backgroundColor: "#212121"}} xs={5}>
                           {books.length > 0 ? books : (<p style={{textAlign: "center", color: "#4cbde9"}}>No Books in Store</p>)}
                       </Row>

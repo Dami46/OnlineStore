@@ -117,7 +117,7 @@ class DropsPage extends Component {
                 tok = cookies.get('token');
             }
             await axios.get(URLAddress + '/api/drop', (tok == '' ? {} : { params: {
-                    token: tok
+                token: tok
             }})).then(dropsResp => {
                 return dropsResp.data;
             }).then(async resp => {
@@ -164,99 +164,149 @@ class DropsPage extends Component {
                                 wasStarted: data[i].wasStarted,
                             }),
                         })
-                        if(!this.state.authors.includes(book.author.toLowerCase())){
-                            await this.setState({
-                                authors: this.state.authors.concat({
-                                    name: book.author,
-                                }),
-                            })
+                        try{
+                            if(!this.state.authors.includes(book.author.toLowerCase())){
+                                await this.setState({
+                                    authors: this.state.authors.concat({
+                                        name: book.author,
+                                    }),
+                                })
+                            }
                         }
-                        if(!this.state.categorys.includes(book.category.toLowerCase())){
-                            await this.setState({
-                                categorys: this.state.categorys.concat({
-                                    name: book.category,
-                                }),
-                            })
+                        catch(err) {}
+                        try{
+                            if(!this.state.categorys.includes(book.category.toLowerCase())){
+                                await this.setState({
+                                    categorys: this.state.categorys.concat({
+                                        name: book.category,
+                                    }),
+                                })
+                            }
                         }
-                        if(!this.state.languages.includes(book.language.toLowerCase())){
-                            await this.setState({
-                                languages: this.state.languages.concat({
-                                    name: book.language,
-                                }),
-                            })
+                        catch(err) {}
+                        try{
+                            if(!this.state.languages.includes(book.language.toLowerCase())){
+                                await this.setState({
+                                    languages: this.state.languages.concat({
+                                        name: book.language,
+                                    }),
+                                })
+                            }
                         }
-                        if(!this.state.publishers.includes(book.publisher.toLowerCase())){
-                            await this.setState({
-                                publishers: this.state.publishers.concat({
-                                    name: book.publisher,
-                                }),
-                            })
+                        catch(err) {}
+                        try{
+                            if(!this.state.publishers.includes(book.publisher.toLowerCase())){
+                                await this.setState({
+                                    publishers: this.state.publishers.concat({
+                                        name: book.publisher,
+                                    }),
+                                })
+                            }
                         }
-                        if(!this.state.titles.includes(book.title.toLowerCase())){
-                            await this.setState({
-                                titles: this.state.titles.concat({
-                                    name: book.title,
-                                }),
-                            })
+                        catch(err) {}
+                        try{
+                            if(!this.state.titles.includes(book.title.toLowerCase())){
+                                await this.setState({
+                                    titles: this.state.titles.concat({
+                                        name: book.title,
+                                    }),
+                                })
+                            }
                         }
-                        if(!this.state.titles.includes(book.title.toLowerCase())){
-                            await this.setState({
-                                titles: this.state.titles.concat({
-                                    name: book.title,
-                                }),
-                            })
+                        catch(err) {}
+                        try{
+                            if(!this.state.titles.includes(book.title.toLowerCase())){
+                                await this.setState({
+                                    titles: this.state.titles.concat({
+                                        name: book.title,
+                                    }),
+                                })
+                            }
                         }
-                        if(!this.state.publicationDates.includes(book.publicationDate.toLowerCase())){
-                            await this.setState({
-                                publications: this.state.publicationDates.concat({
-                                    name: book.publicationDate,
-                                }),
-                            })
+                        catch(err) {}
+                        try{
+                            if(!this.state.publicationDates.includes(book.publicationDate.toLowerCase())){
+                                await this.setState({
+                                    publications: this.state.publicationDates.concat({
+                                        name: book.publicationDate,
+                                    }),
+                                })
+                            }
                         }
-                        if(!this.state.prices.includes(book.ourPrice)){
-                            await this.setState({
-                                prices: this.state.prices.concat({
-                                    name: book.ourPrice,
-                                }),
-                            })
+                        catch(err) {}
+                        try{
+                            if(!this.state.prices.includes(book.ourPrice)){
+                                await this.setState({
+                                    prices: this.state.prices.concat({
+                                        name: book.ourPrice,
+                                    }),
+                                })
+                            }
                         }
+                        catch(err) {}
                     }
                 }
-                await this.setState({
-                    authors: this.state.authors.filter((author, index) => index === this.state.authors.findIndex(element => element.name === author.name))
-                })
-                await this.setState({
-                    categorys: this.state.categorys.filter((category, index) => index === this.state.categorys.findIndex(element => element.name === category.name))
-                })
-                await this.setState({
-                    languages: this.state.languages.filter((language, index) => index === this.state.languages.findIndex(element => element.name === language.name))
-                })
-                await this.setState({
-                    publishers: this.state.publishers.filter((publisher, index) => index === this.state.publishers.findIndex(element => element.name === publisher.name))
-                })
-                await this.setState({
-                    titles: this.state.titles.filter((title, index) => index === this.state.titles.findIndex(element => element.name === title.name))
-                })
-                await this.setState({
-                    publicationDates: this.state.publicationDates.filter((publicationDate, index) => index === this.state.publicationDates.findIndex(element => element.name === publicationDate.name))
-                })
-                await this.setState({
-                    prices: this.state.prices.filter((price, index) => index === this.state.prices.findIndex(element => element.name === price.name))
-                })
-            }, () => {
-                console.log(this.state.pages)
+                try {
+                    await this.setState({
+                        authors: this.state.authors.filter((author, index) => index === this.state.authors.findIndex(element => element.name === author.name))
+                    })
+                }
+                catch(err) {}
+                try {
+                    await this.setState({
+                        categorys: this.state.categorys.filter((category, index) => index === this.state.categorys.findIndex(element => element.name === category.name))
+                    })
+                }
+                catch(err) {}
+                try {
+                    await this.setState({
+                        languages: this.state.languages.filter((language, index) => index === this.state.languages.findIndex(element => element.name === language.name))
+                    })
+                }
+                catch(err) {}
+                try {
+                    await this.setState({
+                        publishers: this.state.publishers.filter((publisher, index) => index === this.state.publishers.findIndex(element => element.name === publisher.name))
+                    })
+                }
+                catch(err) {}
+                try {
+                    await this.setState({
+                        titles: this.state.titles.filter((title, index) => index === this.state.titles.findIndex(element => element.name === title.name))
+                    })
+                }
+                catch(err) {}
+                try {
+                    await this.setState({
+                        publicationDates: this.state.publicationDates.filter((publicationDate, index) => index === this.state.publicationDates.findIndex(element => element.name === publicationDate.name))
+                    })
+                }
+                catch(err) {}
+                try {
+                    await this.setState({
+                        prices: this.state.prices.filter((price, index) => index === this.state.prices.findIndex(element => element.name === price.name))
+                    })
+                }
+                catch(err) {}
             })
         }
     }
 
     handleDropClick(event){
         let id = event.currentTarget.id
-        this.setState({
-            dropChosen: true,
-            dropChosenId: id
-        }, () => {
-            console.log(this.state.dropChosenId)
-        })
+        if(cookies.get('token') == null){
+            this.setState({
+                wantToJoinDrop: true
+            })
+        }
+        else{
+            this.setState({
+                dropChosen: true,
+                dropChosenId: id
+            }, () => {
+                console.log(this.state.dropChosenId)
+            })
+        }
     }
 
     filterDropsClick(){
@@ -402,7 +452,7 @@ class DropsPage extends Component {
 
     render() {
         const drops = this.state.drops.map((drop) =>
-            <Card style={{marginLeft: "5%", marginBottom: "40px", height: '10%', width: '20%', display: "inline-block", backgroundColor: "#4c4c4c"}} id={drop.id}>
+            <Card style={{marginLeft: "5%", marginBottom: "40px", height: '10%', width: '20%', display: "inline-block", backgroundColor: "#4c4c4c", overflowX: "hidden"}} id={drop.id}>
                 <Card.Body>
                     <Card.Img style={{width: "60%", height: "300px", cursor: "pointer"}} onClick={this.handleDropClick} id={drop.id} variant="top" src={drop.bookDetails.bookImage} onError={({ currentTarget }) => {
                         currentTarget.onerror = null;
@@ -489,7 +539,7 @@ class DropsPage extends Component {
                         <br/>
                     </div>
 
-                    <div style={{marginLeft: "50%", width: "60%"}}>
+                    <div style={{marginLeft: "50%", width: "50%"}}>
                         <Form className="d-flex">
                             <Form.Label style={{ width: "10%", color: "#4cbde9", textAlign: "right", marginTop: "1%", marginLeft: "15%", fontWeight: "bold"}}>
                                 Filter with:

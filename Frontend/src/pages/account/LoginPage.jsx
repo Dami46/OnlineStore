@@ -6,7 +6,6 @@ import {Tab} from "bootstrap";
 import axios from "axios";
 import {useNavigate, Navigate} from 'react-router-dom';
 import {PATH} from "../../services/ConfigurationUrlAService";
-import Globals from "../../Globals";
 import Cookies from 'universal-cookie';
 import {Footer} from "../contact/Footer";
 
