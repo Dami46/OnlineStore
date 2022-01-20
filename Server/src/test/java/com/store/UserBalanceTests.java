@@ -5,24 +5,24 @@ import com.store.Domain.User;
 import com.store.Service.BalanceService;
 import com.store.Service.UserService;
 import org.junit.jupiter.api.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.List;
+import java.util.Collections;
 import java.util.Optional;
 
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class UserBalanceTests {
 
-    @Autowired
+    @Mock
     private BalanceService balanceService;
 
-    @Autowired
+    @Mock
     private UserService userService;
 
     private static User user = new User();
-    static List<BalanceRequest> balanceRequestList;
     static BalanceRequest balanceRequest = new BalanceRequest();
 
     @BeforeAll
@@ -34,7 +34,7 @@ public class UserBalanceTests {
     @Test
     @Order(1)
     void saveUser() {
-        userService.save(user);
+        Mockito.when(userService.save(user)).thenReturn(user);
     }
 
 
@@ -44,19 +44,20 @@ public class UserBalanceTests {
         balanceRequest.setUser(user);
         balanceRequest.setSumToAdd(69);
 
-        balanceService.addBalance(balanceRequest);
+        Mockito.when(balanceService.save(balanceRequest)).thenReturn(balanceRequest);
     }
 
     @Test
     @Order(3)
     void findBalanceByUser() {
-        balanceRequest = balanceService.findByUser(user).get(0);
+        BalanceRequest balanceRequest1 = new BalanceRequest();
+        Mockito.when(balanceService.findByUser(user)).thenReturn(Collections.singletonList(balanceRequest1));
     }
 
     @Test
     @Order(4)
     void findBalanceService() {
-       Optional<BalanceRequest> balanceRequest1 = balanceService.findById(balanceRequest.getId());
+        Optional<BalanceRequest> balanceRequest1 = balanceService.findById(balanceRequest.getId());
 
         balanceRequest1.ifPresent(request -> Assertions.assertEquals(request.getSumToAdd(), balanceRequest.getSumToAdd()));
     }
@@ -65,7 +66,7 @@ public class UserBalanceTests {
     @Order(5)
     void deleteBalance() {
         balanceService.removeRequest(balanceRequest.getId());
-        user = userService.findByUsername(user.getUsername());
+        Mockito.when(userService.findByUsername(user.getUsername())).thenReturn(user);
         userService.removeOne(user.getId());
     }
 
