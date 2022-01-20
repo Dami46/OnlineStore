@@ -10,4 +10,13 @@ class OnlineStoreApplicationTests {
     void contextLoads() {
     }
 
+    @Test
+    void requestTest() {
+    }
+
+    @Test
+    void handleRequest() {
+    }
+
+
 }

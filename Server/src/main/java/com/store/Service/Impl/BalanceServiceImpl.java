@@ -1,6 +1,7 @@
 package com.store.Service.Impl;
 
 import com.store.Domain.BalanceRequest;
+import com.store.Domain.User;
 import com.store.Repository.BalanceRepository;
 import com.store.Service.BalanceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,11 @@ public class BalanceServiceImpl implements BalanceService {
     }
 
     @Override
+    public List<BalanceRequest> findByUser(User user) {
+        return balanceRepository.findByUser(user);
+    }
+
+    @Override
     public BalanceRequest save(BalanceRequest balanceRequest) {
         return balanceRepository.save(balanceRequest);
     }
@@ -33,5 +39,10 @@ public class BalanceServiceImpl implements BalanceService {
     @Override
     public void addBalance(BalanceRequest balanceRequest) {
         balanceRepository.save(balanceRequest);
+    }
+
+    @Override
+    public void removeRequest(Long id) {
+        balanceRepository.deleteById(id);
     }
 }

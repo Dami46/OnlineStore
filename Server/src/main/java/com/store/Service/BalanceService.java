@@ -1,6 +1,7 @@
 package com.store.Service;
 
 import com.store.Domain.BalanceRequest;
+import com.store.Domain.User;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,7 +12,11 @@ public interface BalanceService {
 
     Optional<BalanceRequest> findById(Long id);
 
+    List<BalanceRequest> findByUser(User user);
+
     BalanceRequest save(BalanceRequest book);
 
     void addBalance(BalanceRequest balanceRequest);
+
+    void removeRequest(Long id);
 }
