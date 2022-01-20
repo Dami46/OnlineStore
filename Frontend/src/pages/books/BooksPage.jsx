@@ -245,9 +245,9 @@ class BooksPage extends Component {
                                             <div class="panel-body">
                                                 <div class="row">
                                                     <div class="col-xs-6">
-                                                        <h4> Price: <span style={{color: "#db3208"}}>$<span>{this.state.ourPrice}</span></span></h4>
-                                                        <p>Before Price: <span style={{textDecoration: "line-through"}}>$<span>{this.state.listPrice}</span></span></p>
-                                                        <p>You save: $<span>{Math.floor((this.state.listPrice - this.state.ourPrice) * 100) / 100}</span>
+                                                        <h4> Price: <span>$<span>{this.state.ourPrice}</span></span></h4>
+                                                        <p hidden={this.state.listPrice == 0.0}>Before Price: <span style={{textDecoration: "line-through", color: "#db3208"}}>$<span>{this.state.listPrice}</span></span></p>
+                                                        <p hidden={this.state.listPrice == 0.0}>You save: $<span>{Math.floor((this.state.listPrice - this.state.ourPrice) * 100) / 100}</span>
                                                         </p>
                                                         <br/> <br/>
                                                     </div>

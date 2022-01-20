@@ -461,7 +461,7 @@ class HomePage extends Component {
                     </Card.Subtitle>
                     <Card.Text style={{color: "#4cbde9"}}>
                         <div>
-                            <strong style={{textDecoration: 'line-through', color: "#f2575b", display: 'inline-block'}}>${book.listPrice}</strong> <p style={{display: 'inline-block'}}>${book.ourPrice}</p>
+                            <strong style={{textDecoration: 'line-through', color: "#f2575b", display: 'inline-block'}} hidden={book.listPrice == 0.0}>${book.listPrice}</strong> <p style={{display: 'inline-block'}}>${book.ourPrice}</p>
                         </div>
                         <EllipsisText style={{cursor: "pointer"}} text={book.description} id={book.id} onClick={this.handleBookClick} length={"130"} />
                     </Card.Text>
