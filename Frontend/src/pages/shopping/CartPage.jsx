@@ -28,7 +28,8 @@ class CartPage extends Component {
             continueShopping: false,
             checkOut: false,
             newQuantity: [],
-            quantityToSend: 0
+            quantityToSend: 0,
+            insufficientBalance: false
         }
 
         this.getShoppingCart();
@@ -41,7 +42,8 @@ class CartPage extends Component {
             totalPrice: 0,
             totalItems: 0,
             continueShopping: false,
-            checkOut: false
+            checkOut: false,
+            insufficientBalance: false
         })
         await axios.get('/api/shoppingCart/cart', { params: {
             token: cookies.get('token')
@@ -125,14 +127,33 @@ class CartPage extends Component {
     async handleCheckoutClick(){
         await cookies.remove('cartCheckout', { path: '/' });
         await cookies.set('cartCheckout', this.state.id, { path: '/' });
+        await this.setState({
+            insufficientBalance: false
+        })
         if(cookies.get('token') == null){
             this.setState({
                 wantToBuyBook: true
             })
         }
-        this.setState({
-            checkOut: true,
-        })
+        else{
+            await axios.post('/api/shoppingCart/buyItems?id=' + cookies.get('cartCheckout') + '&token=' + cookies.get('token'))
+            .then(async resp =>{
+                return resp;
+            }).then(async cart => {
+                if(cart.status == 200){
+                    await this.setState({
+                        checkOut: true,
+                    })
+                }
+            }).catch(async err => {
+                await this.setState({
+                    insufficientBalance: true
+                })
+            })
+        }
+        // this.setState({
+        //     checkOut: true,
+        // })
     }
 
     render() {
@@ -190,13 +211,20 @@ class CartPage extends Component {
                     <br/>
                 </div>
 
+                <div style={{textAlign: 'center'}}>
+                    <h4 style={{color: "green"}} hidden> In stock</h4>
+                    <h4 style={{color: "green"}} hidden> Only <span> in stock</span></h4>
+                    <h4 style={{color: "darkred"}} hidden> Unavailable </h4>
+                    <h2 style={{color: "#f2575b"}} hidden={!this.state.insufficientBalance}> Insufficient User Balance! </h2>
+                </div>
+
                 <div className="row" style={{marginTop: "10px", marginLeft: '10%', width: '80%'}}>
                     <div className="col-xs-12">
                         <div style={{display: "inline-block"}} className="col-xs-6 text-left">
-                            <a className="btn btn-primary" onClick={this.handleContinueShoppingClick}> Continue shopping</a>
+                            <button className="btn btn-primary" onClick={this.handleContinueShoppingClick}> Continue shopping</button>
                         </div>
                         <div style={{display: "inline-block", float: 'right'}} className="col-xs-6 text-right">
-                            <a className="btn btn-primary" onClick={this.handleCheckoutClick}> Check out</a>
+                            <button className="btn btn-primary" disabled={this.state.products.length == 0} onClick={this.handleCheckoutClick}> Check out</button>
                         </div>
                         <br/> <br/> <br/>
                         <div className="alert alert-warning" hidden>

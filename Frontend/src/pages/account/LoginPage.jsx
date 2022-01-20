@@ -66,43 +66,35 @@ class LoginPage extends Component {
         this.setState({
             username: event.target.value
         })
-        console.log(this.state.username);
     }
 
     changeEmail(event){
         this.setState({
             email: event.target.value
         })
-        console.log(this.state.email);
     }
 
     changePassword(event){
         this.setState({
             password: event.target.value
         })
-        console.log(this.state.password);
     }
 
     async submitLogin(event){
         event.preventDefault();
-        console.log(URLAddress + '/api/login')
         await axios.post(URLAddress + '/api/login', {
             username: this.state.username,
             password: this.state.password
         }).then(loginResp => {
-            console.log(loginResp.status)
             if(loginResp.status == 200){
-                console.log(loginResp.data)
                 this.setState({
                     logged: true,
                     invalidCredentials: false
                 });
                 cookies.set('isLogged', true, { path: '/' });
                 cookies.set('token', loginResp.data.token, { path: '/' });
-                console.log(cookies.get('isLogged'))
             }
         }).catch(err => {
-            console.log(err)
             if(err.response.status == 401) {
                 this.setState({
                     logged: false,
@@ -118,7 +110,6 @@ class LoginPage extends Component {
             email: this.state.email,
             username: this.state.username
         }).then(loginResp => {
-            console.log(loginResp)
             if(loginResp.status == 200){
                 this.setState({
                     userNameAlreadyExist: false,
@@ -127,8 +118,6 @@ class LoginPage extends Component {
                 });
             }
         }).catch(err => {
-            console.log(err.response.data)
-            console.log(err.response.data.emailExists)
             if(err.response.status == 403) {
                 if(err.response.data.userNameExists == true){
                     this.setState({

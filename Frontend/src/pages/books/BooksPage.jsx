@@ -35,6 +35,7 @@ class BooksPage extends Component {
             buyBook: false,
             addToCartId: '',
             chosenQuantity: 1,
+            insufficientBalance: false
         }
 
         this.fetchBookDetails = this.fetchBookDetails.bind(this)
@@ -61,7 +62,6 @@ class BooksPage extends Component {
             await axios.get(URLAddress + '/api/bookDetail', { params: { id: this.state.id } }).then(bookResp => {
                 return bookResp.data.book;
             }).then(data => {
-                console.log(data)
                 this.setState({
                     id: data.id,
                     author: data.author,
@@ -88,6 +88,9 @@ class BooksPage extends Component {
     async buyBook(event){
         await cookies.remove('buyBook', { path: '/' });
         await cookies.set('buyBook', { "bookId": this.state.id, "quantity": 1 }, { path: '/' });
+        await this.setState({
+            insufficientBalance: false
+        })
         if(cookies.get('token') == null){
             this.setState({
                 wantToBuyBook: true
@@ -99,13 +102,21 @@ class BooksPage extends Component {
                 quantity: cookies.get('buyBook').quantity,
                 token: cookies.get('token')
             }, { params: {
-                    buyBook: 'buyBook'
-                }}).then(async resp =>{
+                buyBook: 'buyBook'
+            }}).then(async resp =>{
                 if(resp.status == 200){
-                    await this.setState({
-                        buyBookId: this.state.id,
-                        buyBook: true
-                    })
+                    if(resp.data.insufficientUserBalance == true) {
+                        await this.setState({
+                            insufficientBalance: true
+                        })
+                        window.scrollTo(0, 0);
+                    }
+                    else {
+                        await this.setState({
+                            buyBookId: this.state.id,
+                            buyBook: true
+                        })
+                    }
                 }
             })
         }
@@ -153,8 +164,11 @@ class BooksPage extends Component {
         }
 
         if (this.state.checkCart) {
-            console.log(cookies.get('addToCart'))
             return <Navigate to={{pathname: "/shopping#id#" + cookies.get('addToCart').bookId + '#quantity#' + cookies.get('addToCart').quantity}} />
+        }
+
+        if(this.state.wantToBuyBook) {
+            return <Navigate to={{pathname: "/login"}} />
         }
 
         return (
@@ -204,6 +218,13 @@ class BooksPage extends Component {
                                 </div>
                             </div>
 
+                            <div style={{textAlign: 'center'}}>
+                                <h4 style={{color: "green"}} hidden> In stock</h4>
+                                <h4 style={{color: "green"}} hidden> Only <span> in stock</span></h4>
+                                <h4 style={{color: "darkred"}} hidden> Unavailable </h4>
+                                <h2 style={{color: "#f2575b"}} hidden={!this.state.insufficientBalance}> Insufficient User Balance! </h2>
+                            </div>
+
                             <div style={{display: 'inline-block'}} class="col-xs-9">
                                 <h3><span style={{color: "forestgreen"}} hidden><i class="fa fa-check" aria-hidden="true" style={{color: "forestgreen"}}></i>Added to cart.</span></h3>
                                 <h3><span style={{color: "red"}} hidden>Oops, only <span>{this.state.inStockNumber}</span> In Stock.</span></h3>
@@ -216,7 +237,6 @@ class BooksPage extends Component {
                                         <p><strong>Language: </strong> <span>{this.state.language}</span></p>
                                         <p><strong>Category: </strong> <span>{this.state.category}</span></p>
                                         <p><strong>Number of pages: </strong><span>{this.state.numberOfPages}</span> </p>
-                                        {/*<div dangerouslySetInnerHTML={{ __html: this.state.description }} style={{width: '60%', backgroundColor: "#212121", color: "#4cbde9",}}></div>*/}
                                         <p style={{width: '60%'}}><strong>Description: </strong>{this.state.description}</p>
                                     </div>
 
@@ -240,12 +260,6 @@ class BooksPage extends Component {
                         <p></p>
                         </div>
                     </form>
-
-                    <div className="col-xs-6" style={{textAlign: 'center'}}>
-                        <h4 style={{color: "green"}} hidden> In stock</h4>
-                        <h4 style={{color: "green"}} hidden> Only <span> in stock</span></h4>
-                        <h4 style={{color: "darkred"}} hidden> Unavailable </h4>
-                    </div>
                 </div>
                 <Footer/>
             </div>
