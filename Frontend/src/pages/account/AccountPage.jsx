@@ -195,7 +195,7 @@ class AccountPage extends Component {
 
     async getShippingDetails(){
         this.setState({
-            userShippingDefault: [],
+            userShippingDefault: '',
             userShippingList: [],
         })
         await axios.get(PATH + "/api/listOfShippingAddresses", { params: {
@@ -204,6 +204,7 @@ class AccountPage extends Component {
         }).then(resp => {
             return resp.data.userShippingList;
         }).then(shippingList => {
+            console.log(shippingList)
             for(let i = 0; i < shippingList.length; i++){
                 this.setState({
                     userShippingList: this.state.userShippingList.concat({

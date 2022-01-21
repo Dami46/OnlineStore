@@ -16,8 +16,8 @@ class OrderSubmittedPage extends Component {
             bookImage: imageApi.getImageUrl(cookies.get('checkout').bookId),
             bookTitle: cookies.get('checkout').bookTitle,
             bookAuthor: cookies.get('checkout').bookAuthor,
-            bookPrice: cookies.get('checkout').price,
-            bookTotal: cookies.get('checkout').price + (cookies.get('checkout').shippingOption == "premiumShipping" ? 10 : 5)
+            bookPrice: cookies.get('checkout').price - (cookies.get('checkout').shippingOption == "premiumShipping" ? 10 : 5),
+            bookTotal: cookies.get('checkout').price
         }
     }
 

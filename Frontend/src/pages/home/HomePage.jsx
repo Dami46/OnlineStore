@@ -11,6 +11,7 @@ import {Navigate} from 'react-router-dom';
 import Cookies from 'universal-cookie';
 import EllipsisText from "react-ellipsis-text";
 import {Footer} from "../contact/Footer";
+import {LoadingScreen} from "../../services/LoadingScreen";
 
 const cookies = new Cookies();
 
@@ -57,7 +58,9 @@ class HomePage extends Component {
             checkCart: false,
             buyBookId: '',
             wantToBuyBook: false,
-            sortingOption: 'title'
+            sortingOption: 'title',
+            insufficientBalance: false,
+            isLoading: true,
         }
 
         if(this.state.currentPageId == undefined){
@@ -70,6 +73,9 @@ class HomePage extends Component {
     }
 
     async fetchBooks(){
+        this.setState({
+            isLoading: true,
+        })
         if(cookies.get('isLogged') == null){
             cookies.remove('token',  { path: '/' })
         }
@@ -95,7 +101,6 @@ class HomePage extends Component {
             await axios.get(URLAddress + '/api/bookshelf').then(booksResp => {
                 return booksResp.data.bookList;
             }).then(async data => {
-                console.log(data)
                 if(this.state.books.length == 0) {
                     for(let j = 0; j < data.length; j++){
                         if(j % 20 == 0){
@@ -254,9 +259,11 @@ class HomePage extends Component {
                     }
                 }
             }, () => {
-                console.log(this.state.pages)
             })
         }
+        this.setState({
+            isLoading: false,
+        })
     }
 
     handleBookClick(event){
@@ -265,7 +272,6 @@ class HomePage extends Component {
             bookChosen: true,
             bookChosenId: id
         }, () => {
-            console.log(this.state.bookChosenId)
         })
     }
 
@@ -287,8 +293,6 @@ class HomePage extends Component {
             filterOption: event.target.value,
             options: this.state[event.target.value + "s"]
         }, () => {
-            console.log(this.state.filterOption)
-            console.log(this.state.options)
         })
     }
 
@@ -296,7 +300,6 @@ class HomePage extends Component {
         this.setState({
             searchInput: event.target.value
         }, () => {
-            console.log(this.state.searchInput)
         })
 
     }
@@ -306,7 +309,6 @@ class HomePage extends Component {
             this.setState({
                 searchInput: event[0].name
             }, () => {
-                console.log(this.state.searchInput)
             })
         }
         catch(err) {
@@ -315,7 +317,6 @@ class HomePage extends Component {
     }
 
     updatePage(key){
-        console.log(key)
             this.fetchBooks().then(() => {
                 let filteredBooks = [];
                 let fin = key * 20;
@@ -323,7 +324,6 @@ class HomePage extends Component {
                     fin = this.state.books.length;
                 }
                 for(let i = (key - 1) * 20; i < fin; i++){
-                    console.log(i);
                     filteredBooks.push(this.state.books[i]);
                 }
                 this.setState({
@@ -335,8 +335,11 @@ class HomePage extends Component {
     async buyBook(event){
         await cookies.remove('buyBook', { path: '/' });
         await cookies.set('buyBook', { "bookId": event.target.id, "quantity": 1 }, { path: '/' });
+        await this.setState({
+            insufficientBalance: false
+        })
         if(cookies.get('token') == null){
-            this.setState({
+            await this.setState({
                 wantToBuyBook: true
             })
         }
@@ -347,12 +350,20 @@ class HomePage extends Component {
                 token: cookies.get('token')
             }, { params: {
                     buyBook: 'buyBook'
-            }}).then(async resp =>{
+            }}).then(async resp => {
                 if(resp.status == 200){
-                    await this.setState({
-                        buyBookId: event.target.id,
-                        buyBook: true
-                    })
+                    if(resp.data.insufficientUserBalance == true) {
+                        await this.setState({
+                            insufficientBalance: true
+                        })
+                        window.scrollTo(0, 0);
+                    }
+                    else {
+                        await this.setState({
+                            buyBookId: event.target.id,
+                            buyBook: true
+                        })
+                    }
                 }
             })
         }
@@ -440,7 +451,7 @@ class HomePage extends Component {
 
     render() {
         const books = this.state.books.map((book) =>
-            <Card style={{marginLeft: "5%", marginBottom: "40px", height: '10%', width: '20%', display: "inline-block", color: "white", backgroundColor: "#4c4c4c"}} id={book.id}>
+            <Card style={{marginLeft: "4%", marginBottom: "40px", height: '600px', width: '20%', display: "inline-block", color: "white", backgroundColor: "#4c4c4c"}} id={book.id}>
                 <Card.Body>
                     <Card.Img style={{width: "60%", height: "300px", cursor: "pointer"}} variant="top" src={book.bookImage} id={book.id} onClick={this.handleBookClick} onError={({ currentTarget }) => {
                         currentTarget.onerror = null;
@@ -458,7 +469,7 @@ class HomePage extends Component {
                     </Card.Subtitle>
                     <Card.Text style={{color: "#4cbde9"}}>
                         <div>
-                            <strong style={{textDecoration: 'line-through', color: "#f2575b", display: 'inline-block'}}>${book.listPrice}</strong> <p style={{display: 'inline-block'}}>${book.ourPrice}</p>
+                            <strong style={{textDecoration: 'line-through', color: "#f2575b", display: 'inline-block'}} hidden={book.listPrice == 0.0}>${book.listPrice}</strong> <p style={{display: 'inline-block'}}>${book.ourPrice}</p>
                         </div>
                         <EllipsisText style={{cursor: "pointer"}} text={book.description} id={book.id} onClick={this.handleBookClick} length={"130"} />
                     </Card.Text>
@@ -477,7 +488,6 @@ class HomePage extends Component {
         let carouselBooks;
         if(this.state.books.length > 0){
             try{
-                console.log(this.state.carouselBooks)
                 carouselBooks = this.state.carouselBooks.map((book) =>
                     <Carousel.Item id={book.id} onClick={this.handleBookClick} style={{height: "300px", cursor: "pointer"}}>
                         <img
@@ -524,12 +534,13 @@ class HomePage extends Component {
 
         return (
           <div style={{backgroundColor: "#212121", height: '100%', width: '100%'}}>
+              {this.state.isLoading && <LoadingScreen/>}
               <div>
                   <NavbarTemplate/>
                   <br/>
               </div>
 
-              <div style={{backgroundColor: "#212121"}}>
+              <div hidden={this.state.isLoading} style={{backgroundColor: "#212121"}}>
                   <div>
                       <Carousel style={{height: "300px"}}>
                           {carouselBooks}
@@ -592,6 +603,12 @@ class HomePage extends Component {
                   </Tabs>
 
                   <div style={{height: "20%", marginTop: "50px", backgroundColor: "#212121"}}>
+                      <div style={{textAlign: 'center'}}>
+                          <h4 style={{color: "green"}} hidden> In stock</h4>
+                          <h4 style={{color: "green"}} hidden> Only <span> in stock</span></h4>
+                          <h4 style={{color: "darkred"}} hidden> Unavailable </h4>
+                          <h2 style={{color: "#f2575b"}} hidden={!this.state.insufficientBalance}> Insufficient User Balance! </h2>
+                      </div>
                       <Row style={{textAlign: "center", alignItems: "center", backgroundColor: "#212121"}} xs={5}>
                           {books.length > 0 ? books : (<p style={{textAlign: "center", color: "#4cbde9"}}>No Books in Store</p>)}
                       </Row>

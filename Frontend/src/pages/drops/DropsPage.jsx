@@ -1,16 +1,16 @@
 import {NavbarTemplate} from "../navbar/NavbarTemplate";
 import axios from "axios";
 import * as imageApi from "../../services/ImageApi";
-import {Row, Card, Carousel, Form, FormControl, Button, FormSelect, Tabs} from "react-bootstrap";
+import {Row, Card, Form, Button, Tabs} from "react-bootstrap";
 import {PATH} from "../../services/ConfigurationUrlAService";
-import {Link, Navigate} from "react-router-dom";
+import {Navigate} from "react-router-dom";
 import {Typeahead} from 'react-bootstrap-typeahead';
 import {Tab} from "bootstrap";
-import {Component, useState, useEffect} from 'react';
+import {Component} from 'react';
 import EllipsisText from "react-ellipsis-text";
 import Cookies from 'universal-cookie';
-import {min} from "rxjs/operators";
 import {Footer} from "../contact/Footer";
+import {LoadingScreen} from "../../services/LoadingScreen";
 
 const cookies = new Cookies();
 
@@ -79,7 +79,8 @@ class DropsPage extends Component {
             options: [],
             searchInput: '',
             userTodropList: [],
-            currentTime: new Date()
+            currentTime: new Date(),
+            isLoading: true,
         }
 
         if(this.state.currentPageId == undefined){
@@ -93,6 +94,9 @@ class DropsPage extends Component {
     }
 
     async fetchdrops(){
+        this.setState({
+            isLoading: true,
+        })
         if(this.state.dropsLoaded == false) {
             this.setState({
                 dropsLoaded: false,
@@ -290,6 +294,9 @@ class DropsPage extends Component {
                 catch(err) {}
             })
         }
+        this.setState({
+            isLoading: false,
+        })
     }
 
     handleDropClick(event){
@@ -501,6 +508,7 @@ class DropsPage extends Component {
 
         return (
             <div style={{backgroundColor: "#212121", height: '100%', minHeight: '100vh'}}>
+                {this.state.isLoading && <LoadingScreen/>}
                 <div>
                     <NavbarTemplate/>
                     <br/>
@@ -510,7 +518,7 @@ class DropsPage extends Component {
                     <br/>
                 </div>
 
-                <div>
+                <div hidden={this.state.isLoading}>
 
                     <div>
                         <br/>
