@@ -628,6 +628,9 @@ class AccountPage extends Component {
     }
 
     async deleteShipping(event){
+        this.setState({
+            isLoading: true,
+        })
         await axios.delete(URLAddress + '/api/removeUserShipping', { data: {
             token: cookies.get('token'),
             id: event.target.id,
@@ -637,23 +640,33 @@ class AccountPage extends Component {
                 this.getShippingDetails();
             }
         })
+        this.setState({
+            isLoading: false,
+        })
     }
 
     chooseDefaultShipping(event){
         this.setState({
             newUserShippingDefault: event.target.value
         })
+        console.log(this.state.newUserShippingDefault)
     }
 
     async updateShippings(){
+        this.setState({
+            isLoading: true,
+        })
         await axios.post(URLAddress + '/api/setDefaultShippingAddress', {
             token: cookies.get('token'),
-            id: this.state.userShippingDefault,
+            id: this.state.newUserShippingDefault,
             userShippingDefault: this.state.userShippingDefault == this.state.newUserShippingDefault
         }).then(async resp => {
             if(resp.status == 200){
                 this.getShippingDetails();
             }
+        })
+        this.setState({
+            isLoading: false,
         })
     }
 
@@ -696,7 +709,7 @@ class AccountPage extends Component {
 
         const shippingList = this.state.userShippingList.map((shipping) =>
             <tr style={{backgroundColor: "#212121", color: "#4cbde9"}}>
-                <td><input onClick={this.chooseDefaultShipping} type="radio" name="defaultShippingAddressId" checked={this.state.userShippingDefault == shipping.id} value={shipping.id}/><span></span>
+                <td><input onClick={this.chooseDefaultShipping} type="radio" name="defaultShippingAddressId" checked={this.state.newUserShippingDefault == shipping.id} value={shipping.id}/><span></span>
                 </td>
                 <td style={{fontWeight: shipping.id == this.state.userShippingDefault ? 'bold' : 'normal'}}>{shipping.userShippingStreet1} {shipping.userShippingStreet2} {shipping.userShippingCity} {shipping.userShippingZipcode} {shipping.userShippingState}</td>
                 <td><a><i style={{cursor: 'pointer'}} id={shipping.id} className="fa fa-pencil" onClick={this.updateShippingOpen}></i></a>&nbsp;&nbsp;<a><i style={{cursor: 'pointer'}} id={shipping.id} className="fa fa-times" onClick={this.deleteShipping}></i></a></td>

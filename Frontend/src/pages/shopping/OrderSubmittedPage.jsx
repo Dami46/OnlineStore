@@ -72,7 +72,7 @@ class OrderSubmittedPage extends Component {
                                         <h4>Title: {this.state.bookTitle}</h4>
                                         <h4>Author: {this.state.bookAuthor}</h4>
                                         <h4>Quantity: 1</h4>
-                                        <h4>Price: ${this.state.bookPrice}</h4>
+                                        <h4>Price: ${Math.round(this.state.bookPrice / 100) * 100}</h4>
                                         <br/>
                                     </a>
                                 </div>

@@ -30,7 +30,7 @@ class CartOrderSubmittedPage extends Component {
                         </p>
                     </div>
                 </td>
-                <td style={{textAlign: "center"}}>${product.price}</td>
+                <td style={{textAlign: "center"}}>${Math.round(product.price / 100) * 100}</td>
                 <td style={{textAlign: "center"}}>{product.quantity}</td>
                 <td style={{textAlign: "center"}}>${product.subtotal}</td>
             </tr>

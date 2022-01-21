@@ -92,6 +92,7 @@ class Checkout extends Component {
                 shippingInfoZipcode: '',
             },
             isLoading: true,
+            notEnoughStock: false,
         }
 
         this.getBookDetails()
@@ -144,7 +145,14 @@ class Checkout extends Component {
         this.state.shippingInfoCity == '' ||
         this.state.shippingInfoState == '' ||
         this.state.shippingInfoCountry == '' ||
-        this.state.shippingInfoZipcode == ''){
+        this.state.shippingInfoZipcode == '' ||
+        this.state.shippingInfoName == null ||
+        this.state.shippingInfoStreet1 == null ||
+        this.state.shippingInfoStreet2 == null ||
+        this.state.shippingInfoCity == null ||
+        this.state.shippingInfoState == null ||
+        this.state.shippingInfoCountry == null ||
+        this.state.shippingInfoZipcode == null){
             console.log(this.state)
             this.setState({
                 paymentDisabled: true
@@ -165,7 +173,14 @@ class Checkout extends Component {
             this.state.paymentInfoCity == '' ||
             this.state.paymentInfoState == '' ||
             this.state.paymentInfoCountry == '' ||
-            this.state.paymentInfoZipcode == ''){
+            this.state.paymentInfoZipcode == '' ||
+            this.state.paymentInfoName == null ||
+            this.state.paymentInfoStreet1 == null ||
+            this.state.paymentInfoStreet2 == null ||
+            this.state.paymentInfoCity == null ||
+            this.state.paymentInfoState == null ||
+            this.state.paymentInfoCountry == null ||
+            this.state.paymentInfoZipcode == null){
             this.setState({
                 reviewDisabled: true
             })
@@ -298,7 +313,7 @@ class Checkout extends Component {
                 paymentInfoState: this.state.shippingInfoState,
                 paymentInfoCountry: this.state.shippingInfoCountry,
                 paymentInfoZipcode: this.state.shippingInfoZipcode,
-                reviewDisabled: false
+                // reviewDisabled: false
             })
             await this.checkPayment()
         }
@@ -312,9 +327,14 @@ class Checkout extends Component {
                 paymentInfoState: '',
                 paymentInfoCountry: '',
                 paymentInfoZipcode: '',
-                reviewDisabled: true
+                // reviewDisabled: true
             })
             await this.checkPayment()
+        }
+        if(this.state.reviewDisabled == null){
+            this.setState({
+                reviewDisabled: true,
+            })
         }
     }
 
@@ -364,6 +384,11 @@ class Checkout extends Component {
                 }, { path: '/' })
             }
         })
+        .catch(err => {
+            this.setState({
+                notEnoughStock: true,
+            })
+        })
         this.setState({
             isLoading: false,
         })
@@ -397,6 +422,11 @@ class Checkout extends Component {
                 // paymentDisabled: true
             })
             await this.checkShipping()
+        }
+        if(this.state.shippingInfoName == null){
+            this.setState({
+                paymentDisabled: true,
+            })
         }
 
     }
@@ -563,6 +593,9 @@ class Checkout extends Component {
                                     </Tab>
 
                                     <Tab style={tableBodyStyle} eventKey="reviewItems" title="Review Items" disabled={this.state.reviewDisabled}>
+                                        <div style={{textAlign: 'center'}}>
+                                            <h2 style={{color: "#f2575b"}} hidden={!this.state.notEnoughStock}> Not Enough In Stock</h2>
+                                        </div>
                                         <div id="reviewItems">
                                             <div className="panel-body">
                                                 <h4>Choose your shipping method:</h4>
