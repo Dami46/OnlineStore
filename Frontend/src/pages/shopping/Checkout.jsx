@@ -7,6 +7,7 @@ import Cookies from 'universal-cookie';
 import * as imageApi from "../../services/ImageApi";
 import {Navigate} from "react-router-dom";
 import {Footer} from "../contact/Footer";
+import {LoadingScreen} from "../../services/LoadingScreen";
 
 const cookies = new Cookies();
 
@@ -89,13 +90,17 @@ class Checkout extends Component {
                 shippingInfoState: '',
                 shippingInfoCountry: '',
                 shippingInfoZipcode: '',
-            }
+            },
+            isLoading: true,
         }
 
         this.getBookDetails()
     }
 
     async getBookDetails(){
+        this.setState({
+            isLoading: true,
+        })
         cookies.remove('checkout', { path: '/' })
         await axios.get('/api/checkout?id=' + cookies.get('buyBook').bookId + '&token=' + cookies.get('token'))
         .then(async resp =>{
@@ -107,7 +112,6 @@ class Checkout extends Component {
                 quantity: 1,
                 price: book.ourPrice
             })
-            console.log(data)
             if(data.shippingAddress != undefined){
                 await this.setState({
                     defaultShipment:{
@@ -121,6 +125,9 @@ class Checkout extends Component {
                     }
                 })
             }
+        })
+        this.setState({
+            isLoading: false,
         })
     }
 
@@ -138,11 +145,13 @@ class Checkout extends Component {
         this.state.shippingInfoState == '' ||
         this.state.shippingInfoCountry == '' ||
         this.state.shippingInfoZipcode == ''){
+            console.log(this.state)
             this.setState({
                 paymentDisabled: true
             })
         }
         else {
+            console.log(this.state)
             this.setState({
                 paymentDisabled: false
             })
@@ -278,9 +287,9 @@ class Checkout extends Component {
         this.checkPayment();
     }
 
-    samePaymentAndBilling(){
+    async samePaymentAndBilling(){
         if(!this.state.samePaymentAndBilling == true){
-            this.setState({
+            await this.setState({
                 samePaymentAndBilling: true,
                 paymentInfoName: this.state.shippingInfoName,
                 paymentInfoStreet1: this.state.shippingInfoStreet1,
@@ -291,9 +300,10 @@ class Checkout extends Component {
                 paymentInfoZipcode: this.state.shippingInfoZipcode,
                 reviewDisabled: false
             })
+            await this.checkPayment()
         }
         else{
-            this.setState({
+            await this.setState({
                 samePaymentAndBilling: false,
                 paymentInfoName: '',
                 paymentInfoStreet1: '',
@@ -304,6 +314,7 @@ class Checkout extends Component {
                 paymentInfoZipcode: '',
                 reviewDisabled: true
             })
+            await this.checkPayment()
         }
     }
 
@@ -314,7 +325,9 @@ class Checkout extends Component {
     }
 
     async buyBook(){
-        console.log(this.state)
+        this.setState({
+            isLoading: true,
+        })
         await axios.post('/api/checkout', {
             shippingAddress: {
                 shippingAddressName: this.state.shippingInfoName,
@@ -351,6 +364,9 @@ class Checkout extends Component {
                 }, { path: '/' })
             }
         })
+        this.setState({
+            isLoading: false,
+        })
     }
 
     async defaultShipment(){
@@ -364,8 +380,9 @@ class Checkout extends Component {
                 shippingInfoState: this.state.defaultShipment.shippingInfoState,
                 shippingInfoCountry: this.state.defaultShipment.shippingInfoCountry,
                 shippingInfoZipcode: this.state.defaultShipment.shippingInfoZipcode,
-                paymentDisabled: false
+                // paymentDisabled: false
             })
+            await this.checkShipping()
         }
         else{
             await this.setState({
@@ -377,9 +394,11 @@ class Checkout extends Component {
                 shippingInfoState: '',
                 shippingInfoCountry: '',
                 shippingInfoZipcode: '',
-                paymentDisabled: true
+                // paymentDisabled: true
             })
+            await this.checkShipping()
         }
+
     }
 
     render() {
@@ -389,6 +408,7 @@ class Checkout extends Component {
 
         return(
             <div style={{backgroundColor: "#212121", color: "#4cbde9", height: '100%', minHeight: '100vh'}}>
+                {this.state.isLoading && <LoadingScreen/>}
                 <div>
                     <NavbarTemplate/>
                     <br/>
@@ -398,7 +418,7 @@ class Checkout extends Component {
                     <br/>
                 </div>
 
-                <div className="container">
+                <div hidden={this.state.isLoading} className="container">
                     <div className="row">
                         <div>
                             <h2 className="section-headline">
@@ -436,7 +456,7 @@ class Checkout extends Component {
                                             <div className="panel-body">
                                                 <div className="checkbox">
                                                     <label>
-                                                        <input style={{textAlign: 'center'}} id="defaultShippingAddress" type="checkbox" name="defaultShipping" value="true" onChange={this.defaultShipment}/>
+                                                        <input style={{textAlign: 'center'}} id="defaultShippingAddress" type="checkbox" name="defaultShipping" onChange={this.defaultShipment}/>
                                                         Default shipping address
                                                     </label>
                                                 </div>
@@ -448,10 +468,10 @@ class Checkout extends Component {
 
                                                 <div className="form-group">
                                                     <label htmlFor="shippingStreet">* Street Address</label>
-                                                    <input style={{textAlign: 'center'}} type="text" className="form-control" id="shippingStreet" required="required" placeholder="Street Address 1" name="shippingAddressStreet1" value={this.state.shippingInfoStreet1} onChange={this.shippingInfoStreet1InputChange}/>
+                                                    <input style={{textAlign: 'center'}} type="text" className="form-control" id="shippingStreet1" required="required" placeholder="Street Address 1" name="shippingAddressStreet1" value={this.state.shippingInfoStreet1} onChange={this.shippingInfoStreet1InputChange}/>
                                                 </div>
                                                 <div className="form-group">
-                                                    <input style={{textAlign: 'center'}} type="text" className="form-control" placeholder="Street Address 2" name="shippingAddressStreet2" value={this.state.shippingInfoStreet2} onChange={this.shippingInfoStreet2InputChange}/>
+                                                    <input style={{textAlign: 'center'}} type="text" className="form-control" id="shippingStreet2" placeholder="Street Address 2" name="shippingAddressStreet2" value={this.state.shippingInfoStreet2} onChange={this.shippingInfoStreet2InputChange}/>
                                                 </div>
 
                                                 <div className="row">
@@ -469,7 +489,7 @@ class Checkout extends Component {
                                                     </div>
                                                     <div className="col-xs-4">
                                                         <div className="form-group">
-                                                            <label htmlFor="shippingCountry">* City</label>
+                                                            <label htmlFor="shippingCountry">* Country</label>
                                                             <input style={{textAlign: 'center'}} type="text" className="form-control" id="shippingCountry" placeholder="Shipping Country" required="required" value={this.state.shippingInfoCountry} onChange={this.shippingInfoCountryInputChange}/>
                                                         </div>
                                                     </div>
@@ -493,7 +513,7 @@ class Checkout extends Component {
                                             <div className="panel-body">
                                                 <div className="checkbox">
                                                     <label>
-                                                        <input style={{textAlign: 'center'}} id="theSameAsShippingAddress" type="checkbox" name="billingSameAsShipping" value="true" onChange={this.samePaymentAndBilling}/>
+                                                        <input style={{textAlign: 'center'}} id="theSameAsShippingAddress" type="checkbox" name="billingSameAsShipping" onChange={this.samePaymentAndBilling}/>
                                                         The same as shipping address
                                                     </label>
                                                 </div>
@@ -504,8 +524,8 @@ class Checkout extends Component {
                                                 </div>
                                                 <div className="form-group">
                                                     <label htmlFor="billingAddress">* Street Address</label>
-                                                    <input style={{textAlign: 'center'}} type="text" className="form-control billingAddress" id="billingAddress" placeholder="Street Address 1" required="required" value={this.state.paymentInfoStreet1} onChange={this.paymentInfoStreet1InputChange}/>
-                                                    <input style={{textAlign: 'center'}} type="text" className="form-control billingAddress" id="billingAddress" placeholder="Street Address 2" value={this.state.paymentInfoStreet2} onChange={this.paymentInfoStreet2InputChange}/>
+                                                    <input style={{textAlign: 'center'}} type="text" className="form-control billingAddress" id="billingStreet1" placeholder="Street Address 1" required="required" value={this.state.paymentInfoStreet1} onChange={this.paymentInfoStreet1InputChange}/>
+                                                    <input style={{textAlign: 'center'}} type="text" className="form-control billingAddress" id="billingStreet2" placeholder="Street Address 2" value={this.state.paymentInfoStreet2} onChange={this.paymentInfoStreet2InputChange}/>
                                                 </div>
 
                                                 <div className="row">
@@ -616,7 +636,7 @@ class Checkout extends Component {
 
                                                 <hr/>
 
-                                                <button type="submit" className="btn btn-primary btn-block" onClick={this.buyBook}>Place
+                                                <button className="btn btn-primary btn-block" onClick={this.buyBook}>Place
                                                     your order
                                                 </button>
                                             </div>

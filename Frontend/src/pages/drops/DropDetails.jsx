@@ -7,6 +7,7 @@ import Cookies from 'universal-cookie';
 import {Navigate} from "react-router-dom";
 import {Button} from "react-bootstrap";
 import {Footer} from "../contact/Footer";
+import {LoadingScreen} from "../../services/LoadingScreen";
 
 const cookies = new Cookies();
 
@@ -67,7 +68,8 @@ class DropDetails extends Component {
             userTodropList: '',
             wasRolled: '',
             wasStarted: '',
-            currentTime: new Date()
+            currentTime: new Date(),
+            isLoading: true,
         }
 
         this.fetchDropDetails()
@@ -75,6 +77,9 @@ class DropDetails extends Component {
     }
 
     async fetchDropDetails(){
+        this.setState({
+            isLoading: true,
+        })
         this.setState({
             dropDetails: {
                 id: '',
@@ -143,6 +148,9 @@ class DropDetails extends Component {
                 placeInDrop: resp.placeInDrop
             })
         });
+        this.setState({
+            isLoading: false,
+        })
     }
 
     async signUpOff(){
@@ -168,6 +176,7 @@ class DropDetails extends Component {
 
         return (
             <div style={{backgroundColor: "#212121", color: "#4cbde9", height: '100%', minHeight: '100vh'}}>
+                {this.state.isLoading && <LoadingScreen/>}
                 <div>
                     <NavbarTemplate/>
                     <br/>
@@ -177,7 +186,7 @@ class DropDetails extends Component {
                     <br/>
                 </div>
 
-                <div style={{backgroundColor: "#212121", color: "#4cbde9"}}>
+                <div hidden={this.state.isLoading} style={{backgroundColor: "#212121", color: "#4cbde9"}}>
                     <form method="post" style={{marginLeft: "10%"}}>
                         <div className="row" style={{marginTop: "20px"}}>
                             <div>

@@ -6,6 +6,7 @@ import {PATH} from "../../services/ConfigurationUrlAService";
 import Cookies from 'universal-cookie';
 import {Navigate} from "react-router-dom";
 import {Footer} from "../contact/Footer";
+import {LoadingScreen} from "../../services/LoadingScreen";
 
 const cookies = new Cookies();
 
@@ -35,7 +36,8 @@ class BooksPage extends Component {
             buyBook: false,
             addToCartId: '',
             chosenQuantity: 1,
-            insufficientBalance: false
+            insufficientBalance: false,
+            isLoading: true,
         }
 
         this.fetchBookDetails = this.fetchBookDetails.bind(this)
@@ -47,45 +49,54 @@ class BooksPage extends Component {
     }
 
     async fetchBookDetails(){
+        this.setState({
+            isLoading: true,
+        })
+        this.setState({
+            bookChosen: false,
+            bookChosenId: '',
+            books: [],
+            authors: [],
+            categories: [],
+            languages: [],
+            publishers: [],
+            quantity: [],
+            buyBook: false,
+            chosenQuantity: 1,
+        })
+        await axios.get(URLAddress + '/api/bookDetail', { params: { id: this.state.id } }).then(bookResp => {
+            return bookResp.data.book;
+        }).then(data => {
             this.setState({
-                bookChosen: false,
-                bookChosenId: '',
-                books: [],
-                authors: [],
-                categories: [],
-                languages: [],
-                publishers: [],
-                quantity: [],
-                buyBook: false,
-                chosenQuantity: 1,
+                id: data.id,
+                author: data.author,
+                bookImage: imageApi.getImageUrl(data.id),
+                category: data.category,
+                description: data.description,
+                inStockNumber: data.inStockNumber,
+                language: data.language,
+                listPrice: data.listPrice,
+                numberOfPages: data.numberOfPages,
+                ourPrice: data.ourPrice,
+                publicationDate: data.publicationDate,
+                publisher: data.publisher,
+                title: data.title
             })
-            await axios.get(URLAddress + '/api/bookDetail', { params: { id: this.state.id } }).then(bookResp => {
-                return bookResp.data.book;
-            }).then(data => {
+            for(let i = 1; i <= (data.inStockNumber >= 9 ? 9 : data.inStockNumber); i++){
                 this.setState({
-                    id: data.id,
-                    author: data.author,
-                    bookImage: imageApi.getImageUrl(data.id),
-                    category: data.category,
-                    description: data.description,
-                    inStockNumber: data.inStockNumber,
-                    language: data.language,
-                    listPrice: data.listPrice,
-                    numberOfPages: data.numberOfPages,
-                    ourPrice: data.ourPrice,
-                    publicationDate: data.publicationDate,
-                    publisher: data.publisher,
-                    title: data.title
+                    quantity: this.state.quantity.concat(i)
                 })
-                for(let i = 1; i <= (data.inStockNumber >= 9 ? 9 : data.inStockNumber); i++){
-                    this.setState({
-                        quantity: this.state.quantity.concat(i)
-                    })
-                }
-            });
+            }
+        });
+        this.setState({
+            isLoading: false,
+        })
     }
 
-    async buyBook(event){
+    async buyBook(){
+        this.setState({
+            isLoading: true,
+        })
         await cookies.remove('buyBook', { path: '/' });
         await cookies.set('buyBook', { "bookId": this.state.id, "quantity": 1 }, { path: '/' });
         await this.setState({
@@ -104,6 +115,8 @@ class BooksPage extends Component {
             }, { params: {
                 buyBook: 'buyBook'
             }}).then(async resp =>{
+                console.log(resp)
+                console.log(cookies.get('buyBook'))
                 if(resp.status == 200){
                     if(resp.data.insufficientUserBalance == true) {
                         await this.setState({
@@ -120,9 +133,15 @@ class BooksPage extends Component {
                 }
             })
         }
+        this.setState({
+            isLoading: false,
+        })
     }
 
-    async addToCart(event){
+    async addToCart(){
+        this.setState({
+            isLoading: true,
+        })
         await cookies.remove('addToCart', { path: '/' });
         await cookies.set('addToCart', { "bookId": this.state.id, "quantity": this.state.chosenQuantity }, { path: '/' });
         if(cookies.get('token') == null){
@@ -136,8 +155,8 @@ class BooksPage extends Component {
                 quantity: cookies.get('addToCart').quantity,
                 token: cookies.get('token')
             }, { params: {
-                    addToCart: 'addToCart'
-                }}).then(async resp =>{
+                addToCart: 'addToCart'
+            }}).then(async resp =>{
                 if(resp.status == 200){
                     await this.setState({
                         addToCartId: this.state.id,
@@ -146,6 +165,9 @@ class BooksPage extends Component {
                 }
             })
         }
+        this.setState({
+            isLoading: false,
+        })
     }
 
     changeQuantity(event){
@@ -160,11 +182,13 @@ class BooksPage extends Component {
         )
 
         if (this.state.buyBook) {
-            return <Navigate to={{pathname: "/checkout#id#" + cookies.get('buyBook').bookId + '#quantity#' + cookies.get('buyBook').quantity}} />
+            // return <Navigate to={{pathname: "/checkout#id#" + cookies.get('buyBook').bookId + '#quantity#' + cookies.get('buyBook').quantity}} />
+            return <Navigate to={{pathname: "/checkout"}} />
         }
 
         if (this.state.checkCart) {
-            return <Navigate to={{pathname: "/shopping#id#" + cookies.get('addToCart').bookId + '#quantity#' + cookies.get('addToCart').quantity}} />
+            // return <Navigate to={{pathname: "/shopping#id#" + cookies.get('addToCart').bookId + '#quantity#' + cookies.get('addToCart').quantity}} />
+            return <Navigate to={{pathname: "/shopping"}} />
         }
 
         if(this.state.wantToBuyBook) {
@@ -173,6 +197,7 @@ class BooksPage extends Component {
 
         return (
             <div style={{backgroundColor: "#212121", color: "#4cbde9"}}>
+                {this.state.isLoading && <LoadingScreen/>}
                 <div>
                     <NavbarTemplate/>
                     <br/>
@@ -182,13 +207,14 @@ class BooksPage extends Component {
                     <br/>
                 </div>
 
-                <div>
+                <div hidden={this.state.isLoading}>
                     <form style={{marginLeft: "10%"}}>
                         <div class="row" style={{marginTop: "20px"}}>
                             <div style={{display: 'inline-block'}} class="col-xs-3">
                                 <img src={this.state.bookImage} style={{width: '270px', height: '350px', marginLeft: '35%', display: "inline-block"}} class="img-responsive shelf-book"/>
                                 <div style={{display: "inline-block"}}>
                                     <button className="btn btn-primary" name="addToCart"
+                                            disabled={this.state.inStockNumber == 0}
                                             style={{
                                                 backgroundColor: "#212121",
                                                 color: "#4cbde9",
@@ -198,18 +224,20 @@ class BooksPage extends Component {
                                                 padding: "10px 40px 10px 40px"
                                             }} onClick={this.addToCart}
                                     >Add to cart</button>
-                                    <button className="btn btn-primary" name="buyBook" value=" Buy book" style={{
-                                        backgroundColor: "#212121",
-                                        color: "#4cbde9",
-                                        marginLeft: '20px',
-                                        marginTop: '20px',
-                                        display: 'block',
-                                        border: "1px solid",
-                                        padding: "10px 40px 10px 40px"
+                                    <button className="btn btn-primary" name="buyBook"
+                                        disabled={this.state.inStockNumber == 0}
+                                        style={{
+                                            backgroundColor: "#212121",
+                                            color: "#4cbde9",
+                                            marginLeft: '20px',
+                                            marginTop: '20px',
+                                            display: 'block',
+                                            border: "1px solid",
+                                            padding: "10px 40px 10px 40px"
                                     }} onClick={this.buyBook}
                                     >Buy book</button>
                                     <br/>
-                                    <div style={{marginLeft: '40px'}}>
+                                    <div style={{marginLeft: '40px'}} hidden={this.state.inStockNumber == 0}>
                                         <span>Quantity: </span>
                                         <select onChange={this.changeQuantity} name="qty">
                                             {quantity}
@@ -219,15 +247,15 @@ class BooksPage extends Component {
                             </div>
 
                             <div style={{textAlign: 'center'}}>
-                                <h4 style={{color: "green"}} hidden> In stock</h4>
-                                <h4 style={{color: "green"}} hidden> Only <span> in stock</span></h4>
-                                <h4 style={{color: "darkred"}} hidden> Unavailable </h4>
+                                <h2 style={{color: "green"}} hidden> In stock</h2>
+                                <h2 style={{color: "yellow"}} hidden={!(this.state.inStockNumber < 10 && this.state.inStockNumber > 0)}> Only {this.state.inStockNumber}<span> in stock</span></h2>
+                                <h2 style={{color: "#f2575b"}} hidden={!this.state.inStockNumber == 0}> Unavailable </h2>
                                 <h2 style={{color: "#f2575b"}} hidden={!this.state.insufficientBalance}> Insufficient User Balance! </h2>
                             </div>
 
                             <div style={{display: 'inline-block'}} class="col-xs-9">
                                 <h3><span style={{color: "forestgreen"}} hidden><i class="fa fa-check" aria-hidden="true" style={{color: "forestgreen"}}></i>Added to cart.</span></h3>
-                                <h3><span style={{color: "red"}} hidden>Oops, only <span>{this.state.inStockNumber}</span> In Stock.</span></h3>
+                                <h3><span style={{color: "#f2575b"}} hidden>Oops, only <span>{this.state.inStockNumber}</span> In Stock.</span></h3>
                                 <h3>{this.state.title}</h3>
                                 <div class="row">
                                     <div class="col-xs-5">

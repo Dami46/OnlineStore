@@ -5,6 +5,7 @@ import * as imageApi from "../../services/ImageApi";
 import axios from "axios";
 import {Navigate} from "react-router-dom";
 import {Footer} from "../contact/Footer";
+import {LoadingScreen} from "../../services/LoadingScreen";
 
 const cookies = new Cookies();
 
@@ -29,13 +30,17 @@ class CartPage extends Component {
             checkOut: false,
             newQuantity: [],
             quantityToSend: 0,
-            insufficientBalance: false
+            insufficientBalance: false,
+            isLoading: true,
         }
 
         this.getShoppingCart();
     }
 
     async getShoppingCart(){
+        this.setState({
+            isLoading: true,
+        })
         await this.setState({
             id: '',
             products: [],
@@ -69,6 +74,9 @@ class CartPage extends Component {
                 id: cart.shoppingCart.id,
                 totalPrice: cart.shoppingCart.totalPrize,
             })
+        })
+        this.setState({
+            isLoading: false,
         })
     }
 
@@ -202,6 +210,7 @@ class CartPage extends Component {
 
         return (
             <div style={{backgroundColor: "#212121", color: "#4cbde9", height: '100%', minHeight: '100vh'}}>
+                {this.state.isLoading && <LoadingScreen/>}
                 <div>
                     <NavbarTemplate/>
                     <br/>
@@ -211,57 +220,59 @@ class CartPage extends Component {
                     <br/>
                 </div>
 
-                <div style={{textAlign: 'center'}}>
-                    <h4 style={{color: "green"}} hidden> In stock</h4>
-                    <h4 style={{color: "green"}} hidden> Only <span> in stock</span></h4>
-                    <h4 style={{color: "darkred"}} hidden> Unavailable </h4>
-                    <h2 style={{color: "#f2575b"}} hidden={!this.state.insufficientBalance}> Insufficient User Balance! </h2>
-                </div>
+                <div hidden={this.state.isLoading}>
+                    <div style={{textAlign: 'center'}}>
+                        <h2 style={{color: "green"}} hidden> In stock</h2>
+                        <h2 style={{color: "green"}} hidden> Only <span> in stock</span></h2>
+                        <h4 style={{color: "darkred"}} hidden> Unavailable </h4>
+                        <h2 style={{color: "#f2575b"}} hidden={!this.state.insufficientBalance}> Insufficient User Balance! </h2>
+                    </div>
 
-                <div className="row" style={{marginTop: "10px", marginLeft: '10%', width: '80%'}}>
-                    <div className="col-xs-12">
-                        <div style={{display: "inline-block"}} className="col-xs-6 text-left">
-                            <button className="btn btn-primary" onClick={this.handleContinueShoppingClick}> Continue shopping</button>
-                        </div>
-                        <div style={{display: "inline-block", float: 'right'}} className="col-xs-6 text-right">
-                            <button className="btn btn-primary" disabled={this.state.products.length == 0} onClick={this.handleCheckoutClick}> Check out</button>
-                        </div>
-                        <br/> <br/> <br/>
-                        <div className="alert alert-warning" hidden>
-                            Oops, some of the products don't have enough stock. Please update product quantity.
-                        </div>
-                        <div className="alert alert-warning" hidden>
-                            Oops, your cart is empty.
-                        </div>
-                        <div className="alert alert-warning" hidden>
-                            You dont have enough money in your balance to complete checkout.
-                        </div>
+                    <div className="row" style={{marginTop: "10px", marginLeft: '10%', width: '80%'}}>
+                        <div className="col-xs-12">
+                            <div style={{display: "inline-block"}} className="col-xs-6 text-left">
+                                <button className="btn btn-primary" onClick={this.handleContinueShoppingClick}> Continue shopping</button>
+                            </div>
+                            <div style={{display: "inline-block", float: 'right'}} className="col-xs-6 text-right">
+                                <button className="btn btn-primary" disabled={this.state.products.length == 0} onClick={this.handleCheckoutClick}> Check out</button>
+                            </div>
+                            <br/> <br/> <br/>
+                            <div className="alert alert-warning" hidden>
+                                Oops, some of the products don't have enough stock. Please update product quantity.
+                            </div>
+                            <div className="alert alert-warning" hidden>
+                                Oops, your cart is empty.
+                            </div>
+                            <div className="alert alert-warning" hidden>
+                                You dont have enough money in your balance to complete checkout.
+                            </div>
 
-                        <br/><br/>
-                        <table style={{color: "white"}} className="table table-condensed">
-                            <thead>
-                                <tr>
-                                    <td></td>
-                                    <td className="text-center"><h4>Products</h4></td>
-                                    <td className="text-center"><h4>Price</h4></td>
-                                    <td className="text-center"><h4>Quantity</h4></td>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {products}
-                            </tbody>
-                        </table>
+                            <br/><br/>
+                            <table style={{color: "white"}} className="table table-condensed">
+                                <thead>
+                                    <tr>
+                                        <td></td>
+                                        <td className="text-center"><h4>Products</h4></td>
+                                        <td className="text-center"><h4>Price</h4></td>
+                                        <td className="text-center"><h4>Quantity</h4></td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {products}
+                                </tbody>
+                            </table>
 
-                        <div style={{marginTop: '10px'}} className="row">
-                            <hr/>
-                            <h4 className="col-xs-12 text-right">
-                                <strong style={{fontSize: "large"}}>Total Price (<span>{this.state.products.length}</span> items):
-                                </strong> <span style={{color: "#db3208", fontSize: "large"}}>$<span>{this.state.totalPrice}</span></span>
-                            </h4>
+                            <div style={{marginTop: '10px'}} className="row">
+                                <hr/>
+                                <h4 className="col-xs-12 text-right">
+                                    <strong style={{fontSize: "large"}}>Total Price (<span>{this.state.products.length}</span> items):
+                                    </strong> <span style={{color: "#db3208", fontSize: "large"}}>$<span>{this.state.totalPrice}</span></span>
+                                </h4>
+                            </div>
                         </div>
                     </div>
+                    <Footer/>
                 </div>
-                <Footer/>
             </div>
         );
     }

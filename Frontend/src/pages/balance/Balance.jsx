@@ -3,6 +3,7 @@ import {NavbarTemplate} from "../navbar/NavbarTemplate";
 import axios from "axios";
 import Cookies from 'universal-cookie';
 import {Footer} from "../contact/Footer";
+import {LoadingScreen} from "../../services/LoadingScreen";
 
 const cookies = new Cookies();
 
@@ -20,7 +21,8 @@ class BalancePage extends Component {
             rechargeBalanceAmount: 0,
             newRequestAvailable: true,
             requestAccepted: false,
-            requestRejected: false
+            requestRejected: false,
+            isLoading: true,
         }
 
         this.getBalanceData()
@@ -33,6 +35,9 @@ class BalancePage extends Component {
     }
 
     async getBalanceData(){
+        this.setState({
+            isLoading: true,
+        })
         await axios.get('/api/updateUserBalance', { params: {
                 token: cookies.get('token')
             }
@@ -46,6 +51,9 @@ class BalancePage extends Component {
                 newRequestAvailable: !data.tooManyRequests,
                 balance: data.user.balance
             })
+        })
+        this.setState({
+            isLoading: false,
         })
     }
 
@@ -70,6 +78,7 @@ class BalancePage extends Component {
     render() {
         return (
             <div style={{backgroundColor: "#212121", color: "#1b5fc2", height: '100%', minHeight: '100vh'}}>
+                {this.state.isLoading && <LoadingScreen/>}
                 <div>
                     <NavbarTemplate/>
                     <br/>
@@ -79,7 +88,7 @@ class BalancePage extends Component {
                     <br/>
                 </div>
 
-                <div class="row" style={{marginTop: "60px"}}>
+                <div hidden={this.state.isLoading} class="row" style={{marginTop: "60px"}}>
                     <div class="col-xs-9 col-xs-offset-3">
 
                         <div>

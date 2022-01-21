@@ -7,6 +7,7 @@ import Cookies from 'universal-cookie';
 import * as imageApi from "../../services/ImageApi";
 import {Navigate} from "react-router-dom";
 import {Footer} from "../contact/Footer";
+import {LoadingScreen} from "../../services/LoadingScreen";
 
 const cookies = new Cookies();
 
@@ -99,49 +100,56 @@ class CartCheckout extends Component {
                 shippingInfoState: '',
                 shippingInfoCountry: '',
                 shippingInfoZipcode: '',
-            }
+            },
+            isLoading: true,
         }
 
         this.getCartDetails()
     }
 
     async getCartDetails(){
+        this.setState({
+            isLoading: true,
+        })
         await axios.get('/api/shoppingCart/cartCheckout?id=' + cookies.get('cartCheckout') + '&token=' + cookies.get('token'))
-            .then(async resp =>{
-                return resp.data;
-            }).then(async cart => {
-                await this.setState({
-                    totalPrice: cart.shoppingCart.totalPrize,
-                    products: [],
-                })
-                for(let i = 0; i < cart.cartItemList.length; i++){
-                    await this.setState({
-                        products: this.state.products.concat({
-                            id: cart.cartItemList[i].id,
-                            bookId: cart.cartItemList[i].book.id,
-                            title: cart.cartItemList[i].book.title,
-                            price: cart.cartItemList[i].book.ourPrice,
-                            subtotal: cart.cartItemList[i].subtotal,
-                            image: cart.cartItemList[i].book.id,
-                            quantity: cart.cartItemList[i].qty,
-                            author: cart.cartItemList[i].book.author,
-                        })
-                    })
-                }
-                if(cart.shippingAddress != undefined){
-                    await this.setState({
-                        defaultShipment:{
-                            shippingInfoName: cart.shippingAddress.shippingAddressName,
-                            shippingInfoStreet1: cart.shippingAddress.shippingAddressStreet1,
-                            shippingInfoStreet2: cart.shippingAddress.shippingAddressStreet2,
-                            shippingInfoCity: cart.shippingAddress.shippingAddressCity,
-                            shippingInfoState: cart.shippingAddress.shippingAddressState,
-                            shippingInfoCountry: cart.shippingAddress.shippingAddressCountry,
-                            shippingInfoZipcode: cart.shippingAddress.shippingAddressZipcode,
-                        }
-                    })
-                }
+        .then(async resp =>{
+            return resp.data;
+        }).then(async cart => {
+            await this.setState({
+                totalPrice: cart.shoppingCart.totalPrize,
+                products: [],
             })
+            for(let i = 0; i < cart.cartItemList.length; i++){
+                await this.setState({
+                    products: this.state.products.concat({
+                        id: cart.cartItemList[i].id,
+                        bookId: cart.cartItemList[i].book.id,
+                        title: cart.cartItemList[i].book.title,
+                        price: cart.cartItemList[i].book.ourPrice,
+                        subtotal: cart.cartItemList[i].subtotal,
+                        image: cart.cartItemList[i].book.id,
+                        quantity: cart.cartItemList[i].qty,
+                        author: cart.cartItemList[i].book.author,
+                    })
+                })
+            }
+            if(cart.shippingAddress != undefined){
+                await this.setState({
+                    defaultShipment:{
+                        shippingInfoName: cart.shippingAddress.shippingAddressName,
+                        shippingInfoStreet1: cart.shippingAddress.shippingAddressStreet1,
+                        shippingInfoStreet2: cart.shippingAddress.shippingAddressStreet2,
+                        shippingInfoCity: cart.shippingAddress.shippingAddressCity,
+                        shippingInfoState: cart.shippingAddress.shippingAddressState,
+                        shippingInfoCountry: cart.shippingAddress.shippingAddressCountry,
+                        shippingInfoZipcode: cart.shippingAddress.shippingAddressZipcode,
+                    }
+                })
+            }
+        })
+        this.setState({
+            isLoading: false,
+        })
     }
 
     changeActiveTab(key){
@@ -334,7 +342,9 @@ class CartCheckout extends Component {
     }
 
     async cartCheckout(){
-        console.log(this.state)
+        this.setState({
+            isLoading: true,
+        })
         await axios.post('/api/shoppingCart/cartCheckout', {
             shippingAddress: {
                 shippingAddressName: this.state.shippingInfoName,
@@ -368,6 +378,9 @@ class CartCheckout extends Component {
                 }, { path: '/' })
             }
         })
+        this.setState({
+            isLoading: false,
+        })
     }
 
     chooseBook(event){
@@ -379,7 +392,6 @@ class CartCheckout extends Component {
     }
 
     async deleteProduct(event){
-        console.log(event.target.id)
         await axios.delete('/api/shoppingCart/removeItem', {data: {
                 token: cookies.get('token'),
                 cartItemId: event.target.id,
@@ -395,9 +407,6 @@ class CartCheckout extends Component {
     }
 
     async defaultShipment(){
-        console.log(this.state.defaultShipment)
-        console.log(this.state.defaultShipment.shippingInfoName)
-        console.log(this.state.shippingInfoName)
         if(!this.state.defaultShipping == true){
             await this.setState({
                 defaultShipping: true,
@@ -456,6 +465,7 @@ class CartCheckout extends Component {
 
         return(
             <div style={{backgroundColor: "#212121", color: "#4cbde9", height: '100%', minHeight: '100vh'}}>
+                {this.state.isLoading && <LoadingScreen/>}
                 <div>
                     <NavbarTemplate/>
                     <br/>
@@ -465,7 +475,7 @@ class CartCheckout extends Component {
                     <br/>
                 </div>
 
-                <div className="container">
+                <div hidden={this.state.isLoading} className="container">
                     <div className="row">
                         <div>
                             <h2 className="section-headline">
@@ -689,7 +699,7 @@ class CartCheckout extends Component {
 
                                                 <hr/>
 
-                                                <button type="submit" className="btn btn-primary btn-block" onClick={this.cartCheckout}>Place
+                                                <button className="btn btn-primary btn-block" onClick={this.cartCheckout}>Place
                                                     your order
                                                 </button>
                                             </div>

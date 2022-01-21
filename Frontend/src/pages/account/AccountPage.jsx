@@ -8,6 +8,7 @@ import Cookies from 'universal-cookie';
 import axios from "axios";
 import {Navigate} from "react-router-dom";
 import {Footer} from "../contact/Footer";
+import {LoadingScreen} from "../../services/LoadingScreen";
 
 const cookies = new Cookies();
 
@@ -17,7 +18,9 @@ const tableHeaderStyle = {
     fontSize: "25px",
     fontWeight: "bold",
     alignItems: "center",
-    justifyContent: "center"
+    justifyContent: "center",
+    backgroundColor: "#212121",
+    color: "#4cbde9"
 }
 
 const tableBodyStyle = {
@@ -26,6 +29,8 @@ const tableBodyStyle = {
     width: "70%",
     marginLeft: "15%",
     textAlign: "center",
+    backgroundColor: "#212121",
+    color: "#4cbde9"
 }
 
 const inputStyle = {
@@ -146,6 +151,7 @@ class AccountPage extends Component {
             activeNewShipping: true,
             updateShippingId: '',
             isDefault: '',
+            isLoading: true,
         }
 
         try{
@@ -155,6 +161,9 @@ class AccountPage extends Component {
     }
 
     async getUserDetails(){
+        this.setState({
+            isLoading: true,
+        })
         this.setState({
             id: '',
             username: '',
@@ -191,10 +200,14 @@ class AccountPage extends Component {
         }).then(async () => {
             await this.getShippingDetails();
         })
+        this.setState({
+            isLoading: false,
+        })
     }
 
     async getShippingDetails(){
         this.setState({
+            isLoading: true,
             userShippingDefault: '',
             userShippingList: [],
         })
@@ -227,9 +240,15 @@ class AccountPage extends Component {
                 }
             }
         })
+        this.setState({
+            isLoading: false,
+        })
     }
 
     async getOrderDetails(orderChosen){
+        this.setState({
+            isLoading: true,
+        })
         this.setState({
             orderDetails: {
                 id: '',
@@ -346,6 +365,9 @@ class AccountPage extends Component {
                 activeOrdersTab: 'orderDetails',
                 orderDetailsActive: true
             })
+        })
+        this.setState({
+            isLoading: false,
         })
     }
 
@@ -673,7 +695,7 @@ class AccountPage extends Component {
         }
 
         const shippingList = this.state.userShippingList.map((shipping) =>
-            <tr>
+            <tr style={{backgroundColor: "#212121", color: "#4cbde9"}}>
                 <td><input onClick={this.chooseDefaultShipping} type="radio" name="defaultShippingAddressId" checked={this.state.userShippingDefault == shipping.id} value={shipping.id}/><span></span>
                 </td>
                 <td style={{fontWeight: shipping.id == this.state.userShippingDefault ? 'bold' : 'normal'}}>{shipping.userShippingStreet1} {shipping.userShippingStreet2} {shipping.userShippingCity} {shipping.userShippingZipcode} {shipping.userShippingState}</td>
@@ -682,7 +704,7 @@ class AccountPage extends Component {
         )
 
         const orders = this.state.orderList.map((order) =>
-            <tr>
+            <tr style={{backgroundColor: "#212121", color: "#4cbde9"}}>
                 <td>
                 <Button style={{fontWeight: "bold", cursor: "pointer"}} variant="light" id={order.id} onClick={this.openOrderDetails}>{order.orderDate.substring(0, 10)} {order.orderDate.substring(12, 19)}</Button>
                 </td>
@@ -693,7 +715,7 @@ class AccountPage extends Component {
         )
 
         const items = this.state.orderDetails.items.map((item) =>
-            <tr>
+            <tr style={{backgroundColor: "#212121", color: "#4cbde9"}}>
                 <td style={{textAlign: "center"}}>{item.name}</td>
                 <td style={{textAlign: "center"}}>${item.price}</td>
                 <td style={{textAlign: "center"}}>{item.quantity}</td>
@@ -703,6 +725,7 @@ class AccountPage extends Component {
 
         return (
             <div style={{backgroundColor: "#212121", color: "#1b5fc2", height: '100%', minHeight: '100vh'}}>
+                {this.state.isLoading && <LoadingScreen/>}
                 <div>
                     <NavbarTemplate/>
                     <br/>
@@ -713,13 +736,13 @@ class AccountPage extends Component {
                 </div>
 
 
-                <div>
+                <div hidden={this.state.isLoading}>
                     <Tabs style={tableHeaderStyle} defaultActiveKey="edit" className="mb-3">
                         <Tab style={tableBodyStyle} eventKey="edit" title="Edit">
                             <div className="tab-pane" id="tab1">
                                 <div className="panel-group">
                                     <div className="panel panel-default" style={{border: "none"}}>
-                                        <div className="panel-body" style={{backgroundColor: "#ededed", marginTop: "20px"}}>
+                                        <div className="panel-body" style={{backgroundColor: "#212121", color: "#4cbde9", marginTop: "20px"}}>
 
                                             <div className="alert alert-danger" hidden={!this.state.incorrectPassword}>
                                                 <strong>Incorrect Password!</strong> Please enter the correct password for the current user.
@@ -801,10 +824,10 @@ class AccountPage extends Component {
                             <div className="tab-pane" id="tab2">
                                 <div className="panel-group">
                                     <div className="panel panel-default" style={{border: "none"}}>
-                                        <div className="panel-body" style={{backgroundColor: "#ededed", marginTop: "20px"}}>
+                                        <div className="panel-body" style={{backgroundColor: "#212121", color: "#4cbde9", marginTop: "20px"}}>
                                             <Tabs activeKey={this.state.activeOrdersTab} style={tableHeaderStyle} defaultActiveKey="orders" onSelect={this.changeActiveTabOrders}>
                                                 <Tab style={tableBodyStyle} eventKey="orders" title="Orders">
-                                                    <table className="table table-sm table-inverse">
+                                                    <table style={{backgroundColor: "#212121", color: "#4cbde9"}} className="table table-sm table-inverse">
                                                         <thead>
                                                         <tr>
                                                             <th>Order Date</th>
@@ -876,7 +899,7 @@ class AccountPage extends Component {
                                                                 </div>
                                                                 <div className="panel-body">
                                                                     <div className="table-responsive">
-                                                                        <table className="table table-condensed">
+                                                                        <table style={{backgroundColor: "#212121", color: "#4cbde9"}} className="table table-condensed">
                                                                             <thead>
                                                                             <tr>
                                                                                 <td><strong>Item Name</strong></td>
@@ -926,7 +949,7 @@ class AccountPage extends Component {
                             <div style={{backgroundColor: "#212121"}} id="tab3">
                                 <div  className="panel-group">
                                     <div style={{border: "none"}}>
-                                        <div style={{backgroundColor: "#ededed", marginTop: "20px"}}>
+                                        <div style={{backgroundColor: "#212121", color: "#4cbde9", marginTop: "20px"}}>
 
                                             <ol className="breadcrumb">
                                                 <li className="breadcrumb-item active">
@@ -945,7 +968,7 @@ class AccountPage extends Component {
                                                 <Tabs style={tableHeaderStyle} activeKey={this.state.activeShippingTab} defaultActiveKey="list" className="mb-3" onSelect={this.changeActiveTabShipping}>
                                                     <Tab style={tableBodyStyle} id="list" eventKey="list" title="List">
                                                         <form method="post">
-                                                            <table className="table">
+                                                            <table style={{backgroundColor: "#212121", color: "#4cbde9"}} className="table">
                                                                 <thead>
                                                                 <tr>
                                                                     <th>Default</th>
