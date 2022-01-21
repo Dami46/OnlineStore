@@ -11,6 +11,7 @@ import {Navigate} from 'react-router-dom';
 import Cookies from 'universal-cookie';
 import EllipsisText from "react-ellipsis-text";
 import {Footer} from "../contact/Footer";
+import {LoadingScreen} from "../../services/LoadingScreen";
 
 const cookies = new Cookies();
 
@@ -58,7 +59,8 @@ class HomePage extends Component {
             buyBookId: '',
             wantToBuyBook: false,
             sortingOption: 'title',
-            insufficientBalance: false
+            insufficientBalance: false,
+            isLoading: true,
         }
 
         if(this.state.currentPageId == undefined){
@@ -71,6 +73,9 @@ class HomePage extends Component {
     }
 
     async fetchBooks(){
+        this.setState({
+            isLoading: true,
+        })
         if(cookies.get('isLogged') == null){
             cookies.remove('token',  { path: '/' })
         }
@@ -256,6 +261,9 @@ class HomePage extends Component {
             }, () => {
             })
         }
+        this.setState({
+            isLoading: false,
+        })
     }
 
     handleBookClick(event){
@@ -526,12 +534,13 @@ class HomePage extends Component {
 
         return (
           <div style={{backgroundColor: "#212121", height: '100%', width: '100%'}}>
+              {this.state.isLoading && <LoadingScreen/>}
               <div>
                   <NavbarTemplate/>
                   <br/>
               </div>
 
-              <div style={{backgroundColor: "#212121"}}>
+              <div hidden={this.state.isLoading} style={{backgroundColor: "#212121"}}>
                   <div>
                       <Carousel style={{height: "300px"}}>
                           {carouselBooks}

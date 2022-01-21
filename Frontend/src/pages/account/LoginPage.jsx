@@ -8,6 +8,7 @@ import {useNavigate, Navigate} from 'react-router-dom';
 import {PATH} from "../../services/ConfigurationUrlAService";
 import Cookies from 'universal-cookie';
 import {Footer} from "../contact/Footer";
+import {LoadingScreen} from "../../services/LoadingScreen";
 
 const cookies = new Cookies();
 
@@ -59,6 +60,7 @@ class LoginPage extends Component {
             emailAlreadyExist: false,
             emailForgetPasswordSent: false,
             emailNotExist: false,
+            isLoading: false,
         }
     }
 
@@ -106,6 +108,9 @@ class LoginPage extends Component {
 
     async submitRegister(event){
         event.preventDefault();
+        this.setState({
+            isLoading: true,
+        })
         await axios.post(URLAddress + '/api/newAccount', {
             email: this.state.email,
             username: this.state.username
@@ -134,10 +139,16 @@ class LoginPage extends Component {
 
             }
         })
+        this.setState({
+            isLoading: false,
+        })
     }
 
     async submitForgetPassword(event){
         event.preventDefault();
+        this.setState({
+            isLoading: true,
+        })
         await axios.post(URLAddress + '/api/forgetPassword', {
             email: this.state.email
         }).then(loginResp => {
@@ -153,6 +164,9 @@ class LoginPage extends Component {
                 emailNotExist: true
             })
         })
+        this.setState({
+            isLoading: false,
+        })
     }
 
 
@@ -164,6 +178,7 @@ class LoginPage extends Component {
 
         return (
             <div style={{backgroundColor: "#212121", height: '100%', minHeight: '100vh'}}>
+                {this.state.isLoading && <LoadingScreen/>}
                 <div>
                     <NavbarTemplate/>
                     <br/>
