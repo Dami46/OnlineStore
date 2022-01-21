@@ -109,6 +109,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateUserShipping(UserShipping userShipping, User user) {
+        checkIfUserHasDefaultShipping(user);
+
         userShipping.setUser(user);
         userShipping.setUserShippingDefault(true);
         userShippingRepository.save(userShipping);
@@ -135,6 +137,16 @@ public class UserServiceImpl implements UserService {
                 userShippingRepository.save(userShipping);
             }
 
+        }
+    }
+
+    @Override
+    public void checkIfUserHasDefaultShipping(User user) {
+        List<UserShipping> userShippingList = (List<UserShipping>) userShippingRepository.findAll();
+
+        for (UserShipping userShipping : userShippingList) {
+            userShipping.setUserShippingDefault(false);
+            userShippingRepository.save(userShipping);
         }
     }
 }

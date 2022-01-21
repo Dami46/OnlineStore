@@ -212,6 +212,20 @@ public class ShoppingCartController {
         List<CartItem> cartItemList = cartItemService.findByShoppingCart(shoppingCart);
         model.addAttribute("cartItemList", cartItemList);
 
+        for (CartItem cartItem : cartItemList) {
+            if (cartItem.getBook().getInStockNumber() < cartItem.getQty()) {
+                model.addAttribute("notEnoughStock", true);
+                return new ResponseEntity<>(model, HttpStatus.FORBIDDEN);
+            }
+        }
+
+        User user = userService.findByUsername(userName);
+
+        if (user.getBalance() < user.getShoppingCart().getTotalPrize().doubleValue() + 5.0) {
+            model.addAttribute("insufficientUserBalance", true);
+            return new ResponseEntity<>(model, HttpStatus.FORBIDDEN);
+        }
+
         ShippingAddress shippingAddress = shoppingCartCheckoutDto.getShippingAddress();
         BillingAddress billingAddress = shoppingCartCheckoutDto.getBillingAddress();
 
@@ -228,8 +242,6 @@ public class ShoppingCartController {
             return new ResponseEntity<>(model, HttpStatus.FORBIDDEN);
         }
 
-        User user = userService.findByUsername(userName);
-
         if (!Objects.equals(user.getId(), user.getShoppingCart().getUser().getId())) {
             return new ResponseEntity<>(model, HttpStatus.UNAUTHORIZED);
         }
@@ -244,7 +256,6 @@ public class ShoppingCartController {
         userService.save(user);
 
         shoppingCartService.clearShoppingCart(shoppingCart);
-
 
         mailSender.send(mailConstructor.constructOrderConfirmationEmail(user, order));
 

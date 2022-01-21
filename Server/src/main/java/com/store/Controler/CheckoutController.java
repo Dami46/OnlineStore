@@ -70,7 +70,7 @@ public class CheckoutController {
         User user = userService.findByUsername(userName);
         Book book = bookService.findById(bookDto.getId()).orElse(null);
 
-        if (user.getBalance() < Objects.requireNonNull(book).getOurPrice()) {
+        if (user.getBalance() < Objects.requireNonNull(book).getOurPrice() + 5.0) {
             model.addAttribute("insufficientUserBalance", true);
         } else {
             model.addAttribute("insufficientUserBalance", false);
@@ -124,11 +124,6 @@ public class CheckoutController {
             model.addAttribute("insufficientUserBalance", false);
         }
 
-        if (Objects.requireNonNull(book).getInStockNumber() < 1) {
-            model.addAttribute("notEnoughStock", true);
-            return new ResponseEntity<>(model, HttpStatus.NOT_ACCEPTABLE); //"forward:/bookshelf"
-        }
-
         List<UserShipping> userShippingList = user.getUserShippingList();
 
         if (userShippingList.size() == 0) {
@@ -160,11 +155,16 @@ public class CheckoutController {
         Book book = bookService.findById(checkoutDto.getBookId()).orElse(null);
         User user = userService.findByUsername(userName);
 
-        if (user.getBalance() < Objects.requireNonNull(book).getOurPrice()) {
+        if (user.getBalance() < Objects.requireNonNull(book).getOurPrice() + 5.0) {
             model.addAttribute("insufficientUserBalance", true);
             return new ResponseEntity<>(model, HttpStatus.NOT_ACCEPTABLE);
         } else {
             model.addAttribute("insufficientUserBalance", false);
+        }
+
+        if (Objects.requireNonNull(book).getInStockNumber() < 1) {
+            model.addAttribute("notEnoughStock", true);
+            return new ResponseEntity<>(model, HttpStatus.NOT_ACCEPTABLE); //"forward:/bookshelf"
         }
 
         model.addAttribute("classActiveOrderCheckout", true);
