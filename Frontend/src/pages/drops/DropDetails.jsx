@@ -9,6 +9,7 @@ import {Button} from "react-bootstrap";
 import {Footer} from "../contact/Footer";
 import {LoadingScreen} from "../../services/LoadingScreen";
 import {Captcha} from "../../services/Captcha";
+import {loadCaptchaEnginge, validateCaptcha} from "react-simple-captcha";
 
 const cookies = new Cookies();
 
@@ -121,7 +122,6 @@ class DropDetails extends Component {
         }})).then(dropResp => {
             return dropResp.data;
         }).then(resp => {
-            console.log(resp)
             let data = resp.dropItem;
             this.setState({
                 bookDetails: {

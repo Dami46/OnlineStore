@@ -9,9 +9,15 @@ import {PATH} from "../../services/ConfigurationUrlAService";
 import Cookies from 'universal-cookie';
 import {Footer} from "../contact/Footer";
 import {LoadingScreen} from "../../services/LoadingScreen";
+import {Captcha} from "../../services/Captcha";
+import "bootstrap/dist/css/bootstrap.min.css";
+import {
+    LoadCanvasTemplate,
+    validateCaptcha,
+    loadCaptchaEnginge
+} from "react-simple-captcha";
 
 const cookies = new Cookies();
-
 
 const URLAddress = PATH;
 
@@ -40,14 +46,18 @@ const inputStyle = {
 }
 
 class LoginPage extends Component {
-    constructor(props) {
-        super(props);
+    constructor() {
+        super();
+
         this.changeUsername = this.changeUsername.bind(this);
         this.changeEmail = this.changeEmail.bind(this);
         this.changePassword = this.changePassword.bind(this);
         this.submitLogin = this.submitLogin.bind(this);
         this.submitRegister = this.submitRegister.bind(this);
         this.submitForgetPassword = this.submitForgetPassword.bind(this);
+        this.registerClicked = this.registerClicked.bind(this);
+        this.loginClicked = this.loginClicked.bind(this);
+        this.changeActiveTabs = this.changeActiveTabs.bind(this);
 
         this.state = {
             username: '',
@@ -61,7 +71,15 @@ class LoginPage extends Component {
             emailForgetPasswordSent: false,
             emailNotExist: false,
             isLoading: false,
+            captchaVisible: false,
+            operation: '',
         }
+    }
+
+    changeActiveTabs(){
+        this.setState({
+            captchaVisible: false
+        })
     }
 
     changeUsername(event){
@@ -82,8 +100,18 @@ class LoginPage extends Component {
         })
     }
 
-    async submitLogin(event){
+    loginClicked(event){
         event.preventDefault();
+        this.setState({
+            captchaVisible: true,
+            operation: 'login'
+        })
+    }
+
+    async submitLogin(){
+        this.setState({
+            isLoading: true,
+        })
         await axios.post(URLAddress + '/api/login', {
             username: this.state.username,
             password: this.state.password
@@ -104,10 +132,21 @@ class LoginPage extends Component {
                 })
             }
         })
+        this.setState({
+            isLoading: false,
+            captchaVisible: false
+        })
     }
 
-    async submitRegister(event){
+    registerClicked(event){
         event.preventDefault();
+        this.setState({
+            captchaVisible: true,
+            operation: 'register'
+        })
+    }
+
+    async submitRegister(){
         this.setState({
             isLoading: true,
         })
@@ -141,6 +180,7 @@ class LoginPage extends Component {
         })
         this.setState({
             isLoading: false,
+            captchaVisible: false
         })
     }
 
@@ -155,7 +195,7 @@ class LoginPage extends Component {
             if(loginResp.status == 200){
                 this.setState({
                     emailNotExist: false,
-                    emailForgetPasswordSent: true
+                    emailForgetPasswordSent: true,
                 });
             }
         }).catch(err => {
@@ -169,12 +209,67 @@ class LoginPage extends Component {
         })
     }
 
+    componentDidMount() {
+        loadCaptchaEnginge(6, "#212121", "#4cbde9");
+    }
+
+    doSubmit = () => {
+        let user_captcha = document.getElementById("user_captcha_input").value;
+        cookies.remove('captcha', { path: '/' })
+        if (validateCaptcha(user_captcha) == true) {
+            loadCaptchaEnginge(6, "#212121", "#4cbde9");
+            document.getElementById("user_captcha_input").value = "";
+            if(this.state.operation == 'register'){
+                this.submitRegister()
+            }
+            else{
+                this.submitLogin()
+            }
+        } else {
+            document.getElementById("user_captcha_input").value = "";
+            alert('Invalid Captcha')
+        }
+    };
 
 
     render() {
         if (this.state.logged) {
             return <Navigate to='/home' />
         }
+
+        const captcha =
+        <div>
+            <div className="container">
+                <div className="form-group">
+                    <div className="col mt-3">
+                        <LoadCanvasTemplate reloadColor="#4cbde9" />
+                    </div>
+
+                    <div className="col mt-3">
+                        <div>
+                            <input
+                                placeholder="Enter Captcha"
+                                id="user_captcha_input"
+                                name="user_captcha_input"
+                                type="text"
+                                style={{textAlign: "center", backgroundColor: "#212121", color: "#4cbde9"}}
+                            ></input>
+                        </div>
+                    </div>
+
+                    <div className="col mt-3">
+                        <div>
+                            <button
+                                className="btn btn-primary"
+                                onClick={() => this.doSubmit()}
+                            >
+                                Submit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         return (
             <div style={{backgroundColor: "#212121", height: '100%', minHeight: '100vh'}}>
@@ -188,31 +283,36 @@ class LoginPage extends Component {
                     <br/>
                 </div>
 
-                <Tabs style={tableHeaderStyle} defaultActiveKey="login" className="mb-3">
+                <Tabs style={tableHeaderStyle} defaultActiveKey="login" onSelect={this.changeActiveTabs}>
                     <Tab style={tableBodyStyle} eventKey="newaccount" title="New account">
-                        <div className="tab-pane" id="tab1" style={{backgroundColor: "#212121", color: "#4cbde9", marginTop: "10px"}}>
-                            <div className="panel-group">
-                                <div className="panel panel-default" style={{border: "none"}}>
-                                    <div className="panel-body" style={{backgroundColor: "#ededed", marginTop: "20px"}}>
+                        <div id="tab1" style={{backgroundColor: "#212121", color: "#4cbde9", marginTop: "10px"}}>
+                            <div>
+                                <div style={{border: "none"}}>
+                                    <div style={{backgroundColor: "#ededed", marginTop: "20px"}}>
                                         <div className="alert alert-info" hidden={!this.state.emailSent}>
                                             An email has been sent to the email address you just registered.
                                         </div>
 
-                                        <form style={{backgroundColor: "#4c4c4c"}}>
+                                        <div style={{backgroundColor: "#4c4c4c"}}>
                                             <div className="form-group">
-                                                <label htmlFor="newUsername">Username</label><br/>
+                                                <label>Username:</label><br/>
                                                 <span style={{color: "#f2575b"}} hidden={!this.state.userNameAlreadyExist}>Username already exists!</span>
                                                 <input style={inputStyle} required="required" type="text" className="form-control" id="newUsername" name="username" placeholder={"Enter your username"} onChange={this.changeUsername}/>
                                             </div>
 
                                             <div style={{marginTop: "10px"}} className="form-group">
-                                                <label htmlFor="email">Email Address: </label><br/>
+                                                <label>Email Address: </label><br/>
                                                 <span style={{color: "#f2575b"}} hidden={!this.state.emailAlreadyExist}>Email already exists!</span>
                                                 <input style={inputStyle} required="required" type="text" className="form-control" id="email" name="email" placeholder={"Enter your email"} onChange={this.changeEmail}/>
                                             </div>
 
-                                            <button style={{backgroundColor: "#212121", color: "#4cbde9", marginTop: "10px", marginBottom: "10px"}} className="btn" onClick={this.submitRegister}>Create new account</button>
-                                        </form>
+                                            <button style={{backgroundColor: "#212121", color: "#4cbde9", marginTop: "10px", marginBottom: "10px"}} className="btn" onClick={this.registerClicked}>Create new account</button>
+
+                                            {/*<div hidden={!this.state.captchaVisible || this.state.operation != 'register'}>*/}
+                                            {/*    {captcha}*/}
+                                            {/*    <br/>*/}
+                                            {/*</div>*/}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -220,58 +320,65 @@ class LoginPage extends Component {
                     </Tab>
 
                     <Tab style={tableBodyStyle} eventKey="login" title="Log in">
-                        <div className="tab-pane" id="tab2" style={{backgroundColor: "#212121", color: "#4cbde9", marginTop: "10px"}}>
-                            <div className="panel-group">
-                                <div className="panel panel-default " style={{border: "none"}}>
-                                    <div className="panel-body" style={{backgroundColor: "#ededed", marginTop: "20px"}}>
+                        <div id="tab2" style={{backgroundColor: "#212121", color: "#4cbde9", marginTop: "10px"}}>
+                            <div>
+                                <div style={{border: "none"}}>
+                                    <div style={{backgroundColor: "#ededed", marginTop: "20px"}}>
                                         <div style={{color: "#f2575b"}} hidden={!this.state.invalidCredentials}>
                                             Incorrect username or password
                                         </div>
-                                        <form style={{backgroundColor: "#4c4c4c"}}>
+                                        <div style={{backgroundColor: "#4c4c4c"}}>
                                             <div className="form-group">
-                                                <label htmlFor="username">Username</label>
+                                                <label>Username</label>
                                                 <input style={inputStyle} required="required" type="text" className="form-control" id="username" name="username" placeholder={"Enter your username"} onChange={this.changeUsername}/>
                                             </div>
 
                                             <div style={{marginTop: "10px"}} className="form-group">
-                                                <label htmlFor="password">Password: </label>
+                                                <label>Password: </label>
                                                 <input style={inputStyle} required="required" type="password" className="form-control" id="password" name="password" placeholder={"Enter your password"} onChange={this.changePassword}/>
                                             </div>
 
-                                            <button style={{backgroundColor: "#212121", color: "#4cbde9", marginTop: "10px", marginBottom: "10px"}} className="btn" onClick={this.submitLogin}>Log in</button>
-                                        </form>
+                                            <button style={{backgroundColor: "#212121", color: "#4cbde9", marginTop: "10px", marginBottom: "10px"}} className="btn" onClick={this.loginClicked}>Log in</button>
+                                            {/*<div hidden={!this.state.captchaVisible || this.state.operation != 'login'}>*/}
+                                            {/*    {captcha}*/}
+                                            {/*    <br/>*/}
+                                            {/*</div>*/}
+                                        </div>
                                     </div>
-
                                 </div>
                             </div>
                         </div>
                     </Tab>
 
                     <Tab style={tableBodyStyle} eventKey="forgotpassword" title="Forgot password">
-                        <div className="tab-pane" id="tab3" style={{backgroundColor: "#212121", color: "#4cbde9", marginTop: "10px"}}>
-                            <div className="panel-group">
-                                <div className="panel panel-default" style={{border: "none"}}>
-                                    <div className="panel-body" style={{backgroundColor: "#ededed", marginTop: "20px"}}>
+                        <div id="tab3" style={{backgroundColor: "#212121", color: "#4cbde9", marginTop: "10px"}}>
+                            <div>
+                                <div style={{border: "none"}}>
+                                    <div style={{backgroundColor: "#ededed", marginTop: "20px"}}>
                                         <div className="alert alert-danger" hidden={!this.state.emailNotExist}>
                                             Email doesn't exist
                                         </div>
                                         <div className="alert alert-success" hidden={!this.state.emailForgetPasswordSent}>
                                             Email sent
                                         </div>
-                                        <form style={{backgroundColor: "#4c4c4c"}}>
+                                        <div style={{backgroundColor: "#4c4c4c"}}>
                                             <div className="form-group">
-                                                <label htmlFor="recoverEmail">Your Email: </label>
+                                                <label>Your Email: </label>
                                                 <input style={inputStyle} required="required" type="text" className="form-control" id="recoverEmail" name="email" placeholder={"Enter your registered email address here"} onChange={this.changeEmail}/>
                                             </div>
 
                                             <button style={{backgroundColor: "#212121", color: "#4cbde9", marginTop: "10px", marginBottom: "10px"}} className="btn" onClick={this.submitForgetPassword}>Submit</button>
-                                        </form>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </Tab>
                 </Tabs>
+                <div style={{textAlign: "center"}} hidden={!this.state.captchaVisible}>
+                    {captcha}
+                    <br/>
+                </div>
                 <Footer/>
             </div>
         );

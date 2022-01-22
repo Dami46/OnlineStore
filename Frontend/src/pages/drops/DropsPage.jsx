@@ -513,9 +513,9 @@ class DropsPage extends Component {
                         {drop.bookDetails.pageCount}
                     </Card.Subtitle>
                     <Card.Text style={{color: "#4cbde9"}}>
-                        <div hidden={!this.state.dropsCaptchas[drop.id]}>
-                            <Captcha/>
-                        </div>
+                        {/*<div hidden={!this.state.dropsCaptchas[drop.id]}>*/}
+                        {/*    <Captcha/>*/}
+                        {/*</div>*/}
                         <EllipsisText style={{cursor: "pointer"}} text={drop.bookDetails.description} id={drop.id} onClick={this.handleDropClick} length={"130"} />
                         <br/>
                         <strong style={{color: "#f2575b", width: "300px"}}>
@@ -523,9 +523,12 @@ class DropsPage extends Component {
                         </strong>
                     </Card.Text>
                     <div style={{color: "#4cbde9"}}>
-                        <Button disabled={drop.wasStarted == true && drop.wasRolled == false ? false : true} style={{cursor: 'pointer'}} hidden={this.checkIsInDrop(drop.id) || this.state.dropsCaptchas[drop.id]} id={drop.id} variant={"success"} className="btn" onClick={this.joinDrop}>&nbsp;Sign Up</Button>
+                        {/*<Button disabled={drop.wasStarted == true && drop.wasRolled == false ? false : true} style={{cursor: 'pointer'}} hidden={this.checkIsInDrop(drop.id) || this.state.dropsCaptchas[drop.id]} id={drop.id} variant={"success"} className="btn" onClick={this.joinDrop}>&nbsp;Sign Up</Button>*/}
+                        {/*<br/>*/}
+                        {/*<Button disabled={drop.wasStarted == true && drop.wasRolled == false ? false : true} style={{cursor: 'pointer'}} hidden={!this.checkIsInDrop(drop.id) || this.state.dropsCaptchas[drop.id]} id={drop.id} variant={"danger"} className="btn" onClick={this.joinDrop}>&nbsp;Sign out</Button>*/}
+                        <Button disabled={drop.wasStarted == true && drop.wasRolled == false ? false : true} style={{cursor: 'pointer'}} hidden={this.checkIsInDrop(drop.id) || this.state.dropsCaptchas[drop.id]} id={drop.id} variant={"success"} className="btn" onClick={this.handleDropClick}>&nbsp;Sign Up</Button>
                         <br/>
-                        <Button disabled={drop.wasStarted == true && drop.wasRolled == false ? false : true} style={{cursor: 'pointer'}} hidden={!this.checkIsInDrop(drop.id) || this.state.dropsCaptchas[drop.id]} id={drop.id} variant={"danger"} className="btn" onClick={this.joinDrop}>&nbsp;Sign out</Button>
+                        <Button disabled={drop.wasStarted == true && drop.wasRolled == false ? false : true} style={{cursor: 'pointer'}} hidden={!this.checkIsInDrop(drop.id) || this.state.dropsCaptchas[drop.id]} id={drop.id} variant={"danger"} className="btn" onClick={this.handleDropClick}>&nbsp;Sign out</Button>
                     </div>
                 </Card.Body>
             </Card>

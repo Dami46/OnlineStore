@@ -25,6 +25,7 @@ class Captcha extends Component {
             document.getElementById("user_captcha_input").value = "";
             cookies.set('captcha', 'failure', { path: '/' })
         }
+        console.log(cookies.get('captcha'))
     };
 
     render() {
