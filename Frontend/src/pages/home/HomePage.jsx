@@ -59,6 +59,7 @@ class HomePage extends Component {
             buyBookId: '',
             wantToBuyBook: false,
             sortingOption: 'title',
+            sortingOrder: 'asc',
             insufficientBalance: false,
             isLoading: true,
         }
@@ -436,17 +437,39 @@ class HomePage extends Component {
 
     handleSortChange(event){
         this.setState({
-            sortingOption: event.target.value
+            sortingOption: event.target.value,
+            isLoading: true
+        })
+        if(this.state.sortingOrder == 'asc'){
+            this.sortAsc(this);
+        }
+        else{
+            this.sortDsc(this);
+        }
+        this.setState({
+            isLoading: false
         })
     }
 
     sortBooks(event){
+        this.setState({
+            isLoading: true
+        })
         if(event.target.value == 'asc'){
+            this.setState({
+                sortingOrder: 'asc'
+            })
             this.sortAsc(this)
         }
         else{
+            this.setState({
+                sortingOrder: 'dsc'
+            })
             this.sortDsc(this)
         }
+        this.setState({
+            isLoading: false
+        })
     }
 
     render() {
@@ -457,7 +480,7 @@ class HomePage extends Component {
                         currentTarget.onerror = null;
                         currentTarget.src=imageApi.getImageUrl("0");
                     }}/>
-                    <Card.Title style={{color: "#4cbde9"}} id={book.id} onClick={this.handleBookClick}>
+                    <Card.Title style={{color: "#4cbde9", cursor: "pointer"}} id={book.id} onClick={this.handleBookClick}>
                         {book.title}
                     </Card.Title>
                     <Card.Subtitle style={{color: "#4cbde9"}}>

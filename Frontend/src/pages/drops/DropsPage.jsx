@@ -11,6 +11,7 @@ import EllipsisText from "react-ellipsis-text";
 import Cookies from 'universal-cookie';
 import {Footer} from "../contact/Footer";
 import {LoadingScreen} from "../../services/LoadingScreen";
+import {Captcha} from '../../services/Captcha';
 
 const cookies = new Cookies();
 
@@ -51,6 +52,7 @@ class DropsPage extends Component {
         this.handleSearchInputChange = this.handleSearchInputChange.bind(this);
         this.searchOptionClick = this.searchOptionClick.bind(this);
         this.updatePage = this.updatePage.bind(this);
+        this.joinDrop = this.joinDrop.bind(this);
         this.signUpOff = this.signUpOff.bind(this);
         this.checkIsInDrop = this.checkIsInDrop.bind(this);
         this.sortAsc = this.sortAsc.bind(this);
@@ -75,12 +77,14 @@ class DropsPage extends Component {
             prices: [],
             publicationDates: [],
             sortingOption: 'title',
+            sortingOrder: 'asc',
             filterOption: 'title',
             options: [],
             searchInput: '',
             userTodropList: [],
             currentTime: new Date(),
             isLoading: true,
+            dropsCaptchas: {}
         }
 
         if(this.state.currentPageId == undefined){
@@ -115,6 +119,7 @@ class DropsPage extends Component {
                 searchInput: '',
                 drops: [],
                 userTodropList: [],
+                dropsCaptchas: {}
             })
             let tok = '';
             if(cookies.get('token') != null){
@@ -128,7 +133,7 @@ class DropsPage extends Component {
                 console.log(resp)
                 let data = resp.itemToDropList;
                 await this.setState({
-                    userTodropList: (resp.listOfUsersDrops != undefined) ? resp.listOfUsersDrops : []
+                    userToDropList: (resp.listOfUsersDrops != undefined) ? resp.listOfUsersDrops : []
                 })
                 if(this.state.drops.length == 0 && data != null) {
                     for(let j = 0; j < data.length; j++){
@@ -141,6 +146,7 @@ class DropsPage extends Component {
                     }
                     for (let i = 0; i < data.length; i++) {
                         let book = data[i].book;
+                        let captchaId = data[i].id;
                         await this.setState({
                             drops: this.state.drops.concat({
                                 bookDetails: {
@@ -163,11 +169,11 @@ class DropsPage extends Component {
                                 id: data[i].id,
                                 rollDate: data[i].rollDate,
                                 signingDate: data[i].signingDate,
-                                userTodropList: data[i].userTodropList,
                                 wasRolled: data[i].wasRolled,
                                 wasStarted: data[i].wasStarted,
-                            }),
+                            })
                         })
+                        this.state.dropsCaptchas[captchaId] = false;
                         try{
                             if(!this.state.authors.includes(book.author.toLowerCase())){
                                 await this.setState({
@@ -373,14 +379,23 @@ class DropsPage extends Component {
         })
     }
 
-    async signUpOff(event){
+    joinDrop(event){
+        cookies.remove('dropToJoin', { path: '/'})
         if(cookies.get('token') == null){
             this.setState({
                 wantToJoinDrop: true
             })
         }
+        this.state.dropsCaptchas[event.target.id] = true
+        cookies.set('dropToJoin', event.target.id, { path: '/'})
+    }
+
+    async signUpOff(){
+        this.setState({
+            isLoading: true
+        })
         await axios.post('/api/signForDrop', {
-            dropItemId: event.target.id,
+            dropItemId: cookies.get('dropToJoin'),
             token: cookies.get('token')
         }).then(resp => {
             if(resp.status == 200){
@@ -444,17 +459,39 @@ class DropsPage extends Component {
 
     handleSortChange(event){
         this.setState({
-            sortingOption: event.target.value
+            sortingOption: event.target.value,
+            isLoading: true
+        })
+        if(this.state.sortingOrder == 'asc'){
+            this.sortAsc(this);
+        }
+        else{
+            this.sortDsc(this);
+        }
+        this.setState({
+            isLoading: false
         })
     }
 
     sortBooks(event){
+        this.setState({
+            isLoading: true
+        })
         if(event.target.value == 'asc'){
+            this.setState({
+                sortingOrder: 'asc'
+            })
             this.sortAsc(this)
         }
         else{
+            this.setState({
+                sortingOrder: 'dsc'
+            })
             this.sortDsc(this)
         }
+        this.setState({
+            isLoading: false
+        })
     }
 
     render() {
@@ -465,7 +502,7 @@ class DropsPage extends Component {
                         currentTarget.onerror = null;
                         currentTarget.src=imageApi.getImageUrl("0");
                     }}/>
-                    <Card.Title style={{color: "#4cbde9"}} id={drop.id} onClick={this.handleDropClick}>
+                    <Card.Title style={{color: "#4cbde9", cursor: "pointer"}} id={drop.id} onClick={this.handleDropClick}>
                         {drop.dropTitle}
                     </Card.Title>
                     <Card.Subtitle style={{color: "#4cbde9"}}>
@@ -476,8 +513,8 @@ class DropsPage extends Component {
                         {drop.bookDetails.pageCount}
                     </Card.Subtitle>
                     <Card.Text style={{color: "#4cbde9"}}>
-                        <div>
-                            <strong style={{textDecoration: 'line-through', color: "#f2575b", display: 'inline-block'}}>${drop.bookDetails.listPrice}</strong> <p style={{display: 'inline-block'}}>${drop.bookDetails.ourPrice}</p>
+                        <div hidden={!this.state.dropsCaptchas[drop.id]}>
+                            <Captcha/>
                         </div>
                         <EllipsisText style={{cursor: "pointer"}} text={drop.bookDetails.description} id={drop.id} onClick={this.handleDropClick} length={"130"} />
                         <br/>
@@ -486,9 +523,9 @@ class DropsPage extends Component {
                         </strong>
                     </Card.Text>
                     <div style={{color: "#4cbde9"}}>
-                        <Button disabled={drop.wasStarted == true && drop.wasRolled == false ? false : true} style={{cursor: 'pointer'}} hidden={this.checkIsInDrop(drop.id)} id={drop.id} variant={"success"} className="btn" onClick={this.signUpOff}>&nbsp;Sign Up</Button>
+                        <Button disabled={drop.wasStarted == true && drop.wasRolled == false ? false : true} style={{cursor: 'pointer'}} hidden={this.checkIsInDrop(drop.id) || this.state.dropsCaptchas[drop.id]} id={drop.id} variant={"success"} className="btn" onClick={this.joinDrop}>&nbsp;Sign Up</Button>
                         <br/>
-                        <Button disabled={drop.wasStarted == true && drop.wasRolled == false ? false : true} style={{cursor: 'pointer'}} hidden={!this.checkIsInDrop(drop.id)} id={drop.id} variant={"danger"} className="btn" onClick={this.signUpOff}>&nbsp;Sign out</Button>
+                        <Button disabled={drop.wasStarted == true && drop.wasRolled == false ? false : true} style={{cursor: 'pointer'}} hidden={!this.checkIsInDrop(drop.id) || this.state.dropsCaptchas[drop.id]} id={drop.id} variant={"danger"} className="btn" onClick={this.joinDrop}>&nbsp;Sign out</Button>
                     </div>
                 </Card.Body>
             </Card>
@@ -504,6 +541,15 @@ class DropsPage extends Component {
 
         if(this.state.wantToJoinDrop) {
             return <Navigate to={{pathname: "/login"}} />
+        }
+
+        if(cookies.get('captcha') == 'success'){
+            cookies.remove('captcha', { path: '/'})
+            this.signUpOff()
+        }
+        else if(cookies.get('captcha') == 'failure'){
+            alert('Invalid Captcha')
+            cookies.remove('captcha', { path: '/'})
         }
 
         return (

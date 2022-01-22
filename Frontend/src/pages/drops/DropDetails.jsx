@@ -8,6 +8,7 @@ import {Navigate} from "react-router-dom";
 import {Button} from "react-bootstrap";
 import {Footer} from "../contact/Footer";
 import {LoadingScreen} from "../../services/LoadingScreen";
+import {Captcha} from "../../services/Captcha";
 
 const cookies = new Cookies();
 
@@ -43,6 +44,7 @@ class DropDetails extends Component {
         super(props);
 
         this.signUpOff = this.signUpOff.bind(this);
+        this.joinDrop = this.joinDrop.bind(this);
 
         this.state = {
             id: window.location.href.split('#')[1],
@@ -70,6 +72,8 @@ class DropDetails extends Component {
             wasStarted: '',
             currentTime: new Date(),
             isLoading: true,
+            placeInDrop: 0,
+            captchaVisible: false
         }
 
         this.fetchDropDetails()
@@ -105,7 +109,7 @@ class DropDetails extends Component {
             wasStarted: '',
             dropStarted: false,
             userInDrop: false,
-            placeInDrop: 0
+            placeInDrop: 0,
         })
         let tok = '';
         if(cookies.get('token') != null){
@@ -153,14 +157,29 @@ class DropDetails extends Component {
         })
     }
 
-    async signUpOff(){
+    joinDrop(){
+        cookies.remove('dropToJoin', { path: '/'})
         if(cookies.get('token') == null){
             this.setState({
                 wantToJoinDrop: true
             })
         }
+        this.state.captchaVisible = true
+        cookies.set('dropToJoin', this.state.id, { path: '/'})
+    }
+
+    async signUpOff(){
+        this.setState({
+            isLoading: true
+        })
+        if(cookies.get('token') == null){
+            this.setState({
+                wantToJoinDrop: true
+            })
+        }
+        this.state.captchaVisible = false
         await axios.post('/api/signForDrop', {
-            dropItemId: this.state.id,
+            dropItemId: cookies.get('dropToJoin'),
             token: cookies.get('token')
         }).then(resp => {
             if(resp.status == 200){
@@ -172,6 +191,15 @@ class DropDetails extends Component {
     render() {
         if(this.state.wantToJoinDrop) {
             return <Navigate to={{pathname: "/login"}} />
+        }
+
+        if(cookies.get('captcha') == 'success'){
+            cookies.remove('captcha', { path: '/'})
+            this.signUpOff()
+        }
+        else if(cookies.get('captcha') == 'failure'){
+            alert('Invalid Captcha')
+            cookies.remove('captcha', { path: '/'})
         }
 
         return (
@@ -187,40 +215,41 @@ class DropDetails extends Component {
                 </div>
 
                 <div hidden={this.state.isLoading} style={{backgroundColor: "#212121", color: "#4cbde9"}}>
-                    <form method="post" style={{marginLeft: "10%"}}>
+                    <div style={{marginLeft: "10%"}}>
                         <div className="row" style={{marginTop: "20px"}}>
-                            <div>
-                                <img src={this.state.bookDetails.bookImage} style={{width: '270px', height: '350px'}} className="img-responsive shelf-book"/>
-                                 <br/><br/>
-                                <Button disabled={this.state.wasStarted == true && this.state.wasRolled == false ? false : true} variant={"success"} className="btn" name="signUp" hidden={this.state.userInDrop} onClick={this.signUpOff}
+                            <div style={{alignItems: "center", textAlign: "center"}}>
+                                <img src={this.state.bookDetails.bookImage} style={{width: '270px', height: '350px'}}/>
+                                <br/><br/>
+                                <Button disabled={this.state.wasStarted == true && this.state.wasRolled == false ? false : true} variant={"success"} className="btn" name="signUp" hidden={this.state.userInDrop || this.state.captchaVisible} onClick={this.joinDrop}
                                         style={{
                                             border: "1px solid",
                                             padding: "10px 40px 10px 40px",
-                                            marginLeft: "60px"
                                         }}
                                 >Sign Up</Button>
-                                <Button disabled={this.state.wasStarted == true && this.state.wasRolled == false ? false : true} variant={"danger"} className="btn" name="signOff" hidden={!this.state.userInDrop} onClick={this.signUpOff}
+                                <Button disabled={this.state.wasStarted == true && this.state.wasRolled == false ? false : true} variant={"danger"} className="btn" name="signOff" hidden={!this.state.userInDrop || this.state.captchaVisible} onClick={this.joinDrop}
                                         style={{
                                             border: "1px solid",
                                             padding: "10px 40px 10px 40px",
-                                            marginLeft: "60px"
                                         }}
                                 >Sign Off</Button>
-                                <br/><br/>
-                                 <strong style={{color: "#f2575b", width: "400px", display: "block", textAlign: "center"}}>
-                                     {this.state.wasRolled == true ? "Status: Finished" : this.state.wasStarted == true ? 'Status: Started!' : 'Time left: ' + timeLeft(this.state.signingDate, this.state.currentTime)}
-                                 </strong>
-                                 <br/>
+                                <div hidden={!this.state.captchaVisible}>
+                                    <Captcha/>
+                                </div>
+                            </div>
+
+                            <div>
+                                <br/>
                             </div>
 
                             <div style={{display: 'inline-block', backgroundColor: "#212121", color: "#4cbde9"}}>
-                                <h3><span style={{color: "forestgreen"}} hidden><i className="fa fa-check"
-                                                                                   aria-hidden="true"
-                                                                                   style={{color: "forestgreen"}}></i>Added to cart.</span>
-                                </h3>
-                                <h3><span style={{color: "red"}}
-                                          hidden>Oops, only <span>{this.state.bookDetails.inStockNumber}</span> In Stock.</span>
-                                </h3>
+                                <div style={{textAlign: 'center'}}>
+                                    <h2 style={{color: "#f2575b"}}>
+                                        {this.state.wasRolled == true ? "Status: Finished" : this.state.wasStarted == true ? 'Status: Started!' : 'Time left: ' + timeLeft(this.state.signingDate, this.state.currentTime)}
+                                    </h2>
+                                    <br/>
+                                    <h3 style={{color: "#f2575b"}} hidden={!this.state.userInDrop}> Place In Drop: {this.state.placeInDrop} </h3>
+                                    <br/>
+                                </div>
                                 <h3>{this.state.bookDetails.title}</h3>
                                 <div className="row">
                                     <div>
@@ -238,12 +267,6 @@ class DropDetails extends Component {
                             </div>
                             <p></p>
                         </div>
-                    </form>
-
-                    <div className="col-xs-6" style={{textAlign: 'center'}}>
-                        <h4 style={{color: "green"}} hidden> In stock</h4>
-                        <h4 style={{color: "green"}} hidden> Only <span> in stock</span></h4>
-                        <h4 style={{color: "darkred"}} hidden> Unavailable </h4>
                     </div>
                 </div>
                 <Footer/>
