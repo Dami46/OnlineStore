@@ -136,6 +136,7 @@ class BooksPage extends Component {
         this.setState({
             isLoading: false,
         })
+        console.log(this.state.buyBook)
     }
 
     async addToCart(){
@@ -168,6 +169,7 @@ class BooksPage extends Component {
         this.setState({
             isLoading: false,
         })
+        console.log(this.state.checkCart)
     }
 
     changeQuantity(event){
@@ -182,13 +184,13 @@ class BooksPage extends Component {
         )
 
         if (this.state.buyBook) {
-            // return <Navigate to={{pathname: "/checkout#id#" + cookies.get('buyBook').bookId + '#quantity#' + cookies.get('buyBook').quantity}} />
-            return <Navigate to={{pathname: "/checkout"}} />
+            return <Navigate to={{pathname: "/checkout#id#" + cookies.get('buyBook').bookId + '#quantity#' + cookies.get('buyBook').quantity}} />
+            // return <Navigate to={{pathname: "/checkout"}} />
         }
 
         if (this.state.checkCart) {
-            // return <Navigate to={{pathname: "/shopping#id#" + cookies.get('addToCart').bookId + '#quantity#' + cookies.get('addToCart').quantity}} />
-            return <Navigate to={{pathname: "/shopping"}} />
+            return <Navigate to={{pathname: "/shopping#id#" + cookies.get('addToCart').bookId + '#quantity#' + cookies.get('addToCart').quantity}} />
+            // return <Navigate to={{pathname: "/shopping"}} />
         }
 
         if(this.state.wantToBuyBook) {
@@ -208,7 +210,7 @@ class BooksPage extends Component {
                 </div>
 
                 <div hidden={this.state.isLoading}>
-                    <form style={{marginLeft: "10%"}}>
+                    <div style={{marginLeft: "10%"}}>
                         <div class="row" style={{marginTop: "20px"}}>
                             <div style={{display: 'inline-block'}} class="col-xs-3">
                                 <img src={this.state.bookImage} style={{width: '270px', height: '350px', marginLeft: '35%', display: "inline-block"}} class="img-responsive shelf-book"/>
@@ -287,7 +289,7 @@ class BooksPage extends Component {
                             </div>
                         <p></p>
                         </div>
-                    </form>
+                    </div>
                 </div>
                 <Footer/>
             </div>
