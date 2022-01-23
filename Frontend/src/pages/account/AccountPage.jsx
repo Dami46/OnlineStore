@@ -495,18 +495,24 @@ class AccountPage extends Component {
     }
 
    async deleteAccount(){
-       await cookies.remove('token',  { path: '/' });
-       await cookies.remove('buyBook', { path: '/' });
-       await cookies.remove('buyBook', { path: '/' });
-       await cookies.remove('addToCart', { path: '/' });
-       await cookies.remove('checkout', { path: '/' });
-       await cookies.remove('cartCheckout', { path: '/' });
-       await cookies.remove('cartCheckoutSubmit', { path: '/' });
-       await cookies.remove('dropToJoin', { path: '/' })
-       await cookies.remove('captcha', { path: '/' })
-        await this.setState({
-            logged: false
-        })
+       await cookies.remove('isLogged',  { path: '/' })
+       .then(async () =>  {
+           await cookies.remove('token',  { path: '/' });
+           await cookies.remove('buyBook', { path: '/' });
+           await cookies.remove('buyBook', { path: '/' });
+           await cookies.remove('addToCart', { path: '/' });
+           await cookies.remove('checkout', { path: '/' });
+           await cookies.remove('cartCheckout', { path: '/' });
+           await cookies.remove('cartCheckoutSubmit', { path: '/' });
+           await cookies.remove('dropToJoin', { path: '/' })
+           await cookies.remove('captcha', { path: '/' })
+       })
+       .then(async () =>  {
+           await cookies.set('isLogged', false, { path: '/' });
+           await this.setState({
+               logged: false
+           })
+       })
     }
 
     handleShippingNameInputChange(event){
