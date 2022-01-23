@@ -1,5 +1,6 @@
 import {Component} from 'react';
 import {NavbarTemplate} from "../navbar/NavbarTemplate";
+import {Footer} from "./Footer";
 
 class PrivacyPolicy extends Component {
     constructor(props) {
@@ -8,7 +9,7 @@ class PrivacyPolicy extends Component {
 
     render() {
         return (
-            <div>
+            <div style={{color: "#4cbde9", backgroundColor: '#212121', height: '100%'}}>
                 <div>
                     <NavbarTemplate/>
                     <br/>
@@ -75,6 +76,7 @@ class PrivacyPolicy extends Component {
                     {/*    12. Podanie przez Państwa danych osobowych jest dobrowolne;*/}
                     {/*</h5>*/}
                 </div>
+                <Footer/>
             </div>
         );
     }
