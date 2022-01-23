@@ -51,6 +51,7 @@ class CartPage extends Component {
             continueShopping: false,
             checkOut: false,
             insufficientBalance: false,
+            notEnoughStock: false,
         })
         await axios.get('/api/shoppingCart/cart', { params: {
             token: cookies.get('token')
@@ -164,10 +165,17 @@ class CartPage extends Component {
                     })
                 }
             }).catch(async err => {
-                console.log(err)
-                await this.setState({
-                    insufficientBalance: true
-                })
+                if (err.response.data.notEnoughStock == true) {
+                    this.setState({
+                        notEnoughStock: true,
+                        insufficientBalance: false
+                    })
+                } else if (err.response.data.insufficientUserBalance == true) {
+                    this.setState({
+                        notEnoughStock: false,
+                        insufficientBalance: true
+                    })
+                }
             })
         }
     }
@@ -190,7 +198,7 @@ class CartPage extends Component {
                                 (<p style={{color: "yellow"}}>
                                     Only <span>{product.book.inStockNumber}</span> In Stock
                                 </p>) :
-                                (<p style={{color: "darkred"}}>Product Unavailable</p>)
+                                (<p style={{color: "#f2575b"}}>Product Unavailable</p>)
                         }
                         <button className="btn btn-primary" id={product.id} onClick={this.handleDeleteClick}>Delete</button>
                     </div>
@@ -239,13 +247,13 @@ class CartPage extends Component {
                                 <button className="btn btn-primary" disabled={this.state.products.length == 0} onClick={this.handleCheckoutClick}> Check out</button>
                             </div>
                             <div style={{textAlign: 'center'}}>
+                                <br/>
                                 <h2 style={{color: "#f2575b"}} hidden={!this.state.notEnoughInStockUpdate}> You cannot add more specified books. There is not enough in stock. </h2>
                                 <h2 style={{color: "#f2575b"}} hidden={!this.state.notEnoughStock}> Oops, some of the products don't have enough stock. Please update product quantity. </h2>
                                 <h2 style={{color: "#f2575b"}} hidden={!this.state.insufficientBalance}> Insufficient User Balance! </h2>
+                                <br/>
                             </div>
-                            <br/> <br/> <br/>
 
-                            <br/><br/>
                             <table style={{color: "white"}} className="table table-condensed">
                                 <thead>
                                     <tr>

@@ -385,9 +385,11 @@ class Checkout extends Component {
             }
         })
         .catch(err => {
-            this.setState({
-                notEnoughStock: true,
-            })
+            if(err.data.notEnoughStock == true){
+                this.setState({
+                    notEnoughStock: true,
+                })
+            }
         })
         this.setState({
             isLoading: false,

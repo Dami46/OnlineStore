@@ -123,6 +123,7 @@ class DropDetails extends Component {
             return dropResp.data;
         }).then(resp => {
             let data = resp.dropItem;
+            console.log(resp)
             this.setState({
                 bookDetails: {
                     id: data.book.id,

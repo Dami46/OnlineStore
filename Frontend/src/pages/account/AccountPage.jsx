@@ -188,7 +188,7 @@ class AccountPage extends Component {
                 email: res.user.email,
                 firstName: res.user.firstName,
                 lastName: res.user.lastName,
-                password: res.user.password,
+                password: '',
                 phone: res.user.phone,
                 orderList: res.orderList,
                 balance: res.user.balance,
@@ -313,7 +313,6 @@ class AccountPage extends Component {
                             quantity: 1,
                             subtotal: data.boughtBook.ourPrice,
                         }),
-                        // total: data.boughtBook.ourPrice * 0.08 + data.boughtBook.ourPrice,
                         total: data.order.orderTotal,
                         tax: data.boughtBook.ourPrice * 0.08
                     }
@@ -431,6 +430,10 @@ class AccountPage extends Component {
     }
 
     async saveChangesClick(){
+        console.log(this.state.phone)
+        this.setState({
+            isLoading: true,
+        })
         let newPasswordToSend = this.state.newPasswordConfirm;
         if(this.state.newPassword != this.state.newPasswordConfirm){
             newPasswordToSend = ''
@@ -464,9 +467,15 @@ class AccountPage extends Component {
                 })
             }
         })
+        this.setState({
+            isLoading: false,
+        })
     }
 
     async deleteAccountClick(){
+        this.setState({
+            isLoading: true,
+        })
         await axios.post(URLAddress + '/api/removeUser', {
             id: this.state.id,
             password: this.state.password
@@ -480,17 +489,21 @@ class AccountPage extends Component {
                 incorrectPassword: true
             })
         })
+        this.setState({
+            isLoading: false,
+        })
     }
 
    async deleteAccount(){
-        await cookies.remove('isLogged',  { path: '/' })
-        await cookies.remove('token',  { path: '/' });
-        await cookies.remove('buyBook', { path: '/' });
-        await cookies.remove('buyBook', { path: '/' });
-        await cookies.remove('addToCart', { path: '/' });
-        await cookies.remove('checkout', { path: '/' });
-        await cookies.remove('cartCheckout', { path: '/' });
-        await cookies.remove('cartCheckoutSubmit', { path: '/' });
+       await cookies.remove('token',  { path: '/' });
+       await cookies.remove('buyBook', { path: '/' });
+       await cookies.remove('buyBook', { path: '/' });
+       await cookies.remove('addToCart', { path: '/' });
+       await cookies.remove('checkout', { path: '/' });
+       await cookies.remove('cartCheckout', { path: '/' });
+       await cookies.remove('cartCheckoutSubmit', { path: '/' });
+       await cookies.remove('dropToJoin', { path: '/' })
+       await cookies.remove('captcha', { path: '/' })
         await this.setState({
             logged: false
         })
@@ -555,6 +568,9 @@ class AccountPage extends Component {
     }
 
     async saveShippingAddressClick(){
+        this.setState({
+            isLoading: true,
+        })
         if(this.checkShippingFields()){
             await axios.post(URLAddress + '/api/addNewShippingAddress', {
                 token: cookies.get('token'),
@@ -575,6 +591,9 @@ class AccountPage extends Component {
                 }
             })
         }
+        this.setState({
+            isLoading: false,
+        })
     }
 
     editSelected(){
@@ -606,6 +625,9 @@ class AccountPage extends Component {
     }
 
     async confirmUpdateShipping(){
+        this.setState({
+            isLoading: true,
+        })
         await axios.put(URLAddress + '/api/updateUserShipping', {
             id: this.state.updateShippingId,
             token: cookies.get('token'),
@@ -624,6 +646,9 @@ class AccountPage extends Component {
                 })
                 this.getShippingDetails();
             }
+        })
+        this.setState({
+            isLoading: false,
         })
     }
 
@@ -767,7 +792,7 @@ class AccountPage extends Component {
 
                                             <form method="post">
                                                 <input type="hidden" name="id"/>
-                                                <div className="bg-info" hidden={!this.state.updateSuccess}>
+                                                <div className="alert alert-success" hidden={!this.state.updateSuccess}>
                                                     User info updated
                                                 </div>
 
@@ -789,7 +814,7 @@ class AccountPage extends Component {
                                                 </div>
                                                 <div className="form-group">
                                                     <label htmlFor="currentPassword">Current Password</label>
-                                                    <input style={{textAlign: "center"}} type="password" className="form-control" id="currentPassword" onChange={this.handleCurrentPasswordInputChange} name="password" placeholder="To update account enter current password"/>
+                                                    <input style={{textAlign: "center"}} type="password" className="form-control" id="currentPassword" onChange={this.handleCurrentPasswordInputChange} value={this.state.password} name="password" placeholder="To update account enter current password"/>
                                                 </div>
 
                                                 <div className="form-group">
