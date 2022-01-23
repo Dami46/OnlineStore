@@ -508,6 +508,8 @@ public class HomeController {
 
         dropService.deleteUserToDropByUser(currentUser);
         shoppingCartService.clearShoppingCart(currentUser.getShoppingCart());
+        orderService.deleteAllByUser(currentUser);
+        userShippingService.removeByUser(currentUser);
 
         userService.removeOne(currentUser.getId());
         return new ResponseEntity<>(model, HttpStatus.OK);

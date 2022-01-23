@@ -1,5 +1,6 @@
 package com.store.Service.Impl;
 
+import com.store.Domain.User;
 import com.store.Domain.UserShipping;
 import com.store.Repository.UserShippingRepository;
 import com.store.Service.UserShippingService;
@@ -20,5 +21,10 @@ public class UserShippingServiceImpl implements UserShippingService {
     @Override
     public void removeById(Long id) {
         userShippingRepository.deleteById(id);
+    }
+
+    @Override
+    public void removeByUser(User user) {
+        userShippingRepository.deleteAllByUser(user);
     }
 }

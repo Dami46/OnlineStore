@@ -13,4 +13,6 @@ public interface OrderService {
     Order createOrder(Book book,ShippingAddress shippingAddress, BillingAddress billingAddress, String shippingMethod, User user);
 
     Order findOne(Long id);
+
+    void deleteAllByUser(User user);
 }

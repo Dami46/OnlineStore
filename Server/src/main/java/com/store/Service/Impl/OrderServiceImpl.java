@@ -55,7 +55,7 @@ public class OrderServiceImpl implements OrderService {
         order.setShippingMethod(shippingMethod);
 
         double shippingPrice = 5.00;
-        if(Objects.equals(shippingMethod, "premiumShipping")) {
+        if (Objects.equals(shippingMethod, "premiumShipping")) {
             shippingPrice = 10.00;
         }
 
@@ -80,7 +80,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public synchronized Order createOrder(Book book,ShippingAddress shippingAddress,
+    public synchronized Order createOrder(Book book, ShippingAddress shippingAddress,
                                           BillingAddress billingAddress, String shippingMethod, User user) {
         Order order = new Order();
         order.setBillingAddress(billingAddress);
@@ -89,7 +89,7 @@ public class OrderServiceImpl implements OrderService {
         order.setShippingMethod(shippingMethod);
 
         double shippingPrice = 5.00;
-        if(Objects.equals(shippingMethod, "premiumShipping")) {
+        if (Objects.equals(shippingMethod, "premiumShipping")) {
             shippingPrice = 10.00;
         }
 
@@ -114,7 +114,7 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.findById(id).orElse(null);
     }
 
-    public Date getDeliveryDate (String shippingMethod) {
+    public Date getDeliveryDate(String shippingMethod) {
         LocalDate today = LocalDate.now();
         LocalDate estimatedDeliveryDate;
 
@@ -126,6 +126,14 @@ public class OrderServiceImpl implements OrderService {
 
         return java.sql.Date.valueOf(estimatedDeliveryDate);
 
+    }
+
+    @Override
+    public void deleteAllByUser(User user) {
+        for (Order order : user.getOrderList()) {
+            shippingAddressRepository.deleteAllByOrder(order);
+        }
+        orderRepository.deleteAllByUser(user);
     }
 
 }
