@@ -9,6 +9,7 @@ import com.store.Service.CartItemService;
 import com.store.Service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -129,6 +130,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional
     public void deleteAllByUser(User user) {
         for (Order order : user.getOrderList()) {
             shippingAddressRepository.deleteAllByOrder(order);

@@ -6,6 +6,7 @@ import com.store.Repository.UserShippingRepository;
 import com.store.Service.UserShippingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserShippingServiceImpl implements UserShippingService {
@@ -24,6 +25,7 @@ public class UserShippingServiceImpl implements UserShippingService {
     }
 
     @Override
+    @Transactional
     public void removeByUser(User user) {
         userShippingRepository.deleteAllByUser(user);
     }
