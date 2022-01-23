@@ -91,7 +91,7 @@ public class CartItemServiceImpl implements CartItemService {
 
         List<CartItem> cartItemList = findByOrder(order);
         for (CartItem cartItem : cartItemList) {
-            bookToCartItemRepository.deleteByCartItem(cartItem);
+            bookToCartItemRepository.deleteAll(cartItem.getBookToCartItemList());
             cartItemRepository.delete(cartItem);
         }
     }
