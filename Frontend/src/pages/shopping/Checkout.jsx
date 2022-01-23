@@ -467,7 +467,7 @@ class Checkout extends Component {
                                         <div className="row">
                                             <div className="col-xs-7 text-left">Total</div>
                                             <div className="col-xs-5 text-right">
-                                                $<span>{this.state.quantity * this.state.price}</span>
+                                                $<span>{Math.round((this.state.quantity * this.state.price) * 100) / 100}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -627,7 +627,7 @@ class Checkout extends Component {
                                                     </div>
                                                     <div style={{marginTop: '10px'}} className="col-xs-2">
                                                         <h4>Price</h4>
-                                                        <p style={{fontWeight: "normal"}}>${this.state.price}</p>
+                                                        <p style={{fontWeight: "normal"}}>${Math.round(this.state.price * 100) / 100}</p>
                                                     </div>
                                                     <div style={{marginTop: '10px'}} className="col-xs-2">
                                                         <h4>Quantity</h4>
@@ -635,7 +635,7 @@ class Checkout extends Component {
                                                     </div>
                                                     <div style={{marginTop: '10px'}} className="col-xs-2">
                                                         <h4>Total</h4>
-                                                        <p style={{fontWeight: "normal"}}>${this.state.price + (this.state.shippingOption == "premiumShipping" ? 10 : 5)}</p>
+                                                        <p style={{fontWeight: "normal"}}>${Math.round((this.state.price + (this.state.shippingOption == "premiumShipping" ? 10 : 5)) * 100) / 100}</p>
                                                     </div>
                                                 </div>
 

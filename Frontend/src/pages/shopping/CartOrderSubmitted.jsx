@@ -30,9 +30,9 @@ class CartOrderSubmittedPage extends Component {
                         </p>
                     </div>
                 </td>
-                <td style={{textAlign: "center"}}>${Math.round(product.price / 100) * 100}</td>
+                <td style={{textAlign: "center"}}>${Math.round(product.price * 100) / 100}</td>
                 <td style={{textAlign: "center"}}>{product.quantity}</td>
-                <td style={{textAlign: "center"}}>${product.subtotal}</td>
+                <td style={{textAlign: "center"}}>${Math.round(product.subtotal * 100) / 100}</td>
             </tr>
             // <div className="row" style={{backgroundColor: "#212121", color: "#4cbde9"}}>
             //     <div style={{display: "inline-block", marginTop: '50px'}}>
@@ -82,7 +82,7 @@ class CartOrderSubmittedPage extends Component {
                             </h3>
 
                             <h3 style={{color: "red"}}>
-                                Total: ${this.state.totalPrice}
+                                Total: ${Math.round(this.state.totalPrice * 100) / 100}
                             </h3>
 
                             <input hidden="hidden"/>

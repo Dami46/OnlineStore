@@ -515,8 +515,7 @@ class CartCheckout extends Component {
                     </div>
 
                     <div className="row" style={{marginTop: "10px", textAlign: "center"}}>
-                        <div method="post">
-                            <input hidden="hidden"/>
+                        <div>
                             <div className="col-xs-4">
                                 <div className="panel panel-default">
                                     <div className="panel-body">
@@ -684,10 +683,8 @@ class CartCheckout extends Component {
                                                         <td className="emptyrow"></td>
                                                         <td className="emptyrow"></td>
                                                         <td className="emptyrow text-center">
-                                                            {/*<strong>Tax</strong>*/}
                                                         </td>
                                                         <td className="emptyrow text-right">
-                                                            {/*${Math.round(this.state.totalPrice * 0.08)}*/}
                                                         </td>
                                                     </tr>
                                                     <tr>
@@ -739,11 +736,6 @@ class CartCheckout extends Component {
                                         </div>
                                     </Tab>
                                 </Tabs>
-
-                                <div style={{color: "red"}} hidden>
-                                    <h5 className="alert alert-warning">You don't have enough money in your balance to
-                                        complete checkout.</h5>
-                                </div>
                             </div>
                         </div>
                     </div>

@@ -32,6 +32,8 @@ class CartPage extends Component {
             quantityToSend: 0,
             insufficientBalance: false,
             isLoading: true,
+            notEnoughInStock: false,
+            notEnoughInStockUpdate: false,
         }
 
         this.getShoppingCart();
@@ -48,7 +50,7 @@ class CartPage extends Component {
             totalItems: 0,
             continueShopping: false,
             checkOut: false,
-            insufficientBalance: false
+            insufficientBalance: false,
         })
         await axios.get('/api/shoppingCart/cart', { params: {
             token: cookies.get('token')
@@ -112,8 +114,16 @@ class CartPage extends Component {
             return resp.status;
         }).then(status => {
             if(status == 200){
+                this.setState({
+                    notEnoughInStockUpdate: false,
+                })
                 this.getShoppingCart()
             }
+        }).catch(err => {
+            this.setState({
+                notEnoughInStockUpdate: true,
+            })
+            this.getShoppingCart()
         })
     }
 
@@ -154,14 +164,12 @@ class CartPage extends Component {
                     })
                 }
             }).catch(async err => {
+                console.log(err)
                 await this.setState({
                     insufficientBalance: true
                 })
             })
         }
-        // this.setState({
-        //     checkOut: true,
-        // })
     }
 
     render() {
@@ -189,7 +197,7 @@ class CartPage extends Component {
                 </td>
 
                 <td style={{width: "20%"}} className="text-center">
-                    <h5 style={{color: "#db3208", fontSize: "large", textAlign: "center"}}>$<span>{product.price}</span></h5>
+                    <h5 style={{color: "#db3208", fontSize: "large", textAlign: "center"}}>$<span>{Math.round(product.price * 100) / 100}</span></h5>
                 </td>
 
                 <td style={{width: "10%"}} className="text-center">
@@ -221,12 +229,6 @@ class CartPage extends Component {
                 </div>
 
                 <div hidden={this.state.isLoading}>
-                    <div style={{textAlign: 'center'}}>
-                        <h2 style={{color: "green"}} hidden> In stock</h2>
-                        <h2 style={{color: "green"}} hidden> Only <span> in stock</span></h2>
-                        <h4 style={{color: "darkred"}} hidden> Unavailable </h4>
-                        <h2 style={{color: "#f2575b"}} hidden={!this.state.insufficientBalance}> Insufficient User Balance! </h2>
-                    </div>
 
                     <div className="row" style={{marginTop: "10px", marginLeft: '10%', width: '80%'}}>
                         <div className="col-xs-12">
@@ -236,16 +238,12 @@ class CartPage extends Component {
                             <div style={{display: "inline-block", float: 'right'}} className="col-xs-6 text-right">
                                 <button className="btn btn-primary" disabled={this.state.products.length == 0} onClick={this.handleCheckoutClick}> Check out</button>
                             </div>
+                            <div style={{textAlign: 'center'}}>
+                                <h2 style={{color: "#f2575b"}} hidden={!this.state.notEnoughInStockUpdate}> You cannot add more specified books. There is not enough in stock. </h2>
+                                <h2 style={{color: "#f2575b"}} hidden={!this.state.notEnoughStock}> Oops, some of the products don't have enough stock. Please update product quantity. </h2>
+                                <h2 style={{color: "#f2575b"}} hidden={!this.state.insufficientBalance}> Insufficient User Balance! </h2>
+                            </div>
                             <br/> <br/> <br/>
-                            <div className="alert alert-warning" hidden>
-                                Oops, some of the products don't have enough stock. Please update product quantity.
-                            </div>
-                            <div className="alert alert-warning" hidden>
-                                Oops, your cart is empty.
-                            </div>
-                            <div className="alert alert-warning" hidden>
-                                You dont have enough money in your balance to complete checkout.
-                            </div>
 
                             <br/><br/>
                             <table style={{color: "white"}} className="table table-condensed">
@@ -266,7 +264,7 @@ class CartPage extends Component {
                                 <hr/>
                                 <h4 className="col-xs-12 text-right">
                                     <strong style={{fontSize: "large"}}>Total Price (<span>{this.state.products.length}</span> items):
-                                    </strong> <span style={{color: "#db3208", fontSize: "large"}}>$<span>{this.state.totalPrice}</span></span>
+                                    </strong> <span style={{color: "#db3208", fontSize: "large"}}>$<span>{Math.round(this.state.totalPrice * 100) / 100}</span></span>
                                 </h4>
                             </div>
                         </div>
