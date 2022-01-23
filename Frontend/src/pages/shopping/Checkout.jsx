@@ -269,7 +269,7 @@ class Checkout extends Component {
 
     paymentInfoStreet2InputChange(event){
         this.setState({
-            aymentInfoStreet2: event.target.value
+            paymentInfoStreet2: event.target.value
         })
         this.checkPayment();
     }
