@@ -19,4 +19,6 @@ public interface CartItemService {
     CartItem save(CartItem cartItem);
 
     List<CartItem> findByOrder(Order order);
+
+    void deleteAllByOrder(Order order);
 }

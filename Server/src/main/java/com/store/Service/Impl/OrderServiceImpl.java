@@ -134,6 +134,8 @@ public class OrderServiceImpl implements OrderService {
     public void deleteAllByUser(User user) {
         for (Order order : user.getOrderList()) {
             shippingAddressRepository.deleteAllByOrder(order);
+            billingAddressRepository.deleteAllByOrder(order);
+            cartItemService.deleteAllByOrder(order);
         }
         orderRepository.deleteAllByUser(user);
     }

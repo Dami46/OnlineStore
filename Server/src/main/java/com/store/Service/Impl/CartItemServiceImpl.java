@@ -1,8 +1,10 @@
 package com.store.Service.Impl;
 
 import com.store.Domain.*;
+import com.store.Repository.BillingAddressRepository;
 import com.store.Repository.BookToCartItemRepository;
 import com.store.Repository.CartItemRepository;
+import com.store.Repository.ShippingAddressRepository;
 import com.store.Service.CartItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -82,5 +84,15 @@ public class CartItemServiceImpl implements CartItemService {
     @Override
     public List<CartItem> findByOrder(Order order) {
         return cartItemRepository.findByOrder(order);
+    }
+
+    @Override
+    public void deleteAllByOrder(Order order) {
+
+        List<CartItem> cartItemList = findByOrder(order);
+        for (CartItem cartItem : cartItemList) {
+            bookToCartItemRepository.deleteByCartItem(cartItem);
+            cartItemRepository.delete(cartItem);
+        }
     }
 }
