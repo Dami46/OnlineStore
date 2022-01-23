@@ -6,12 +6,15 @@ import com.store.Domain.UserShipping;
 import com.store.Security.PasswordResetToken;
 import com.store.Security.UserRole;
 
+import java.util.List;
 import java.util.Set;
 
 public interface UserService {
     PasswordResetToken getPasswordResetToken(final String token);
 
-    PasswordResetToken getPasswordResetTokenByUser(User user);
+    List<PasswordResetToken> getPasswordResetTokenByUser(User user);
+
+    void deleteExpiredTokens();
 
     void removePasswordToken(Long id);
 

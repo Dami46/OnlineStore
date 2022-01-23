@@ -41,6 +41,11 @@ public class DropServiceImpl implements DropService {
     }
 
     @Override
+    public void deleteUserToDropByUser(User user) {
+        userToItemRepository.deleteUserToDropByUser(user);
+    }
+
+    @Override
     public List<DropItem> findAll() {
         return (List<DropItem>) dropRepository.findAll();
     }

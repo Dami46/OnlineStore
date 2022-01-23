@@ -12,6 +12,8 @@ public interface DropService {
 
     void signOutFromDrop(User user, DropItem dropItem);
 
+    void deleteUserToDropByUser(User user);
+
     List<DropItem> findAll();
 
     Optional<DropItem> findById(Long id);

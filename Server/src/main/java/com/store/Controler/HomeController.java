@@ -62,6 +62,12 @@ public class HomeController {
     private CartItemService cartItemService;
 
     @Autowired
+    private ShoppingCartService shoppingCartService;
+
+    @Autowired
+    private DropService dropService;
+
+    @Autowired
     private JwtUtil jwtUtil;
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -81,6 +87,7 @@ public class HomeController {
         model.addAttribute("orderList", user.getOrderList());
         UserShipping userShipping = new UserShipping();
 
+        userService.deleteExpiredTokens();
         model.addAttribute("userShipping", userShipping);
         model.addAttribute("listOfShippingAddresses", true);
         model.addAttribute("classActiveEdit", true);
@@ -315,6 +322,7 @@ public class HomeController {
         currentUser.setLastName(userUpdateInfoDto.getLastName());
         currentUser.setUsername(userUpdateInfoDto.getUsername());
         currentUser.setEmail(userUpdateInfoDto.getEmail());
+        currentUser.setPhone(userUpdateInfoDto.getPhone());
 
         userService.save(currentUser);
 
@@ -491,11 +499,18 @@ public class HomeController {
                 return new ResponseEntity<>(model, HttpStatus.NOT_ACCEPTABLE);
             }
         }
-        PasswordResetToken passToken = userService.getPasswordResetTokenByUser(currentUser);
-        userService.removePasswordToken(passToken.getId());
+
+        List<PasswordResetToken> passwordResetTokenList = userService.getPasswordResetTokenByUser(currentUser);
+
+        for(PasswordResetToken passwordResetToken: passwordResetTokenList) {
+            userService.removePasswordToken(passwordResetToken.getId());
+        }
+
+        dropService.deleteUserToDropByUser(currentUser);
+        shoppingCartService.clearShoppingCart(currentUser.getShoppingCart());
 
         userService.removeOne(currentUser.getId());
-        return new ResponseEntity<>(model, HttpStatus.OK); //z TEGO OK TRZEBA ZROBIĆ REDIRECT DO /LOGOUT LUB DO GŁÓWNEJ
+        return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
 }

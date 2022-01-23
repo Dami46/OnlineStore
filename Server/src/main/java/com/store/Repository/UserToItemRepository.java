@@ -15,4 +15,6 @@ public interface UserToItemRepository extends CrudRepository<UserToDrop, Long> {
 
     List<UserToDrop> findAllByDropItem(DropItem dropItem);
 
+    void deleteUserToDropByUser(User user);
+
 }
