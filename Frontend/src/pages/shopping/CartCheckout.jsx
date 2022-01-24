@@ -102,7 +102,7 @@ class CartCheckout extends Component {
                 shippingInfoZipcode: '',
             },
             isLoading: true,
-            notEnoughStock: false
+            notEnoughStock: false,
         }
 
         this.getCartDetails()
@@ -116,6 +116,7 @@ class CartCheckout extends Component {
         .then(async resp =>{
             return resp.data;
         }).then(async cart => {
+            console.log(cart)
             await this.setState({
                 totalPrice: cart.shoppingCart.totalPrize,
                 products: [],
@@ -321,9 +322,9 @@ class CartCheckout extends Component {
         this.checkPayment();
     }
 
-    samePaymentAndBilling(){
+    async samePaymentAndBilling(){
         if(!this.state.samePaymentAndBilling == true){
-            this.setState({
+            await this.setState({
                 samePaymentAndBilling: true,
                 paymentInfoName: this.state.shippingInfoName,
                 paymentInfoStreet1: this.state.shippingInfoStreet1,
@@ -334,9 +335,10 @@ class CartCheckout extends Component {
                 paymentInfoZipcode: this.state.shippingInfoZipcode,
                 // reviewDisabled: false
             })
+            await this.checkPayment();
         }
         else{
-            this.setState({
+            await this.setState({
                 samePaymentAndBilling: false,
                 paymentInfoName: '',
                 paymentInfoStreet1: '',
@@ -347,9 +349,10 @@ class CartCheckout extends Component {
                 paymentInfoZipcode: '',
                 // reviewDisabled: true
             })
+            await this.checkPayment();
         }
         if(this.state.reviewDisabled == null){
-            this.setState({
+            await this.setState({
                 reviewDisabled: true,
             })
         }
@@ -388,6 +391,7 @@ class CartCheckout extends Component {
             token: cookies.get('token')
         })
         .then(async resp => {
+            console.log(resp)
             if(resp.status == 200){
                 this.setState({
                     orderSuccess: true
@@ -444,6 +448,7 @@ class CartCheckout extends Component {
                 shippingInfoZipcode: this.state.defaultShipment.shippingInfoZipcode,
                 // paymentDisabled: false
             })
+            await this.checkShipping();
         }
         else{
             await this.setState({
@@ -457,6 +462,7 @@ class CartCheckout extends Component {
                 shippingInfoZipcode: '',
                 // paymentDisabled: true
             })
+            await this.checkShipping();
         }
         if(this.state.shippingInfoName == null){
             this.setState({
@@ -650,7 +656,7 @@ class CartCheckout extends Component {
 
                                     <Tab style={{backgroundColor: "#212121", color: "white", fontSize: "20px", fontWeight: "bold", width: "70%", marginLeft: "15%", textAlign: "center"}} eventKey="reviewItems" title="Review Items" disabled={this.state.reviewDisabled}>
                                         <div style={{textAlign: 'center'}}>
-                                            <h2 style={{color: "#f2575b"}} hidden={this.state.notEnoughStock}> Not Enough In Stock</h2>
+                                            <h2 style={{color: "#f2575b"}} hidden={!this.state.notEnoughStock}> Not Enough In Stock</h2>
                                         </div>
                                         <div id="reviewItems">
                                             <div className="panel-body">
