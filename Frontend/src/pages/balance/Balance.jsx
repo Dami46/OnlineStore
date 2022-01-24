@@ -118,7 +118,7 @@ class BalancePage extends Component {
                                                         <div class="col-xs-6">
                                                             <label for="balance"> Balance </label>
                                                             <span style={{marginTop: '20px'}} type="text" class="form-control" id="balance" name="balance" readonly="readonly">
-                                                                {this.state.balance}
+                                                                ${this.state.balance}
                                                             </span>
                                                         </div>
                                                     </div>

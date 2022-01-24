@@ -212,9 +212,10 @@ class BooksPage extends Component {
                 <div hidden={this.state.isLoading}>
                     <div style={{marginLeft: "10%"}}>
                         <div class="row" style={{marginTop: "20px"}}>
-                            <div style={{display: 'inline-block'}} class="col-xs-3">
+                            <div style={{display: 'flex', flexDirection: 'row'}}>
                                 <img src={this.state.bookImage} style={{width: '270px', height: '350px', marginLeft: '35%', display: "inline-block"}} class="img-responsive shelf-book"/>
-                                <div style={{display: "inline-block"}}>
+                                <div style={{display: "inline-block", marginLeft: '20px'}}>
+                                    <br/>
                                     <button className="btn btn-primary" name="addToCart"
                                             disabled={this.state.inStockNumber == 0}
                                             style={{
@@ -245,6 +246,18 @@ class BooksPage extends Component {
                                             {quantity}
                                         </select>
                                     </div>
+                                    <br/>
+                                    <div style={{textAlign: "center"}}>
+                                        <h4> Price: <span>$<span>{this.state.ourPrice}</span></span>
+                                        </h4>
+                                        <p hidden={this.state.listPrice == 0.0}>Before Price: <span
+                                            style={{textDecoration: "line-through", color: "#db3208"}}>$<span>{Math.round(this.state.listPrice * 100) / 100}</span></span>
+                                        </p>
+                                        <p hidden={this.state.listPrice == 0.0}>You save:
+                                            $<span>{Math.floor((this.state.listPrice - this.state.ourPrice) * 100) / 100}</span>
+                                        </p>
+                                        <br/> <br/>
+                                    </div>
                                 </div>
                             </div>
 
@@ -268,22 +281,6 @@ class BooksPage extends Component {
                                         <p><strong>Category: </strong> <span>{this.state.category}</span></p>
                                         <p><strong>Number of pages: </strong><span>{this.state.numberOfPages}</span> </p>
                                         <p style={{width: '60%'}}><strong>Description: </strong>{this.state.description}</p>
-                                    </div>
-
-                                    <div class="col-xs-7">
-                                        <div class="panel panel-default" style={{borderWidth: "5px", marginTop: "20px"}}>
-                                            <div class="panel-body">
-                                                <div class="row">
-                                                    <div class="col-xs-6">
-                                                        <h4> Price: <span>$<span>{this.state.ourPrice}</span></span></h4>
-                                                        <p hidden={this.state.listPrice == 0.0}>Before Price: <span style={{textDecoration: "line-through", color: "#db3208"}}>$<span>{Math.round(this.state.listPrice * 100) / 100}</span></span></p>
-                                                        <p hidden={this.state.listPrice == 0.0}>You save: $<span>{Math.floor((this.state.listPrice - this.state.ourPrice) * 100) / 100}</span>
-                                                        </p>
-                                                        <br/> <br/>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
