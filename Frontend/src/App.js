@@ -52,7 +52,7 @@ class App extends Component {
         const {history} = this.state;
         return (
             <Router history={this.state.history}>
-                <CookieConsent style={{backgroundColor: "#212121", color: "#4cbde9", justifyContent: "center"}} buttonStyle={{marginTop: "0px", color: "#4cbde9", backgroundColor: '#212529'}} contentStyle={{flex: "0 0 100%", textAlign: "center"}}>This website uses cookies to enhance the user experience.</CookieConsent>
+                <CookieConsent style={{backgroundColor: "#212121", color: "#4cbde9", justifyContent: "center"}} buttonStyle={{marginTop: "0px", color: "#4cbde9", backgroundColor: '#212529'}} contentStyle={{flex: "0 0 100%", textAlign: "center"}} buttonText="I accept.">This website uses cookies to enhance the user experience.</CookieConsent>
                 <Routes>
                     <Route exact path="/" element={<HomePage/>}/>
                     <Route exact path="/home" element={<HomePage/>}/>
