@@ -259,7 +259,6 @@ class HomePage extends Component {
                         })
                     }
                 }
-            }, () => {
             })
         }
         this.setState({

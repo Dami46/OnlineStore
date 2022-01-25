@@ -248,6 +248,8 @@ class DropDetails extends Component {
                                         {this.state.wasRolled == true ? "Status: Finished" : this.state.wasStarted == true ? 'Status: Started!' : 'Time left: ' + timeLeft(this.state.signingDate, this.state.currentTime)}
                                     </h2>
                                     <br/>
+                                    <h3 style={{color: "#f2575b"}}> Volume: {this.state.bookDetails.inStockNumber} </h3>
+                                    <br/>
                                     <h3 style={{color: "#f2575b"}} hidden={!this.state.userInDrop}> Place In Drop: {this.state.placeInDrop} </h3>
                                     <br/>
                                 </div>

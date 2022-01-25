@@ -17,6 +17,10 @@ import {Checkout} from "./pages/shopping/Checkout";
 import {OrderSubmittedPage} from "./pages/shopping/OrderSubmittedPage";
 import {CartCheckout} from "./pages/shopping/CartCheckout";
 import {CartOrderSubmittedPage} from "./pages/shopping/CartOrderSubmitted";
+import CookieConsent from "react-cookie-consent";
+import Cookies from 'universal-cookie';
+
+const cookies = new Cookies();
 
 
 class App extends Component {
@@ -26,12 +30,29 @@ class App extends Component {
         this.state = {
             history: createBrowserHistory(),
         }
+
+        this.resetCookies()
+    }
+
+    async resetCookies(){
+        await cookies.remove('CookieConsent', { path: '/' })
+        await cookies.remove('isLogged',  { path: '/' })
+        await cookies.remove('token',  { path: '/' });
+        await cookies.remove('buyBook', { path: '/' });
+        await cookies.remove('buyBook', { path: '/' });
+        await cookies.remove('addToCart', { path: '/' });
+        await cookies.remove('checkout', { path: '/' });
+        await cookies.remove('cartCheckout', { path: '/' });
+        await cookies.remove('cartCheckoutSubmit', { path: '/' });
+        await cookies.remove('dropToJoin', { path: '/' })
+        await cookies.remove('captcha', { path: '/' })
     }
 
     render() {
         const {history} = this.state;
         return (
             <Router history={this.state.history}>
+                <CookieConsent style={{backgroundColor: "#212121", color: "#4cbde9", justifyContent: "center"}} buttonStyle={{marginTop: "0px", color: "#4cbde9", backgroundColor: '#212529'}} contentStyle={{flex: "0 0 100%", textAlign: "center"}}>This website uses cookies to enhance the user experience.</CookieConsent>
                 <Routes>
                     <Route exact path="/" element={<HomePage/>}/>
                     <Route exact path="/home" element={<HomePage/>}/>
