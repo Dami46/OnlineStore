@@ -9,7 +9,6 @@ import {PATH} from "../../services/ConfigurationUrlAService";
 import Cookies from 'universal-cookie';
 import {Footer} from "../contact/Footer";
 import {LoadingScreen} from "../../services/LoadingScreen";
-import {Captcha} from "../../services/Captcha";
 import "bootstrap/dist/css/bootstrap.min.css";
 import {
     LoadCanvasTemplate,
@@ -307,11 +306,6 @@ class LoginPage extends Component {
                                             </div>
 
                                             <button style={{backgroundColor: "#212121", color: "#4cbde9", marginTop: "10px", marginBottom: "10px"}} className="btn" onClick={this.registerClicked}>Create new account</button>
-
-                                            {/*<div hidden={!this.state.captchaVisible || this.state.operation != 'register'}>*/}
-                                            {/*    {captcha}*/}
-                                            {/*    <br/>*/}
-                                            {/*</div>*/}
                                         </div>
                                     </div>
                                 </div>
@@ -339,10 +333,6 @@ class LoginPage extends Component {
                                             </div>
 
                                             <button style={{backgroundColor: "#212121", color: "#4cbde9", marginTop: "10px", marginBottom: "10px"}} className="btn" onClick={this.loginClicked}>Log in</button>
-                                            {/*<div hidden={!this.state.captchaVisible || this.state.operation != 'login'}>*/}
-                                            {/*    {captcha}*/}
-                                            {/*    <br/>*/}
-                                            {/*</div>*/}
                                         </div>
                                     </div>
                                 </div>

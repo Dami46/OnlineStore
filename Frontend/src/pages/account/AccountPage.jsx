@@ -79,6 +79,8 @@ class AccountPage extends Component {
         this.getOrderDetails = this.getOrderDetails.bind(this);
         this.openOrderDetails = this.openOrderDetails.bind(this);
 
+        this.checkPassword = this.checkPassword.bind(this);
+
         this.state = {
             id: '',
             username: '',
@@ -152,6 +154,7 @@ class AccountPage extends Component {
             updateShippingId: '',
             isDefault: '',
             isLoading: true,
+            validPassword: true,
         }
 
         try{
@@ -217,7 +220,6 @@ class AccountPage extends Component {
         }).then(resp => {
             return resp.data.userShippingList;
         }).then(shippingList => {
-            console.log(shippingList)
             for(let i = 0; i < shippingList.length; i++){
                 this.setState({
                     userShippingList: this.state.userShippingList.concat({
@@ -370,6 +372,25 @@ class AccountPage extends Component {
         })
     }
 
+    checkPassword(pass){
+        let bigLetter = false;
+        let number = false;
+        let passLength = false;
+        if(pass.length > 7){
+            passLength = true;
+            for(let i = 0; i < pass.length; i++){
+                if(isNaN(pass[i])){
+                    number = true;
+                }
+                if(pass[i] == pass[i].toUpperCase()){
+                    bigLetter = true;
+                }
+            }
+        }
+        return number && bigLetter && passLength;
+    }
+
+
     handleUsernameInputChange(event){
         this.setState({
             username: event.target.value
@@ -430,13 +451,20 @@ class AccountPage extends Component {
     }
 
     async saveChangesClick(){
-        console.log(this.state.phone)
         this.setState({
             isLoading: true,
         })
         let newPasswordToSend = this.state.newPasswordConfirm;
-        if(this.state.newPassword != this.state.newPasswordConfirm){
+        if(this.state.newPassword != '' && (this.state.newPassword != this.state.newPasswordConfirm || this.checkPassword(this.state.newPassword) != true)){
             newPasswordToSend = ''
+            this.setState({
+                validPassword: false
+            })
+        }
+        else{
+            this.setState({
+                validPassword: true
+            })
         }
         await axios.post(URLAddress + '/api/updateUserInfo', {
             id: this.state.id,
@@ -468,6 +496,8 @@ class AccountPage extends Component {
             }
         })
         this.setState({
+            newPassword: '',
+            newPasswordConfirm: '',
             isLoading: false,
         })
     }
@@ -802,6 +832,10 @@ class AccountPage extends Component {
                                                     User info updated
                                                 </div>
 
+                                                <div style={{color: "#f2575b"}} hidden={this.state.validPassword}>
+                                                    Warning! New password must consist of 8 characters and at least one uppercase letter and one number. Password wasn't updated!
+                                                </div>
+
                                                 <div className="form-group">
                                                     <div className="row">
                                                         <div className="col-xs-6">
@@ -837,12 +871,12 @@ class AccountPage extends Component {
                                                 <div className="form-group">
                                                     <label htmlFor="txtNewPassword">Password</label>&nbsp;
                                                     <span id="checkPasswordMatch" style={{color: "red"}}></span>
-                                                    <input style={{textAlign: "center"}} type="password" className="form-control" id="txtNewPassword" onChange={this.handleNewPasswordInputChange} placeholder="Enter new password here" name="newPassword"/>
+                                                    <input style={{textAlign: "center"}} type="password" className="form-control" id="txtNewPassword" onChange={this.handleNewPasswordInputChange} value={this.state.newPassword} placeholder="Enter new password here" name="newPassword"/>
                                                 </div>
 
                                                 <div className="form-group">
                                                     <label htmlFor="txtConfirmPassword">Confirm Password</label>
-                                                    <input style={{textAlign: "center"}} type="password" className="form-control" onChange={this.handleNewPasswordConfirmInputChange} placeholder="Reenter new password to confirm" id="txtConfirmPassword"/>
+                                                    <input style={{textAlign: "center"}} type="password" className="form-control" onChange={this.handleNewPasswordConfirmInputChange} value={this.state.newPasswordConfirm} placeholder="Reenter new password to confirm" id="txtConfirmPassword"/>
                                                 </div>
                                                 <p style={{color: "#828282"}} hidden> To change current password enter the new in both fields</p>
                                             </form>

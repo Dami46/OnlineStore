@@ -31,7 +31,7 @@ class App extends Component {
             history: createBrowserHistory(),
         }
 
-        this.resetCookies()
+        // this.resetCookies()
     }
 
     async resetCookies(){
