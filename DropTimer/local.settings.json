@@ -1,0 +1,8 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "FUNCTIONS_WORKER_RUNTIME": "python",
+    "AzureWebJobsStorage": "DefaultEndpointsProtocol=https;AccountName=account_name;AccountKey=account_key;EndpointSuffix=core.windows.net",
+    "DatabaseConnectionString":"Driver={ODBC Driver 13 for SQL Server};Server=tcp:example.database.windows.net,1433;Database=example;Uid=example;Pwd=password;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;"
+  }
+}
